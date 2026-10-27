@@ -1085,7 +1085,8 @@ function placeSel(){
   sb.classList.remove('show'); pb.classList.remove('show'); $('#selTag').classList.remove('show');
   if(!sel || !sel.el || !document.contains(sel.el)) return;
   // Text: caret only. A part (bar, node, cell): blue on the part, light grey on its element.
-  if(!TEXT_SEL.includes(sel.type)) boxTo(sb, boxOf(sel.el));
+  // Text inside an object (heading, body, chart title, cell) gets the blue box too, like the title and subtitle.
+  if(!TEXT_SEL.includes(sel.type) || sel.blk) boxTo(sb, boxOf(sel.el));
   if(sel.blk && sel.el !== sel.blk && document.contains(sel.blk)) boxTo(pb, boxOf(sel.blk));
   placeHandles();
   selAff();
@@ -1692,7 +1693,7 @@ $('#wrap').addEventListener('mousemove', e => {
   if(s.type === 'title' || s.part){ if(s.el && !(sel && sel.el === s.el)){ const hd = s.el.closest('.pz-head'), g = hd ? boxOf(hd) : null; boxTo(h, g ? {...boxOf(s.el), x: g.x, w: g.w} : boxOf(s.el)); } return; }
   // Hover outlines what a click would select: the whole element, or a part once its element is selected. Never text.
   const inside = sel && sel.blk === s.blk;
-  let el = inside ? (TEXT_SEL.includes(s.type) ? null : s.el) : s.blk;
+  let el = inside ? s.el : s.blk;
   if(!el || (sel && el === sel.el)) return;
   boxTo(h, boxOf(el));
 });
