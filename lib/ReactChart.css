@@ -1,0 +1,3258 @@
+/* ==============================================================================
+   React Chart - Professional CSS
+   Convention: ci- = chart item, cs- = chart shape, cf- = chart format
+   Integrates with pitchdeckdoclist theme color classes.
+   ============================================================================== */
+
+/* ---- Container ---- */
+
+.ci-react-chart-container {
+    width: 100%;
+    position: relative;
+    cursor: pointer;
+    box-sizing: border-box;
+    /* Word-level wrapping only — never split a word character-by-character.
+       Text wraps at spaces; a single word that is wider than its box stays
+       whole and overflows (the box clips / ellipsises it) instead of being
+       chopped mid-word. Both properties inherit, so this is the default for
+       every label, value, legend and tooltip inside the chart; per-chart
+       rules below only ever tighten it to `nowrap`. */
+    word-break: normal;
+    overflow-wrap: normal;
+}
+
+/* All contentEditable chart text preserves user-entered line breaks
+   (Enter -> <br>, stored as "\n") across blur/save. Single-line numeric
+   fields (data-type="value" / "baselineValue") opt out — their Enter handler
+   blurs instead of inserting a break, and their own classes keep
+   `white-space: nowrap`. Specificity is intentionally low (0,1,1) so
+   chart-specific overrides (e.g. bump year labels: `nowrap`) still win. */
+.ci-react-chart-container [contenteditable="true"]:not([data-type="value"]):not([data-type="baselineValue"]) {
+    white-space: pre-wrap;
+}
+
+/* Top-level orientation hooks — added to the chart container based on chart type.
+   - `cs-column` → vertical-axis charts (column, line, area). Bars/points grow along Y.
+   - `cs-row`    → horizontal-axis charts (bar). Bars grow along X.
+   Pie/Doughnut are radial and get no orientation class.
+   Empty rules so themes/moods can target either family without coupling to chart type. */
+.cs-column .ci-axis-x-tick-row {
+    position: absolute;
+}
+.cs-row .ci-axis-y-tick-row {
+    position: absolute;
+}
+
+/* ---- Chart Wrapper ---- */
+
+.ci-chart-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* ---- Series Column ---- */
+
+.ci-series {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+}
+
+/* ---- Bar ---- */
+
+.ci-bar {
+    flex: none;
+    transition:
+        filter 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.ci-bar:hover {
+    cursor: pointer;
+}
+
+/* ---- Asset Bar (9-slice SVG asset for ColumnSimpleAssetScale) ----
+   The bar div carries `color: currentColor` and the wrapping series-item
+   carries `th-section{N}` which sets `color: rgba(var(--itemN-color-rgb), 1)`.
+   Setting fill/stroke to `currentColor` on the inner <use> elements lets the
+   theme color cascade automatically. The asset's symbol shapes have no
+   intrinsic fill, so they paint with whatever the cascade resolves.
+   Background and border-radius are forced transparent / 0 — defensive
+   override so column-family theme rules
+   (`.cs-item-style-solid .cs-graphic-item { background-color: ... }`,
+    `.cs-column .cs-graphic-item { border-radius: ... }`)
+   don't paint a solid rectangle behind the asset shape. */
+.ci-asset-bar {
+    color: currentColor;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+/* Uniform-scale asset bar (SimpleColumnShapePosition). Inherits transparency
+   from .ci-asset-bar; overflow:hidden is set inline (the legacy clip-by-bar
+   behaviour where short bars clip the asset's bottom). */
+.ci-shape-position-bar-svg {
+    overflow: visible;
+    pointer-events: none;
+}
+
+/* Variant-selection asset bar (BuildingPositionColumn). Inherits
+   transparency from .ci-asset-bar. The asset is rendered at native
+   viewBoxDefault aspect with preserveAspectRatio="xMidYMax meet" — the
+   asset's natural Y range is bottom-anchored within the bar slot; the
+   chosen variant's drawn extent determines visual height. */
+.ci-building-position-bar-svg {
+    overflow: visible;
+    pointer-events: none;
+}
+
+/* ---- Value Text ---- */
+
+.ci-value-text-wrap {
+    position: absolute;
+    width: 100%;
+    flex-shrink: 0;
+    pointer-events: all;
+}
+
+.ci-value-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    outline: none;
+    pointer-events: all;
+    cursor: text;
+}
+
+/* ---- Label ---- */
+
+.ci-label-text-wrap {
+    flex: 1;
+    outline: none;
+    min-width: 0;
+    pointer-events: all;
+}
+
+.ci-label-text {
+    overflow: hidden;
+    outline: none;
+    word-break: normal;
+    /* Preserve user-entered line breaks (Enter -> <br>, stored as "\n") so
+       multi-line category labels render with the breaks the user typed
+       after blur/save — without this, `\n` collapses and word-wrap takes
+       over, mangling the layout the user intended. */
+    white-space: pre-wrap;
+    width: 100%;
+    pointer-events: all;
+    cursor: text;
+}
+
+/* Never split a single word. Every editable chart text is `contenteditable`, and the
+   browser's UA stylesheet gives contenteditable elements `overflow-wrap: break-word` —
+   so a category label narrower than its word ("2014" in a 30px column) broke one
+   character per line even though nothing in this sheet asks for it. `normal` still
+   wraps BETWEEN words; a word that does not fit overflows the `overflow: hidden` box,
+   which the host's crop fit reads as a horizontal crop and fixes by reducing the font. */
+.ci-react-chart-container [contenteditable="true"] {
+    overflow-wrap: normal;
+}
+
+/* ---- Value-position theme hooks ----
+   Empty by design — themes/moods override these to apply
+   position-specific styling (bg, padding, text-shadow, etc.)
+   without changing the inline geometry set by each chart component.
+   Classes are applied to `.ci-value-text-wrap` via wrapperExtraClass. */
+.cs-value-pos-outside-end,
+.cs-value-pos-inside-end,
+.cs-value-pos-inside-center,
+.cs-value-pos-inside-start,
+.cs-value-pos-outside-start,
+.cs-value-pos-outside-top-start,
+.cs-value-pos-outside-top-center,
+.cs-value-pos-outside-top-end,
+.cs-value-pos-outside-bottom-start,
+.cs-value-pos-outside-bottom-center,
+.cs-value-pos-outside-bottom-end,
+.cs-value-pos-outside-left-start,
+.cs-value-pos-outside-left-center,
+.cs-value-pos-outside-left-end,
+.cs-value-pos-outside-right-start,
+.cs-value-pos-outside-right-center,
+.cs-value-pos-outside-right-end,
+.cs-value-pos-above,
+.cs-value-pos-below,
+.cs-value-pos-center {
+}
+
+/* ---- Chart Legend ---- */
+
+.ci-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+.ci-chart-legend-horizontal {
+    flex-direction: row;
+    justify-content: center;
+    /* Override the shared .ci-chart-legend `flex-shrink: 0` for horizontal
+       layouts. Without shrinking the legend takes its max-content width and
+       extends past the parent, so the inner `flex-wrap: wrap` never triggers
+       when there are many legend items. */
+    flex-shrink: 1;
+    min-width: 0;
+    max-width: 100%;
+    /* Top/bottom legend: cap the strip to 45% of the graphic area height so a
+       legend that wraps onto many rows can't eat more than ~half the plot. */
+    max-height: 45%;
+    overflow: hidden;
+}
+.ci-chart-legend-vertical {
+    flex-direction: column;
+    justify-content: flex-start;
+    /* Left/right legend: cap the whole strip to 45% of the graphic area
+       (the row-flex main area it lives in) so a long label wraps inside the
+       strip instead of stretching it across the plot. */
+    max-width: 45%;
+}
+.ci-chart-legend-floating {
+    position: absolute;
+    z-index: 10;
+}
+
+/* ---- Shared legend layout primitives (chart-agnostic) ----
+   Single source of truth for the 12-position legend alignment used by
+   pie / polar-area / waffle / gauge / funnel (anything with a settable
+   legend position). Every chart's legend root MUST stamp:
+     • `ci-chart-legend-base-{top|bottom|left|right}`   — flex sizing /
+       direction for the strip itself (horizontal vs vertical column).
+     • `ci-chart-legend-pos-{full position name}`       — alignment
+       within its flex parent (`align-self` for column-direction sides,
+       `justify-content` for row-direction strips).
+   The chart's flex parent is responsible for being a row (when legend is
+   left/right) or column (when legend is top/bottom). With `align-items:
+   stretch` (default) the top/bottom legend strip is full-width, so its
+   own `justify-content` positions items along the row.
+
+   All rules below share specificity 0,1,0 — DO NOT introduce parent-
+   descendant compound selectors that would silently override these. Add
+   any chart-family theming via SCOPING classes (e.g. `.cs-waffle-legend`)
+   on PAINT properties, not layout. */
+.ci-chart-legend-base-left,
+.ci-chart-legend-base-right {
+    flex: 0 0 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+/* Side strips (left/right base) — `align-self` aligns the strip
+   vertically within its row-direction parent. Bare `left`/`right` are
+   vertically CENTERED (mirrors bare `top`/`bottom` being horizontally
+   centered); the off-center variants are the explicit `-top` / `-bottom`
+   rows. `-middle` is a legacy alias of the bare (centered) position kept
+   only so saved slides round-trip — it is no longer offered in the
+   dropdown. */
+.ci-chart-legend-pos-left,
+.ci-chart-legend-pos-right,
+.ci-chart-legend-pos-left-middle,
+.ci-chart-legend-pos-right-middle {
+    align-self: center;
+}
+.ci-chart-legend-pos-left-top,
+.ci-chart-legend-pos-right-top {
+    align-self: flex-start;
+}
+.ci-chart-legend-pos-left-bottom,
+.ci-chart-legend-pos-right-bottom {
+    align-self: flex-end;
+}
+/* Top/bottom strips — anchor items to one end of the full-width strip.
+   Sets BOTH `justify-content` (main axis) AND `align-items` (cross axis)
+   so the rule works regardless of the legend's internal flex-direction:
+     • Row-direction legend (pie / polar / gauge / funnel):
+       `justify-content` is horizontal → left/center/right wins.
+     • Column-direction legend (waffle, with stacked value+label items):
+       `align-items` is horizontal → left/center/right wins.
+   The other property is benign in each case. With `align-items: stretch`
+   (default flex on parent) the strip spans the full width of its column-
+   direction parent so the alignment math has room to work. */
+.ci-chart-legend-pos-top,
+.ci-chart-legend-pos-bottom {
+    justify-content: center;
+    align-items: center;
+}
+.ci-chart-legend-pos-top-left,
+.ci-chart-legend-pos-bottom-left {
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+.ci-chart-legend-pos-top-right,
+.ci-chart-legend-pos-bottom-right {
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.ci-chart-legend-item {
+    display: flex;
+    align-items: center;
+    /* Allow the label child to shrink/wrap inside the item instead of
+       forcing the item to its max-content width. */
+    min-width: 0;
+}
+/* Top/bottom legend: items size to their own content (no per-item width cap).
+   flex-wrap on the strip wraps a crowded legend onto extra rows, and the
+   label (+ item `min-width: 0`) wraps at spaces so a multi-word label folds
+   onto a second line instead of overrunning the plot. A single unbroken word
+   is never split mid-word — it keeps its width and clips. */
+
+/* ---- Legend Label ---- */
+
+/* Scope to .ci-react-chart-container so this rule beats the host theme's
+   `.cs-legend-label { white-space: nowrap }` — legend labels need pre-wrap so
+   user-inserted Enter breaks survive render after blur. */
+.ci-react-chart-container .ci-legend-label {
+    white-space: pre-wrap;
+    outline: none;
+    /* Wrap inside the 30%-capped legend/item: min-width:0 lets the flex
+       child shrink below content size so multi-word labels fold at spaces.
+       A single unbroken word is never split — `normal` keeps it whole. */
+    min-width: 0;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+/* ---- Legend Shape (color swatch) ---- */
+.cs-legend-shape {
+    display: inline-block;
+}
+.ci-legend-shape {
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.ci-legend-shape-fill {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* ---- Legend Value (percent / data) ---- */
+
+/* ---- Data Label ---- */
+.trendlinePathElement {
+    fill: none;
+}
+
+/* ---- Grid ----
+   POSITIONING MODEL: every grid line and axis line is "centered at its position".
+   - Horizontal lines use `bottom: pct%, transform: translateY(50%)` so that the
+     line's vertical CENTER (not its bottom edge) sits at `pct%` from the parent
+     bottom. Whatever height the theme CSS gives the line, the center stays put.
+   - Vertical lines use `left: pct%, transform: translateX(-50%)` for the same
+     reason on the X axis.
+   This is the SAME math `.ci-axis-y-tick-row` already uses, so tickmarks, grid
+   lines, and axis lines all share one coordinate system — they line up exactly.
+   At edge positions (pct=0 / pct=100), half the line stays inside the parent and
+   half overflows, which is the standard chart appearance for the baseline and
+   the topmost grid line. */
+
+.ci-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.ci-grid-line {
+    box-sizing: border-box;
+    position: absolute;
+}
+.ci-grid-line-horizontal {
+    left: 0;
+    right: 0;
+    transform: translateY(50%);
+}
+.ci-grid-line-vertical {
+    top: 0;
+    bottom: 0;
+    transform: translateX(-50%);
+    height: 100% !important;
+}
+
+/* ---- Axis Lines ----
+   Base `.ci-axis-line` stays in normal flow so BarChart's bottom value-axis line
+   (rendered as a flow child of the value-axis area) can sit naturally above its
+   ticks. Only the *variant* classes opt into absolute positioning, because they're
+   used as grid overlays inside the relatively-positioned plot area.
+
+   POSITIONING model:
+   - The variant rules declare ONLY the axis the line spans (left/right for a
+     horizontal line, top/bottom for a vertical line). The position along the
+     perpendicular axis is set INLINE by the chart component, because it depends
+     on the data:
+       * Positive-only data → line sits just OUTSIDE the plot area, in the tick-
+         mark gap, so bars don't overlap the line. Horizontal lines use inline
+         `top: "100%"`; vertical lines use inline `right: "100%"` (left-side) or
+         `left: "100%"` (right-side).
+       * Mixed-sign data → line sits at the zero crossing inside the plot, and
+         the chart component adds inline `transform: translateY(50%)` (horizontal)
+         or `translateX(-50%)` (vertical) to CENTER it on the zero value — same
+         math as `.ci-grid-line-*` and `.ci-axis-y-tick-row`, so it aligns with
+         grid lines and tick rows exactly.
+
+   IMPORTANT: do NOT add `position: absolute` to the base class — without a
+   positioned ancestor, an absolutely-positioned base line escapes to the chart
+   container and stretches across the full chart width, producing an extra line
+   that extends past the value axis ticks. The *variants* below carry their own
+   `position: absolute` because they're always rendered inside the plot-inner
+   overlay, which is the positioned ancestor they resolve against. */
+
+.ci-axis-line-horizontal {
+    position: absolute;
+    left: 0;
+    right: 0;
+    /* `top` / `bottom` set inline */
+}
+.ci-axis-line-vertical,
+.ci-axis-line-vertical-left {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    /* `left` / `right` set inline */
+}
+
+/* ---- Axis Tick ---- */
+
+/* ---- Tick Marks ---- */
+
+.ci-value-tickmark {
+    flex-shrink: 0;
+}
+
+/* ---- Axis X ---- */
+
+.ci-axis-x {
+    position: relative;
+    flex-shrink: 0;
+}
+.ci-axis-x-tick-row {
+    display: flex;
+    width: 100%;
+}
+.ci-axis-x-tick-cell {
+    display: flex;
+}
+.ci-axis-x-tick-cell-center {
+    flex: 1;
+    justify-content: center;
+}
+.ci-axis-x-tick-cell-start {
+    flex: 1 1 0%;
+    justify-content: flex-start;
+}
+.ci-axis-x-labels {
+    display: flex;
+    width: 100%;
+}
+
+/* ---- Axis Y ---- */
+
+.ci-axis-y {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: visible;
+}
+.ci-axis-y-tick-col {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+.ci-axis-y-tick-area {
+    flex: 1;
+    position: relative;
+    overflow: visible;
+}
+.ci-axis-y-tick-measure {
+    visibility: hidden;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.ci-axis-y-tick-positioner {
+    position: absolute;
+    right: 0;
+    left: 0;
+    overflow: visible;
+}
+.ci-axis-y-tick-row {
+    position: absolute;
+    right: 0;
+    transform: translateY(50%);
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+/* ---- Axis Title ----
+   Rotation depends on chart ORIENTATION, not data axis:
+   - cs-column charts (column / line / area):  Y-axis title is on the LEFT  (rotated), X is bottom (horizontal)
+   - cs-row    charts (bar):                   X-axis title is on the LEFT  (rotated), Y is bottom (horizontal)
+   So we scope the writing-mode rule by orientation class, not by `ci-axis-title-y` alone. */
+
+.ci-axis-title-x,
+.ci-axis-title-y {
+    flex-shrink: 0;
+    /* Preserve user-entered line breaks across blur/save. */
+    white-space: pre-wrap;
+}
+
+/* Column-based charts: rotate the Y-axis title (sits on the left) */
+.cs-column .ci-axis-title-y {
+    writing-mode: sideways-lr;
+}
+
+/* Row-based charts (BarChart): rotate the X-axis title (sits on the left) */
+.cs-row .ci-axis-title-x {
+    writing-mode: sideways-lr;
+}
+
+/* Per-axis theme hooks — themes/moods override color/font for X vs Y separately.
+   `cs-x-axis-title` lives on every xAxis.title element regardless of chart type;
+   `cs-y-axis-title` lives on every yAxis.title element. Same for axis lines. */
+
+/* ---- Chart Title Block ----
+   Each title/subtitle is wrapped in a parent div so layout (padding, flex-shrink,
+   align) lives on the parent and the contentEditable child stays a pure text node.
+   - cs-graphic-title-text-parent / cs-graphic-title-text-child
+   - cs-graphic-subtitle-text-parent / cs-graphic-subtitle-text-child */
+
+.ci-chart-title-block {
+    flex-shrink: 0;
+}
+.ci-chart-title-parent,
+.ci-chart-subtitle-parent {
+    flex-shrink: 0;
+}
+.ci-chart-title,
+.ci-chart-subtitle {
+    outline: none;
+    /* Preserve user-entered line breaks (Enter -> <br>, stored as "\n") so
+       multi-line titles/subtitles render with breaks after blur/save. */
+    white-space: pre-wrap;
+}
+.ci-chart-title-parent + .ci-chart-subtitle-parent {
+    margin-top: 2px;
+}
+
+/* ---- Source Text ----
+   Wrapped in a parent div for the same reason — parent owns padding/flex-shrink,
+   child owns only the text styles.
+   - cs-graphic-source-text-parent / cs-graphic-source-text-child */
+
+.ci-source-text-parent {
+    flex-shrink: 0;
+}
+.ci-source-text {
+    /* Preserve user-entered line breaks across blur/save. */
+    white-space: pre-wrap;
+}
+
+/* ---- Pie Chart ---- */
+
+.ci-pie-slice {
+    transition:
+        opacity 0.3s ease,
+        filter 0.3s ease;
+    cursor: pointer;
+}
+.ci-pie-slice:hover {
+    opacity: 0.85;
+    filter: brightness(1.1);
+}
+
+/* Pie slices sit at computed polar positions. Any hover translate (applied by
+   host MoodsUtil via data-animation="item", which is designed for axis-aligned
+   bars) would push slices out of their arc geometry and into adjacent slices.
+   Lock transforms on the slice <path> and its <g> wrapper so hover only
+   changes opacity/brightness. */
+.ci-react-chart-container .ci-pie-slice,
+.ci-react-chart-container .ci-pie-slice:hover,
+.ci-react-chart-container g.seriesnodeelements:has(.ci-pie-slice),
+.ci-react-chart-container g.seriesnodeelements:has(.ci-pie-slice):hover {
+    transform: none !important;
+}
+
+/* ---- Pie data-label positioning ---- */
+
+/* 3-point polyline connector (rim → radial kick → horizontal) between a slice
+   and its outside label. Class-only styling — no inline style in JSX. Defaults
+   are dashed with 1px stroke-width at slide-contrast color; themes override via
+   the paired `.cs-pie-connector-line` hook per mood (solid vs dashed, custom
+   color, thicker stroke, etc.). `stroke-linejoin: arcs` gives the elbow a
+   subtle rounded corner matching legacy LayoutManagerRoundedConnector. */
+.ci-pie-connector-line {
+    stroke: rgba(var(--th-slide-contrast), 0.5);
+    stroke-width: 1;
+    stroke-dasharray: 4 3;
+    stroke-linejoin: arcs;
+    fill: none;
+}
+
+/* Outside label — boxed layout with dashed border to match the reference
+   design. Color / font come from the existing cs-value-text chain. */
+.ci-pie-outside-label {
+    white-space: nowrap;
+    border: 1px dashed rgba(var(--th-slide-contrast), 0.4);
+    border-radius: 2px;
+    padding: 2px 6px;
+}
+
+/* Outside callout box (label.position === "outside") — holds the category
+   label and/or the value as flex children (orientation + order set inline by
+   slice direction). Dashed pill matches the value-only outside-label look; the
+   box grows with its content (width:max-content inline) and the label child
+   wraps long text rather than overflowing. Per-child color/font come from the
+   cs-value-text / cs-legend-label chains; themes restyle via `.cs-pie-callout`. */
+.ci-pie-callout {
+    border: 1px dashed rgba(var(--th-slide-contrast), 0.4);
+    border-radius: 4px;
+    padding: 3px 8px;
+    box-sizing: border-box;
+    pointer-events: auto;
+}
+.ci-pie-callout .ci-pie-callout-value {
+    white-space: nowrap;
+}
+.ci-pie-callout .ci-pie-callout-label {
+    line-height: 1.15;
+}
+
+/* Legend mode (dataLabels.position === "legend") places the percent next to
+   the editable label. No separator — label and value are adjacent flex items
+   and the existing .ci-chart-legend-item gap handles spacing. */
+.ci-chart-legend-with-value .ci-legend-value {
+    margin-left: 4px;
+}
+
+/* ---- Realistic Assets Pie Chart ---- */
+
+/* Per-slice raster image — the visible art. Pointer events flow here so
+   clicks land on the slice (slice <path> below is pointer-events:none).
+   No transition — opacity/brightness changes look wrong on a photo, so we
+   don't reuse the standard slice hover. */
+.ci-realistic-pie-image {
+    cursor: pointer;
+}
+
+/* Invisible slice path — carries the data-animation="item" hook for
+   MoodsUtil's slice-grow keyframes. Layout transforms are wiped on the
+   chart container's slice <g> by the rule above, so this stays in place
+   during animation. */
+.ci-realistic-pie-slice {
+    fill: transparent;
+    stroke: none;
+    pointer-events: none;
+}
+
+/* Stronger hover affordance for image slices — the standard pie-slice
+   opacity nudge isn't visible enough on a photographic asset. A subtle
+   brightness lift + saturation bump reads as "active" without altering
+   the slice's geometric area. */
+.ci-realistic-pie-image:hover {
+    filter: brightness(1.08) saturate(1.05);
+}
+
+/* Legend swatch — per-series pizza image instead of a flat colored fill.
+   The wrapper `.ci-legend-shape` already has `overflow: hidden` (line 175 above)
+   so the image is clipped to whatever border-radius the host theme applies
+   via `.cs-legend-style-{rect|roundedRect|circle|...}`. `object-fit: cover`
+   makes the image fill the swatch without empty space; with the legend
+   shape's typical aspect (~22x12), the image crops naturally to the
+   swatch dimensions. The host's `.cs-legend-shape` background-color rule
+   would normally show under a transparent image — pizzas are fully opaque
+   raster so it's invisible, but we also clear it via background:transparent
+   so a future translucent asset can't double-paint with the theme tint. */
+.ci-realistic-pie-legend-shape {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+.ci-realistic-pie-legend-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* ---- Overlay Asset Pie Chart ----
+   Image renders BEHIND the slices as a continuous backdrop (clipped to the
+   pie outline, full opacity, no animation interference). Slices ON TOP carry
+   `fill-opacity` (set inline from `cp.assetOverlay.opacity`) so the slider
+   directly controls how much slice color shows vs the image underneath.
+   Mirrors legacy RealObjectOverlayPieChart's fill-opacity pattern.
+
+   pointer-events:none on the image so clicks fall through to the slice
+   paths (node floater + tooltip stay wired).
+
+   Stroke neutralised on `.ci-overlay-pie-slice`: the shared
+   `cs-pie-slice-fill` host theme rule paints
+   `stroke: rgba(var(--th-slide-primary), 1); stroke-width: var(--dt-border-4)`
+   which would draw a dark border between every translucent slice — visually
+   wrong on top of an image. Inline `style={{ stroke: "none" }}` already
+   overrides on the JSX side; the !important rule below is a defense-in-depth
+   layer for any future host CSS that wraps the slice in a more-specific
+   selector. */
+.ci-overlay-pie-image {
+    pointer-events: none;
+}
+.ci-overlay-pie-slice,
+.ci-overlay-pie-slice.cs-pie-slice-fill {
+    stroke: none !important;
+    stroke-width: 0 !important;
+}
+
+/* Legend swatch — same image+fill blend as the slice. The wrapper
+   `.ci-legend-shape` keeps `overflow: hidden` from its base rule so both
+   children clip to the swatch's border-radius (set by host's
+   cs-legend-style-{rect|roundedRect|circle}). Image and fill are absolute
+   so they stack at the same spot; image first (DOM-order behind), fill
+   second (on top with controlled opacity). */
+.ci-overlay-pie-legend-shape {
+    position: relative;
+    background: transparent !important;
+    background-color: transparent !important;
+}
+.ci-overlay-pie-legend-image {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    user-select: none;
+}
+.ci-overlay-pie-legend-fill {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* ---- Highlight Difference ---- */
+
+.ci-highlight-difference-callout {
+    white-space: nowrap;
+}
+
+/* ---- Baseline ----
+   Horizontal reference line + editable callout. Base layout only; visual
+   styling (dash pattern, callout bg / border / color, text color, arrow) lives
+   in the host `cs-*` theme CSS.
+   - `.ci-baseline-line` uses the grid-line positioning model (bottom: pct%,
+     transform: translateY(50%) applied inline), so it aligns with grid lines
+     and tick rows exactly.
+   - `.ci-baseline-callout` sits at horizontal center of the plot, with its
+     vertical edge 8px away from the line. The flip (above vs below) is driven
+     by inline positioning in ColumnChart; `data-position="above|below"` is a
+     CSS hook for theme overrides (e.g. the arrow on the callout).
+   - `.ci-baseline-value` is rendered in the Y-axis tick column — same styling
+     path as regular tick labels, but carries its own `ci-baseline-value /
+     cs-baseline-value` classes so themes can style it distinctly. */
+
+.ci-baseline-callout {
+    white-space: nowrap;
+    pointer-events: all;
+}
+
+.ci-baseline-text {
+    outline: none;
+    pointer-events: all;
+    cursor: text;
+    /* Preserve user-entered line breaks across blur/save. */
+    white-space: pre-wrap;
+}
+
+.ci-baseline-value {
+    outline: none;
+    pointer-events: all;
+    cursor: text;
+}
+
+/* ---- Tooltip ----
+   Lib-owned. Moved here from design_assets/commonfiles/css/core-chart-styles.css
+   so the lib ships its own tooltip layout (single-value `value · label` row
+   and multi-line OHLC stack) without depending on host CSS being in sync.
+
+   SIZE: every dimension below is the 24px design size multiplied by
+   `--cs-tooltip-scale`, which the chart writes on the tooltip element from its
+   drawable box (utils/tooltipScale.js: 1 at half a slide or larger, down to 0.5
+   on a tiny chart). Font, padding, gap, separator and radius all take the same
+   factor so the callout shrinks as one piece with the chart it belongs to.
+   No variable (host CSS, tests) = 1 = the previous fixed sizes. */
+
+.cs-chart-tooltip {
+    background: rgba(var(--th-slide-contrast), 1);
+    border-radius: calc(var(--dt-radius-6) * var(--cs-tooltip-scale, 1));
+    padding: calc(var(--dt-spacing-8) * var(--cs-tooltip-scale, 1)) calc(var(--dt-spacing-12) * var(--cs-tooltip-scale, 1));
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+    animation: cs-tooltipFadeIn 0.12s ease;
+    max-width: 40%;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--dt-spacing-8) * var(--cs-tooltip-scale, 1));
+}
+
+.cs-chart-tooltip-label {
+    font-size: calc(24px * var(--cs-tooltip-scale, 1));
+    font-weight: 400;
+    line-height: 1.3;
+    color: rgba(var(--th-slide-primary), 0.6);
+    min-width: 0;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+.cs-chart-tooltip-label::before {
+    content: "·";
+    margin-right: calc(var(--dt-spacing-6) * var(--cs-tooltip-scale, 1));
+    color: rgba(var(--th-slide-primary), 0.6);
+}
+
+.cs-chart-tooltip-value {
+    font-size: calc(24px * var(--cs-tooltip-scale, 1));
+    font-weight: 500;
+    line-height: 1.3;
+    color: rgba(var(--th-slide-primary), 1);
+    flex-shrink: 0;
+}
+
+/* Multi-line variant (OHLC candlestick + any future multi-metric tooltip).
+   Activated by :has() — the wrapper switches to column flow only when at
+   least one .cs-chart-tooltip-line row is present, so single-value bar /
+   pie / line tooltips keep the existing inline layout untouched. */
+.cs-chart-tooltip:has(.cs-chart-tooltip-line) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: calc(var(--dt-spacing-4) * var(--cs-tooltip-scale, 1));
+}
+
+.cs-chart-tooltip-line {
+    display: flex;
+    gap: calc(var(--dt-spacing-4) * var(--cs-tooltip-scale, 1));
+    font-size: calc(24px * var(--cs-tooltip-scale, 1));
+    line-height: 1.3;
+    /* Keep numeric values like "1,700,000" on one line — they were wrapping
+       mid-comma when the wrapper's max-width: 40% squeezed the column. */
+    white-space: nowrap;
+}
+
+.cs-chart-tooltip-line-name {
+    font-weight: 400;
+    color: rgba(var(--th-slide-primary), 0.6);
+    text-transform: lowercase;
+}
+
+.cs-chart-tooltip-line-value {
+    font-weight: 500;
+    color: rgba(var(--th-slide-primary), 1);
+}
+
+/* Suppress the inline "·" prefix on the label when it follows OHLC rows.
+   In the single-value layout the dot reads as a separator between value
+   and label; in the stacked layout it becomes an orphan glyph. */
+.cs-chart-tooltip:has(.cs-chart-tooltip-line) .cs-chart-tooltip-label::before {
+    content: none;
+    margin: 0;
+}
+
+@keyframes cs-tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(2px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---- Editable text elements: ensure clickable + cursor ---- */
+/* NOTE: chartnew.css defines `.series * { pointer-events: none }` which applies
+   to descendants of any element with the `series` class. Our chart items use
+   that class for legacy compatibility, so we must explicitly re-enable pointer
+   events on contentEditable text nodes and bars/legends inside chart. */
+
+.ci-react-chart-container [contentEditable="true"],
+.ci-react-chart-container .series [contentEditable="true"],
+.ci-react-chart-container .series .ci-value-text,
+.ci-react-chart-container .series .ci-label-text {
+    pointer-events: all !important;
+    cursor: text;
+}
+
+.ci-react-chart-container .series .ci-bar,
+.ci-react-chart-container .series .cs-graphic-item,
+.ci-react-chart-container .cs-legend-shape,
+.ci-react-chart-container .cs-legend-label,
+.ci-react-chart-container .ci-legend-label,
+.ci-react-chart-container .ci-pie-slice,
+.ci-react-chart-container .ci-polar-arc,
+/* Size-scale comparison nodes carry the node-link (data-navigate-to-slide-on-click)
+   on the graphic box. The host's present-mode linkClickHandler walks UP from the
+   click target, so the box must be hittable — otherwise `.series *`
+   (pointer-events:none) drops the click onto the .series ancestor and the link
+   on the descendant box is never reached (bug 21908). The image sibling escapes
+   this via chartnew.css `.series img{pointer-events:all}`; the CSS-shape sibling
+   has no <img>, so it needs this explicit re-enable. */
+/* ComparisonColumn's cell wrapper carries the `series` node-selection class, so
+   chartnew.css `.series *` now reaches its bar. The bar is the tooltip hit-test
+   target (`data-type="ITEM"`) and the click target that opens the node floater —
+   both die on pointer-events:none. `.ci-comparison-fill` inherits the re-enable
+   from `.cs-graphic-item` above; the bar box needs its own. */
+.ci-react-chart-container .ci-comparison-bar,
+.ci-react-chart-container .ci-sszc-graphic-box {
+    pointer-events: all !important;
+}
+
+/* ---- Prompt Text (placeholder for empty contentEditable elements) ----
+   Two strategies are used:
+     1. `:empty::before` covers static text nodes that React renders empty.
+     2. `[data-empty="true"]::before` covers contentEditable elements (legend
+        labels, etc.) where the browser may auto-insert <br>/&nbsp; on focus,
+        which would break `:empty`. Components stamp `data-empty="true"` based
+        on the prop value at render time. */
+
+.ci-react-chart-container [contentEditable="true"]:empty::before,
+.ci-react-chart-container [contentEditable="false"]:empty::before,
+.ci-react-chart-container [contentEditable="true"][data-empty="true"]::before,
+.ci-react-chart-container [contentEditable="false"][data-empty="true"]::before {
+    content: attr(data-prompt-text);
+    opacity: 0.4;
+    pointer-events: none;
+    display: inline-block;
+}
+
+/* Hide prompt text in presentation/widgetView mode */
+.widgetView .ci-react-chart-container [contentEditable="true"]:empty::before,
+.widgetView .ci-react-chart-container [contentEditable="false"]:empty::before,
+.widgetView .ci-react-chart-container [contentEditable="true"][data-empty="true"]::before,
+.widgetView .ci-react-chart-container [contentEditable="false"][data-empty="true"]::before {
+    content: "" !important;
+}
+
+/* Hide entire empty legend label + its swatch in presenter mode so the legend
+   collapses gracefully when a label has not been entered yet. The swatch is
+   already handled via `data-animation=""` on `.cs-legend-shape`; this hides
+   the empty label text alongside it. */
+.widgetView .ci-react-chart-container .ci-legend-label[data-empty="true"] {
+    display: none !important;
+}
+
+/* ---- Superscript / subscript inside chart text ----
+   The selected-text floater persists these as real <sup>/<sub> tags (the host's
+   TextHighLightUtils writes them; hydrateHighlightContent re-creates them on
+   every render). The lib shipped no rules of its own, so they fell through to
+   Tailwind's preflight — which pins `vertical-align: baseline` and does the
+   raise with `position: relative; top: -0.5em` instead. That offset paints the
+   glyph OUTSIDE its line box, where `.ci-label-text { overflow: hidden }` clips
+   it away: the run shrank to 75% but never lifted.
+
+   Raise with `vertical-align` instead — it grows the line box rather than
+   escaping it — and explicitly drop preflight's `top`/`bottom` so the two
+   cannot stack into a double offset. */
+.ci-react-chart-container sup,
+.ci-react-chart-container sub {
+    font-size: 0.75em;
+    line-height: 1;
+    position: static;
+    top: auto;
+    bottom: auto;
+}
+.ci-react-chart-container sup {
+    vertical-align: super;
+}
+.ci-react-chart-container sub {
+    vertical-align: sub;
+}
+
+.cs-column .ci-axis-y-title-wrapper,
+.cs-row .ci-axis-x-title-wrapper {
+    display: flex;
+}
+
+/* ---- Projection ----
+   When projection is active, each bar / point / line-path half carries
+   `cs-projection-enabled` (projected side) or `cs-projection-disabled`
+   (pre-projection side). Fill / pattern / opacity are applied by the host
+   theme (core-chart-styles.css). This file keeps only the bits the lib
+   strictly owns — the dashed stroke on the projected line path.
+
+   Projection captions live INSIDE the chart legend (appended after multi-
+   series items). See ChartLegend.jsx: each legend item stamps
+   `cs-projection-enabled` or `cs-projection-disabled` on its swatch so the
+   swatch picks up the same fill/pattern that the bars/points use — visual
+   parity between the legend marker and the chart element. */
+
+.cs-line-path.cs-projection-enabled {
+    stroke-dasharray: 6 6;
+}
+
+/* ==========================================================================
+   PRIMARY PLACEHOLDER
+   Shared layer rendered below the X-axis label row on column / line / area
+   / bar charts. DOM structure mirrors the legacy
+   `BaseColumnSeries.doAddPrimaryPlaceholder` (js-chart-new.js) so host theme
+   CSS (`cs-*`) hits the same hooks. Two-tier layout:
+     .ci-primary-placeholder-layer → flex row (whole strip)
+       .ci-primary-placeholder-slot → per-category flex cell (owns column width)
+         .ci-primary-placeholder-cell → fixed-size block (owns visual size)
+           .primaryplaceholder → holder containing bg + img/svg + overlay
+   Size comes from `cs-primary-placeholder-size-{large|medium|small}` on the
+   cell — CSS class only, never inline style, so themes can override.
+   Image / logo fitting uses `object-fit` (cover / contain) — no JS math.
+   ========================================================================== */
+.ci-primary-placeholder-layer {
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 0;
+    align-items: flex-start;
+    overflow: visible;
+}
+.ci-primary-placeholder-slot {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
+}
+.ci-primary-placeholder-cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+.ci-primary-placeholder-cell .primaryplaceholder {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.ci-primary-placeholder-cell .primaryplaceholder > .shapeBgElement {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* Logo brightness hooks — preserved from legacy. The per-mood CSS
+   (moods/<mood>/<mood>.css) owns the positive `filter: brightness(...)`
+   rules keyed off host-set ancestors (.fixedlightText / .fixeddarkText /
+   .themeWhitebg / .blackthemebg / [data-graphiccontrast=true]). This
+   block is the lib-side neutralizer for `logoContrast=false`: two
+   selectors so either the class toggle (`logoBrightnessUnset`) or the
+   mirrored HTML attr (`logocontrast="false"`) wins specificity against
+   the deepest mood positives. */
+.ci-primary-placeholder-cell .logoBrightness.logoBrightnessUnset,
+.ci-primary-placeholder-cell img.logoBrightness[logocontrast="false"] {
+    filter: none !important;
+}
+.ci-primary-placeholder-cell img.logoBrightness[logocontrast="true"] {
+    filter: brightness(0) invert(1) !important;
+}
+
+/* ==========================================================================
+   COMMON PLACEHOLDER (pie/doughnut hole)
+   A single icon / image / logo / text rendered in the doughnut hole. Size +
+   centering are owned by PieCenterPlaceholder.jsx inline styles and scale with
+   the inner radius (cellSize ∝ innerR). Deliberately does NOT reuse the
+   primaryPlaceholder DOM classes (`primaryplaceholder` / `imageHolder` /
+   `cs-chart-element-*`) — those carry host CSS that pins the box to a fixed
+   `var(--dt-size-80)`, shrinking the asset regardless of the hole. The holder
+   + asset fill 100% of the dynamic cell; image/logo fit via object-fit.
+   ========================================================================== */
+.ci-common-placeholder-cell {
+    box-sizing: border-box;
+}
+.ci-common-placeholder-holder {
+    position: relative;
+}
+/* Logo contrast — same neutralizer/positive hooks as the primary placeholder,
+   scoped to the common-placeholder image. */
+.ci-common-placeholder-img.logoBrightness.logoBrightnessUnset,
+.ci-common-placeholder-img.logoBrightness[logocontrast="false"] {
+    filter: none !important;
+}
+.ci-common-placeholder-img.logoBrightness[logocontrast="true"] {
+    filter: brightness(0) invert(1) !important;
+}
+.ci-common-placeholder-text {
+    overflow: hidden;
+    word-break: normal;
+    line-height: 1.2;
+}
+/* ==============================================================================
+   Template Background Layers
+   Ports the `createTemplateBgLayers` concept from legacy js-chart-new.js.
+   Two optional layers sit behind the chart, each gated by a menu key:
+     - menu["graphic-bg"]       → .ci-graphic-bg       (color/decoration)
+     - menu["graphic-image-bg"] → .ci-graphic-image-bg (image + overlays)
+   Themes/moods attach padding to these classes; that padding is measured in
+   React and fed to .ci-chart-inset to shrink the drawable plot area.
+   ============================================================================== */
+
+.ci-graphic-bg,
+.ci-graphic-image-bg {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+}
+
+.ci-graphic-bg {
+    pointer-events: none;
+    z-index: 0;
+}
+
+.ci-graphic-image-bg {
+    z-index: 0;
+    overflow: hidden;
+}
+
+.ci-graphic-image-bg-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.ci-element-image-overlay1,
+.ci-element-image-overlay2 {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* Chart inset — always mounted, zero padding when no bg layers are active. */
+.ci-chart-inset {
+    z-index: 1;
+    box-sizing: border-box;
+}
+
+/* ===== Waterfall ===== */
+/* Connector layer sits above bars. Stroke color falls back to currentColor so
+   the line renders against any theme without host CSS — themes can override
+   via .cs-waterfall-connector-line. Style suffix
+   (cs-waterfall-connector-line-{dashed|dotted|solid}) drives stroke-dasharray.
+   data-animation="waterfallline" lives on each inner <line>, not the wrapper
+   (matches legacy js-chart-new.js:78892 createWaterfallLineSvg). */
+.ci-waterfall-connector-layer {
+    z-index: 2;
+}
+
+/* ===== Dumbbell =====
+   Layout-only rules. Themed colours / marker shapes / connector style
+   live in host core-chart-styles.css under .cs-dumbbell-* + th-section{N}.
+   data-animation hooks: dumbbellmarkerstart, dumbbellmarkerend, dumbbellconnector. */
+.ci-dumbbell-layer {
+    z-index: 2;
+}
+
+.ci-dumbbell-pair {
+    box-sizing: border-box;
+}
+
+.ci-dumbbell-line {
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.ci-dumbbell-marker-start,
+.ci-dumbbell-marker-end {
+    box-sizing: border-box;
+    pointer-events: auto;
+}
+
+.ci-dumbbell-label-start,
+.ci-dumbbell-label-end {
+    pointer-events: auto;
+    white-space: nowrap;
+}
+.ci-has-graphic-bg.ci-react-chart-container {
+    z-index: 2;
+}
+
+/* ===== Radar / radial family =====
+   Layout + minimal stroke defaults. Theme colours live in host
+   core-chart-styles.css under cs-radar-* + cs-line-element / cs-area-element /
+   cs-line-point + th-section{N}. data-animation hooks: gridlines (rings +
+   spokes), itemline (series stroke), itemarea (series fill), item (dots),
+   xaxistitle (category labels). Per memory feedback_chart_remount_dummy_render,
+   the chart self-measures its plot area; the SVG body is gated on outerR > 0
+   so the first commit after a remount doesn't paint empty geometry. */
+.ci-radar-wrapper {
+    position: relative;
+}
+
+.ci-radar-plot-area,
+.ci-polar-plot-area {
+    overflow: visible;
+}
+
+/* PolarArea is deliberately EXCLUDED from these shared radar `none` rules.
+   See the PolarArea block below for why a `none` <svg> ancestor breaks
+   present-mode tooltips. */
+.ci-radar-svg-wrap {
+    pointer-events: none;
+}
+
+.ci-radar-svg {
+    overflow: visible;
+    pointer-events: none;
+}
+
+/* The series wrapper <g> needs pointer events so dots are hoverable / clickable
+   even though the parent SVG sets pointer-events: none for label overlay
+   bleed-through. */
+.ci-radar-svg .series,
+.ci-polar-svg .series {
+    pointer-events: auto;
+}
+
+/* Series fill — colour from host .cs-line-area. fill-opacity applied inline
+   from radarconfig.fillOpacity. Grid rings, axis spokes and dash-style
+   variants (cs-grid-line-{solid|dashed|dotted}) are themed entirely by the
+   host — lib emits the hooks but no stroke / fill / opacity defaults. */
+.ci-radar-fill {
+    pointer-events: none;
+}
+
+/* Per-vertex dot — HTML div. Size + background-color + border inherited from
+   host .seriesnodeelements rule under the th-section{N} cascade. Lib owns the
+   circle shape + pointer affordance. */
+.ci-radar-point {
+    border-radius: 50%;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+/* Category labels around the perimeter. Click-to-format
+   (contentEditable=false + data-text-readonly="true") — user changes
+   font / colour via the inline text floater; the underlying string is
+   edited from Edit Data. cursor:pointer signals "opens a panel". */
+.ci-radar-axis-label,
+.ci-polar-axis-label {
+    /* white-space: normal so long category labels wrap at spaces inside their
+       measured max-width (set inline from JSX). Both break properties stay
+       `normal` — a word is NEVER split character-by-character. `break-word` /
+       `anywhere` are deliberately avoided: they split inside words (e.g.
+       "Security" inside a 330px max-width wrapped to "Securit / y" on certain
+       Chrome builds). A single word wider than the box now stays whole and
+       overflows. RadarChart's measure pass reads the wrapped box size and
+       shrinks outerR so the radar makes room. */
+    white-space: normal;
+    overflow-wrap: normal;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.ci-radar-axis-label[data-empty="true"]:empty::before,
+.ci-polar-axis-label[data-empty="true"]:empty::before {
+    content: attr(data-prompt-text);
+    opacity: 0.35;
+}
+
+/* Per-vertex value labels (data labels). Same click-to-format model as axis
+   labels. fontSize may be inline-overridden via chartProperties.dataLabels.fontSize. */
+.ci-radar-value {
+    white-space: nowrap;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.ci-radar-value:empty::before {
+    content: attr(data-prompt-text);
+    opacity: 0.35;
+}
+
+/* ===== Polar Area family =====
+   Single-series radial chart where each category becomes a pie-style sector
+   whose RADIUS encodes the value (Nightingale rose). Shares grid + spoke +
+   perimeter-label scaffold with RadarChart (same class hooks reused — see
+   PolarAreaChart.jsx, which double-stamps ci-polar-* AND ci-radar-* on the
+   wrapper/plot-area/svg-wrap for theme rule reuse). Slice paint rides
+   th-section{i} cascade indexed by CATEGORY (per-slice tint, like Pie) with
+   cs-line-area on the <path> for fill colour (host theme owns paint per
+   reference_cs_line_area_for_svg_fill). Lib stays paint-free except for
+   pointer affordance + cursor + visibility logic.
+   onChartRendered gated on plotSize > 0 per feedback_chart_remount_dummy_render. */
+.ci-polar-wrapper {
+    position: relative;
+}
+
+.ci-polar-plot-area {
+    overflow: visible;
+}
+
+/* PolarArea tooltips (editor + PRESENT mode).
+   The arc <path> lives inside the `.series` <g> wrapper, so the host
+   chartnew.css rule `.series * { pointer-events: none }` sets the arc itself
+   to `none`. With the arc non-hittable, document.elementsFromPoint never
+   returns it and the `.ci-polar-arc` branch in findChartElementUnderCursor
+   finds nothing — hover tooltips silently die. The fix is an explicit
+   `pointer-events: all !important` on `.ci-polar-arc`, applied in the shared
+   re-enable block above next to `.ci-pie-slice` (which needed the identical
+   override for the same reason). NOTE: a plain `pointer-events: auto` does
+   NOT survive the build — `auto` is the initial value and cssnano strips it,
+   so it can't override the inherited/`.series *` `none`; `all !important` is
+   required. PolarArea is also kept OUT of the shared `.ci-radar-svg*`
+   pointer-events:none rules so no `none` ancestor shadows the arc. */
+.ci-polar-svg {
+    overflow: visible;
+}
+
+/* Non-interactive svg children — grid rings, axis spokes and the slice's
+   thin outline stroke paint but must NOT capture the pointer (they would
+   shadow click-through over the empty plot area now that the <svg> root is
+   hit-testable). The filled slice arc is the only hot path; its default
+   `visiblePainted` already restricts hits to the filled wedge. */
+.ci-polar-grid-line,
+.ci-polar-axis-spoke,
+.ci-polar-arc-stroke {
+    pointer-events: none;
+}
+
+.ci-polar-arc {
+    cursor: pointer;
+}
+
+/* Perimeter category labels — click-to-format (CE=false + data-text-readonly).
+   Same wrap rules as radar (word-level only, no mid-word splitting) so long
+   category names wrap at spaces and JSX's measured maxWidth gives them as
+   much room as the wrapper allows. */
+.ci-polar-axis-label {
+    white-space: normal;
+    overflow-wrap: normal;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.ci-polar-axis-label[data-empty="true"]:empty::before {
+    content: attr(data-prompt-text);
+    opacity: 0.35;
+}
+
+/* Per-slice value labels — click-to-format. nowrap so the value sits on a
+   single line inside the slice; if user picks a font size too large the
+   label overflows visibly rather than wrapping into adjacent slices. */
+.ci-polar-value {
+    white-space: nowrap;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.ci-polar-value:empty::before {
+    content: attr(data-prompt-text);
+    opacity: 0.35;
+}
+
+/* ===== Circular bars family =====
+   Concentric annular bars, one ring per category, series stacked end-to-end
+   within each ring. Layout owned here; ALL paint (stroke / fill colour,
+   label colour, track colour, dash style) lives in host core-chart-styles.css
+   under `.cs-circularbars-*` — this file stays logic-only (geometry, cursor,
+   pointer-events, the entry draw-on keyframes). Per memory
+   feedback_chart_remount_dummy_render the chart self-measures its plot area
+   and the SVG body is gated on outerR > 0. */
+.ci-circularbars-wrapper {
+    position: relative;
+}
+.ci-circularbars-plot-area {
+    overflow: visible;
+}
+.ci-circularbars-svg-wrap {
+    pointer-events: none;
+}
+.ci-circularbars-svg {
+    overflow: visible;
+    pointer-events: none;
+}
+/* Bars are STROKED arcs — `stroke-width` (set inline) carries the bar
+   thickness. Stroke colour is host-themed via `.cs-circularbars-bar` + the
+   `th-section{N}` cascade. */
+.ci-circularbars-bar {
+    pointer-events: auto;
+    cursor: pointer;
+    transition: opacity 0.2s ease-out;
+    fill: none;
+}
+.ci-circularbars-bar:hover {
+    opacity: 0.85;
+}
+/* Track — background ring behind each bar. Colour + dash style host-themed
+   via `.cs-circularbars-track` + `cs-grid-line-{style}`. */
+.ci-circularbars-track {
+    pointer-events: none;
+    fill: none;
+}
+/* Radial grid spokes at each scale tick — analog of radar/polar spokes, but
+   anchored to value-axis ticks (positions along the circumference) since the
+   value axis runs around the rim in this chart. Inherits stroke / dash via
+   `.cs-grid-line` + `.cs-grid-line-{solid|dashed|dotted}`. */
+.ci-circularbars-grid-line {
+    pointer-events: none;
+    fill: none;
+}
+/* Category labels — click-to-format (contentEditable=false +
+   data-text-readonly). Colour host-themed via `.cs-circularbars-category-label`. */
+.ci-circularbars-category-label {
+    white-space: nowrap;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.ci-circularbars-category-label[data-empty="true"]:empty::before {
+    content: attr(data-prompt-text);
+    opacity: 0.35;
+}
+/* Per-bar value labels — same click-to-format model. Colour host-themed. */
+.ci-circularbars-value {
+    white-space: nowrap;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.ci-circularbars-value:empty::before {
+    content: attr(data-prompt-text);
+    opacity: 0.35;
+}
+/* Scale tick labels around the rim — decorative reference numbers. */
+.ci-circularbars-grid-value {
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* ----- Entry draw-on animation -----
+   Bars render at final geometry with `pathLength=100`; the draw-on sweeps
+   `stroke-dashoffset` 100 → 0. animation-name lives under the armed wrapper
+   class so a settled chart (class removed) holds the final state. Each bar's
+   animation-delay / -duration come inline so the stacked segments chain into
+   one continuous sweep. Caps + labels fade in behind the sweep. */
+@keyframes cs-circularbars-draw {
+    from {
+        stroke-dashoffset: 100;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+@keyframes cs-circularbars-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+.ci-circularbars-animate .ci-circularbars-bar {
+    animation-name: cs-circularbars-draw;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+}
+.ci-circularbars-animate .ci-circularbars-value,
+.ci-circularbars-animate .ci-circularbars-category-label,
+.ci-circularbars-animate .ci-circularbars-grid-value,
+.ci-circularbars-animate .ci-circularbars-grid-line {
+    animation: cs-circularbars-fade-in 0.4s ease-out both;
+    animation-delay: 1s;
+}
+/* .ci-circularbars-wrapper.skip-animation .ci-circularbars-bar,
+.ci-circularbars-wrapper.skip-animation .ci-circularbars-value,
+.ci-circularbars-wrapper.skip-animation .ci-circularbars-category-label,
+.ci-circularbars-wrapper.skip-animation .ci-circularbars-grid-value,
+.ci-circularbars-wrapper.skip-animation .ci-circularbars-grid-line {
+    animation: none !important;
+} */
+
+/* ===== Funnel family =====
+   Vertical (default) and horizontal funnels. Layout owned here; theme colours
+   live in host common-template-styles.css via .cs-graphic-item + th-section{N}
+   (each segment carries cs-graphic-item so the host's per-section background
+   colour applies natively, same as column/bar). Per memory
+   feedback_chart_remount_dummy_render, the chart self-measures its plot area;
+   SVG body is gated on plotSize.{w,h} > 0 so the first render after a remount
+   doesn't paint empty geometry. */
+.ci-funnel-wrapper {
+    position: relative;
+}
+.ci-funnel-plot-area {
+    overflow: visible;
+}
+.ci-funnel-svg-wrap {
+    pointer-events: none;
+}
+.ci-funnel-svg {
+    overflow: visible;
+    pointer-events: none;
+}
+.ci-funnel-svg .series {
+    pointer-events: auto;
+}
+
+/* Segment — lib owns only interaction state (cursor, hover transition). All
+   colour / fill / stroke comes from host theme via .cs-line-area (which carries
+   `fill: rgba(var(--th-section-primary),1)`) layered under the th-section{N}
+   cascade on the parent <g>. Matches the BuildingPositionColumn pattern:
+   lib stamps cs-* classes, host theme owns paint. */
+.ci-funnel-segment {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+.ci-funnel-segment:hover {
+    opacity: 0.9;
+}
+
+/* Logic-only rules for label / value DOM. Visual styling (font-size,
+   line-height, cursor, pointer-events, colour) is owned by host theme via
+   .cs-funnel-label / .cs-funnel-value (and inherited .cs-label-text /
+   .cs-value-text rules). Per user direction 2026-05-12: lib stops setting
+   text styling for funnel labels. */
+.ci-funnel-label[data-overflow-hidden="true"],
+.ci-funnel-value[data-overflow-hidden="true"] {
+    visibility: hidden;
+}
+.ci-funnel-label[data-empty="true"]:empty::before,
+.ci-funnel-value[data-empty="true"]:empty::before {
+    content: attr(data-prompt-text);
+    opacity: 0.35;
+}
+
+/* Connector line — lib owns only fill:none (SVG default for paths is fill,
+   which would paint a triangle behind the leader). Stroke colour + width
+   + dash come from host theme via .cs-funnel-connector-line. */
+.ci-funnel-connector-line {
+    fill: none;
+}
+
+/* ===== Currency family =====
+   SimpleCurrencyChart — proportional currency-share strip with alternating
+   top/bottom callouts. Lib carries STRUCTURAL CSS only (layout, overflow,
+   pointer-events, wrap + clamp behaviour). All PAINT (stroke colour, stroke
+   width, dash pattern, fill, text colour) is owned by host theme via the
+   paired `cs-currency-*` classes plus `--seg-color` / `--currency-*-thickness`
+   CSS variables published by the component. Mirrors funnel + asset-bar
+   lib/host separation. */
+.ci-currency-chart {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    /* Clip during resize so callouts that briefly overshoot the plot bounds
+       (between an old layout pass and the next overlap-resolve) don't leak
+       outside the chart container. The cascade resolver settles within
+       one layout commit, so the clip rarely shows during steady state. */
+    overflow: hidden;
+}
+.ci-currency-plot-area {
+    overflow: hidden;
+}
+.ci-currency-strip-svg {
+    pointer-events: none;
+}
+.ci-currency-strip-svg .ci-currency-segment {
+    pointer-events: auto;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+.ci-currency-strip-svg .ci-currency-segment:hover {
+    opacity: 0.9;
+}
+.ci-currency-image {
+    /* No interaction state needed — the parent <g class="series"> handles
+       hit-test routing for tooltip / Replace-flow / node selection. */
+    pointer-events: none;
+}
+.ci-currency-strip-svg .ci-currency-segment-border {
+    /* `all` (not the default `visiblePainted`) makes the WHOLE segment
+       interior the click target even when the host theme paints the rect
+       `fill: none` — otherwise only the thin stroke would be clickable and
+       clicks over the bill image (pointer-events:none) would fall through to
+       the chart background, breaking per-node selection / Replace / Delete. */
+    pointer-events: all;
+}
+
+/* Callout block — absolutely positioned over the plot area, centered
+   horizontally on the segment via translateX(-50%). Vertical layout uses
+   a flex column so label + value stack naturally with the label adjacent to
+   the connector terminus (top callouts → label at bottom; bottom callouts →
+   label at top — JSX order owns the visual order). `max-width` is set
+   inline per chart so long text wraps inside the cap — never bleeds into
+   neighbouring callouts. */
+.ci-currency-callout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+.ci-currency-callout-top {
+    justify-content: flex-end;
+}
+.ci-currency-callout-bottom {
+    justify-content: flex-start;
+}
+.ci-currency-label-wrap,
+.ci-currency-value-wrap {
+    pointer-events: auto;
+    /* `inline-flex` lets the wrap shrink to its content's natural width so
+       short content like "0%" or "Enter Label" doesn't inflate the callout
+       block to its max-width cap. The block (`align-items: center`) still
+       centers the wraps horizontally within itself. */
+    display: inline-flex;
+    justify-content: center;
+    max-width: 100%;
+    min-width: 0;
+}
+.ci-currency-label,
+.ci-currency-value {
+    text-align: center;
+    cursor: text;
+    pointer-events: auto;
+    user-select: text;
+    -webkit-user-select: text;
+    /* Wrap long text on word boundaries only. A single unbroken token
+       (e.g. "qwdqwdqwd…") is never split per character — it stays whole and
+       the line-clamp ellipsis handles the overflow. "Enter Label" wraps as
+       "Enter / Label". */
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+    max-width: 100%;
+    min-width: 0;
+    /* Cap callouts at 2 visible lines and truncate overflow with an
+       ellipsis — keeps tight callouts readable during resize without the
+       text bleeding past the plot bounds. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.ci-currency-value {
+    /* Value is editable — typing commits on blur / Enter (handleValueBlur
+       parses the display text back to a matrix raw value). Text caret +
+       selection enabled so the user can edit the number in place. */
+    cursor: text;
+    user-select: text;
+    -webkit-user-select: text;
+}
+.ci-currency-label[data-empty="true"]:empty::before {
+    content: attr(data-prompt-text);
+    opacity: 0.4;
+}
+
+/* Connector overlay — single SVG layer covering the plot area. */
+.ci-currency-connector-svg {
+    pointer-events: none;
+}
+.ci-currency-connector-line {
+    /* `fill: none` is structurally required for SVG paths — without it
+       the path renders as a filled shape between its endpoints. This is
+       behaviour, not paint, so it stays in lib. Stroke colour / width /
+       dasharray come from host theme via `.cs-currency-connector-line*`. */
+    fill: none;
+}
+.ci-currency-connector-shape {
+    pointer-events: none;
+}
+
+/* ---------- GaugeChart (single-value 270° arc) ----------
+   Structural classes only. Theme paint (arc fill color, label tint,
+   needle accent) lives in the host's core-chart-styles.css under
+   `cs-gauge-*`. */
+.ci-gauge-chart {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+/* ci-gauge-main wraps plot + legend so the legend's `position` enum
+   (top / bottom / left / right) drives flex direction:
+     • top / bottom  → column (legend stacks above / below the plot)
+     • left / right  → row (legend sits beside the plot)
+   The legend element itself is rendered ONCE in JSX but lands in the
+   right slot via legendBefore branching, so we don't need flex `order`
+   tricks here — flex-direction alone arranges the two children. */
+.ci-gauge-main {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+}
+.ci-gauge-main-top,
+.ci-gauge-main-bottom {
+    flex-direction: column;
+}
+.ci-gauge-main-left,
+.ci-gauge-main-right {
+    flex-direction: row;
+    align-items: stretch;
+}
+.ci-gauge-plot-area {
+    /* Self-measured via ResizeObserver — flex:1 so it gets whatever space
+       title / legend / source leave behind. */
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+}
+/* Side / top / bottom strip alignment is owned by the shared
+   `.ci-chart-legend-base-{side}` + `.ci-chart-legend-pos-{full}` rules
+   at the top of this file. Gauge's legend root stamps both — no per-
+   family layout rules needed. */
+.ci-gauge-svg {
+    overflow: visible;
+}
+/* Track arc — the unfilled background. Stroke color lands inline (from
+   gaugeConfig.trackColor) so the menu controls the neutral. */
+.ci-gauge-track {
+    /* Geometry only; paint inline. */
+    pointer-events: none;
+}
+/* Foreground arc — paint via cs-gauge-fill on the host side (theme color
+   from th-section{N}). */
+.ci-gauge-fill {
+    pointer-events: auto;
+    cursor: pointer;
+}
+/* Tick marks — host paints stroke / opacity. Lib only owns positioning. */
+.ci-gauge-tick-line {
+    pointer-events: none;
+}
+.ci-gauge-tick-label {
+    /* SVG <text> — host paints fill. Default font-size mirrors gridvalue. */
+    pointer-events: none;
+    user-select: none;
+    font-size: 12px;
+    font-weight: 500;
+}
+/* Needle — color/width inline from gaugeConfig (no theme tint per design). */
+.ci-gauge-needle {
+    pointer-events: none;
+}
+.ci-gauge-hub,
+.ci-gauge-hub-inner {
+    pointer-events: none;
+}
+/* Center-stack — value (large) + optional label below. Each wrapper is
+   absolutely positioned inline by JS to mirror the SVG's meet-fit center
+   (so the HTML overlay tracks the hub at any container size). Inline
+   font-size scales with the viewBox-meet `scale` so the text stays
+   proportional to the gauge dimensions. */
+.ci-gauge-center-value {
+    font-weight: 700;
+    cursor: text;
+    user-select: text;
+    -webkit-user-select: text;
+    white-space: nowrap;
+    pointer-events: auto;
+    line-height: 1.15;
+}
+.ci-gauge-center-label {
+    font-weight: 400;
+    cursor: text;
+    user-select: text;
+    -webkit-user-select: text;
+    white-space: nowrap;
+    pointer-events: auto;
+    line-height: 1.15;
+}
+.ci-gauge-center-label[data-empty="true"]:empty::before {
+    content: attr(data-prompt-text);
+    opacity: 0.4;
+}
+/* Single-series legend strip — paint/spacing ONLY. Layout (flex-direction +
+   alignment) is owned by the shared `.ci-chart-legend-base-{side}` +
+   `.ci-chart-legend-pos-{full}` rules near the top of this file, which the
+   gauge legend root stamps. Do NOT re-declare flex-direction / align-items /
+   justify-content here: those rules live LATER in the file with equal
+   specificity, so they would override the shared positioning and freeze the
+   legend at center (legend-position dropdown then silently no-ops). */
+.ci-gauge-legend {
+    gap: 8px;
+    padding: 8px 0;
+}
+
+/* ---------- WaffleChart (single-value percentage grid) ----------
+   DIV-only grid; cells are plain <div> elements whose visible shape is
+   selected by the paired `cs-waffle-cell-shape-{shape}` class — themes own
+   border-radius / clip-path / transform paint, lib owns ONLY layout
+   (display:grid, sizing, square-fit aspect, gap budget) + interaction state
+   (pointer-events, cursor). Mirrors funnel / radar / gauge lib-paint
+   separation. */
+/* ============================================================
+   AnimatedPieChart — single-value sprite "realistic" pie.
+   Layout only (flex sizing + sprite-cell box). All paint
+   (value/label colour, legend swatch) rides shared `cs-*`
+   theme classes. Mirrors the waffle lib-paint separation. */
+.ci-animated-pie-chart {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+/* `ci-animated-pie-main` wraps body + optional legend; the base-side class
+   drives flex-direction so the legend lands above/below/left/right. */
+.ci-animated-pie-main {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+}
+.ci-animated-pie-main-top,
+.ci-animated-pie-main-bottom {
+    flex-direction: column;
+}
+.ci-animated-pie-main-left,
+.ci-animated-pie-main-right {
+    flex-direction: row;
+    align-items: stretch;
+}
+/* Body = sprite plot (left) + value block (right), per the reference. */
+.ci-animated-pie-body {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    gap: 4%;
+}
+/* Sprite cell — flex:1 so it absorbs the left half; the sprite inside is
+   contain-scaled against this box by the component's ResizeObserver. */
+.ci-animated-pie-plot {
+    position: relative;
+    flex: 1 1 0%;
+    min-width: 0;
+    min-height: 0;
+    align-self: stretch;
+}
+/* Value block — big value over the optional description label. */
+.ci-animated-pie-valueblock {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    flex: 1 1 0%;
+    min-width: 0;
+    gap: 8px;
+}
+/* Two-layer pie: the background layer (full pizza) rides 0.3 opacity so it
+   reads as the faint remainder behind the bright value slice (legacy
+   `.pieassetopacity`). */
+.ci-animated-pie-sprite-bg,
+.ci-animated-pie-chart .pieassetopacity {
+    opacity: 0.3;
+}
+.ci-animated-pie-value {
+    font-size: 44px;
+    font-weight: 600;
+    line-height: 1.1;
+}
+.ci-animated-pie-label {
+    font-size: 13px;
+    line-height: 1.4;
+    opacity: 0.85;
+}
+
+.ci-waffle-chart {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* `ci-waffle-main` wraps plot + legend; `cs-waffle-main-{pos}` drives the
+   flex-direction so the legend lands above/below/left/right of the grid.
+   The legend element itself is rendered ONCE in JSX but slotted via the
+   legendBefore branch — flex-direction alone reorders, no `order` tricks. */
+.ci-waffle-main {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+    /* Centre the [legend + grid] group. Both children shrink-wrap their
+       content, so this is what positions them as one adjacent block; host
+       theme can override justify-content/align-items to anchor differently. */
+    align-items: center;
+    justify-content: center;
+}
+.ci-waffle-main-top,
+.ci-waffle-main-bottom {
+    flex-direction: column;
+}
+.ci-waffle-main-left,
+.ci-waffle-main-right {
+    flex-direction: row;
+}
+
+/* Plot REGION — SHRINK-WRAPS the grid (`flex: 0 0 auto`), it does NOT fill the
+   space left by the legend. That's what keeps the legend and the grid adjacent
+   with no gap between them; the [legend + grid] group is positioned by
+   `ci-waffle-main`'s justify-content/align-items. The fit-scale is measured
+   from main−legend (see the JS), NOT from this box, so it stays loop-safe. */
+.ci-waffle-plot-region {
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Plot AREA — shrink-wraps the grid so the two are exactly the same size
+   (no empty padding around the grid). `flex: 0 0 auto` + auto width/height
+   means it takes the grid's resolved px size; the grid is already scaled to
+   fit the region, so the plot-area never exceeds it. Stays `position:
+   relative` for the inside-value overlay. */
+.ci-waffle-plot-area {
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Grid root — STATIC px width/height are stamped INLINE by the lib
+   (`cols·CELL_SIZE + gaps` × the row analogue) so every cell stays a square
+   and never stretches with the parent box. We must NOT override that size
+   here: `flex: none` stops the plot-area flex from shrinking it, and the
+   inline width/height win. The plot area centres it and lets it overflow if
+   the chart box is smaller than the static grid. */
+.ci-waffle-grid {
+    position: relative;
+    box-sizing: border-box;
+    flex: none;
+}
+
+/* Bg layer + fill layer — both fill the grid via `inset:0`. Lib publishes
+   no width/height — they inherit the grid's resolved size. Bg sits under,
+   fill on top; z-index declared explicitly for safety against host theme
+   z-stack changes. */
+.ci-waffle-bg-layer,
+.ci-waffle-fill-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.ci-waffle-bg-layer {
+    z-index: 0;
+}
+.ci-waffle-fill-layer {
+    z-index: 1;
+}
+
+/* Cell slot — a fixed cellWidth × cellHeight rect. `left`/`top` come from the
+   lib as static px (`col·(cellWidth+gap)` / `row·(cellHeight+gap)`); the
+   width/height live HERE, driven by the `--cs-waffle-cell-width` /
+   `--cs-waffle-cell-height` vars the lib stamps on the grid root. This is what
+   keeps each cell at its authored size — percentage width/height used to
+   stretch into the wrong aspect ratio when the parent box wasn't proportional. */
+.ci-waffle-cell-slot,
+.cs-waffle-cell-slot {
+    box-sizing: border-box;
+    width: var(--cs-waffle-cell-width);
+    height: var(--cs-waffle-cell-height);
+    pointer-events: none;
+}
+
+/* Background shape — emitted for EVERY (row, col) cell. Lib emits the
+   class hooks ONLY; paint (background-color, opacity) is owned entirely by
+   host theme. Per-value opacity hooks: lib stamps `data-customopacity`
+   when a menu ships a non-default `emptyOpacity` — host theme rules can
+   target via `.cs-waffle-bg-shape[data-customopacity="0.5"] { opacity: 0.5 }`.
+   `width/height: 100%` fills the whole slot — the inter-cell gutter is the
+   gap baked into the slot's left/top offset, NOT an inset on the shape.
+   (width/height rather than `inset: 0` so a host rule that flips `position`
+   on `cs-graphic-item` can't collapse the shape to 0.) */
+.ci-waffle-bg-shape {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+/* Fill shape — emitted only for cells in the filled-prefix of the fill
+   order. Theme-painted via the standard `cs-graphic-item` + `th-section{N}`
+   cascade the host already paints for column / bar / line / pie series
+   elements. Lib ships no defensive paint — host theme owns the colour.
+   `width/height: 100%` fills the whole slot (matches the bg shape exactly). */
+.ci-waffle-fill-shape {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+/* Cell SHAPE silhouette — applied to BOTH bg + fill children so their
+   geometries match exactly. Structural only; host theme owns visual
+   paint variants (clip-path for diamond/hexagon, etc.). */
+.cs-waffle-shape-square {
+}
+.cs-waffle-shape-circle {
+    border-radius: 50%;
+}
+.cs-waffle-shape-rounded {
+    border-radius: 25%;
+}
+.cs-waffle-shape-diamond {
+}
+.cs-waffle-shape-hexagon {
+}
+
+/* Big VALUE text — placement-driven. `cs-waffle-value-pos-inside` overlays
+   the value at the grid centre; `cs-waffle-value-pos-legend` floats inside
+   the legend strip. Lib owns only positioning + interaction; font-size /
+   colour / weight come from host theme + textFormatStyles. */
+.ci-waffle-value-inside-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 2;
+}
+.ci-waffle-value-inside-wrap .ci-waffle-value {
+    pointer-events: auto;
+}
+.ci-waffle-value {
+    white-space: nowrap;
+    cursor: text;
+    user-select: text;
+    -webkit-user-select: text;
+    outline: none;
+    line-height: 1.05;
+}
+
+/* Single-series legend strip — paint/spacing ONLY. Layout (flex-direction +
+   alignment) is owned by the shared `.ci-chart-legend-base-{side}` +
+   `.ci-chart-legend-pos-{full}` rules near the top of this file (the legend
+   root stamps both). Do NOT re-declare align-items / justify-content here:
+   this rule lives LATER in the file with equal specificity, so it would
+   override the shared positioning and freeze the legend at center (the
+   legend-position dropdown then silently no-ops). */
+.ci-waffle-legend {
+    display: flex;
+    gap: 8px;
+    padding: 8px 0;
+    flex-shrink: 0;
+}
+/* Side / top / bottom strip alignment is owned by the shared
+   `.ci-chart-legend-base-{side}` + `.ci-chart-legend-pos-{full}` rules
+   near the top of this file (single source of truth — pie / polar /
+   gauge / waffle all consume it). Only paint here: side-strip horizontal
+   gutter mirrors the legacy 8px padding. */
+.ci-waffle-legend-base-left,
+.ci-waffle-legend-base-right {
+    padding: 0 8px;
+}
+/* Waffle's "legend" strip is the HERO value, not a label list — so the
+   shared `.ci-chart-legend-vertical { max-width: 30% }` cap (meant to keep a
+   long label list from stretching across the plot) is far too tight here: a
+   large data-label value (e.g. 200px "2180%") can't fit 30% and gets clipped
+   mid-character by `.ci-chart-legend-base-{left|right} { overflow: hidden }`.
+   Raise the cap and drop the clip for the waffle strip so the value sizes to
+   its own width. The grid auto-shrinks to fill the rest because the JS
+   fit-scale computes availW = mainW − measured legend width (loop-safe: the
+   legend's width is content/cap-driven, never grid-driven). The 65% ceiling
+   still guarantees the grid keeps ≥ 35% of the width. Specificity 0,2,0
+   intentionally beats the shared 0,1,0 rules. */
+.cs-waffle-legend.ci-chart-legend-vertical {
+    max-width: 65%;
+}
+.cs-waffle-legend.ci-chart-legend-base-left,
+.cs-waffle-legend.ci-chart-legend-base-right {
+    overflow: visible;
+}
+.ci-waffle-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    min-width: 0;
+}
+.ci-waffle-legend-label {
+    white-space: pre-wrap;
+    word-break: normal;
+    outline: none;
+}
+
+/* ============================================================
+   ComparisonColumn — two-series comparison column chart.
+   Structural / layout-only rules; host theme owns paint via
+   the paired cs-* siblings + th-section{N} tint cascade +
+   .cs-graphic-item (which paints .ci-comparison-fill).
+   ============================================================ */
+
+.ci-comparison-chart-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.ci-comparison-body {
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+.ci-comparison-plot {
+    height: 100%;
+}
+
+.ci-comparison-cell {
+    cursor: pointer;
+    overflow: visible;
+}
+
+.ci-comparison-cell-inner {
+    overflow: visible;
+}
+
+.ci-comparison-label-slot {
+    flex-shrink: 0;
+    overflow: visible;
+}
+
+.ci-comparison-label {
+    outline: none;
+    word-break: normal;
+    line-height: 1.25;
+    min-height: 1em;
+    /* Default for inside placement; side cell-side classes override. */
+    text-align: center;
+}
+
+.ci-comparison-bar-slot {
+    overflow: visible;
+}
+
+.ci-comparison-bar {
+    box-sizing: border-box;
+}
+
+/* Outline frame — lib emits the class hook; host theme owns the border
+   paint (border-color, border-width, border-style) via cs-comparison-frame. */
+.ci-comparison-frame {
+    box-sizing: border-box;
+}
+
+/* Colored fill rises from the bar bottom up to value%. Lib owns the
+   geometry; .cs-graphic-item (host theme) paints the background. */
+.ci-comparison-fill {
+    box-sizing: border-box;
+    min-height: 1px;
+}
+
+/* Dashed level finder — visible only in frame mode + outside-value. Lib
+   emits the hook; host theme owns stroke / stroke-width / dasharray. */
+.ci-comparison-level-finder {
+    pointer-events: none;
+}
+
+/* Connector — short dashed leader from the bar's value tip to the side
+   slot content. Host theme owns the stroke / stroke-width / dasharray on
+   the inner line via the paired cs-comparison-connector-line class. */
+.ci-comparison-connector {
+    pointer-events: none;
+}
+
+/* Value wrapper override — comparison absolutely positions the value
+   inside the bar / above the fill, so the shared .ci-value-text-wrap
+   width:100% rule already lines up with the bar's left/right anchors.
+   Per memory feedback_absolute_value_label_width, we don't need
+   fit-content here because the wrap spans the bar's full width by
+   design (centered with justify-content). */
+/* Value / label alignment is class-driven (not inline) so each side anchors
+   toward the bar. Inside placement stays centered; a side-slot value/label in
+   the LEFT cell right-aligns toward the bar, in the RIGHT cell left-aligns.
+   The value wrap is a flexbox (justify-content); the label is a text block
+   (text-align). */
+.ci-comparison-value-wrap {
+    z-index: 1;
+    justify-content: center;
+}
+
+.cs-comparison-value-place-side.cs-comparison-cell-left {
+    justify-content: flex-end;
+}
+
+.cs-comparison-value-place-side.cs-comparison-cell-right {
+    justify-content: flex-start;
+}
+
+.cs-comparison-label-place-side.cs-comparison-cell-left {
+    text-align: right;
+}
+
+.cs-comparison-label-place-side.cs-comparison-cell-right {
+    text-align: left;
+}
+
+/* ============================================================
+   SizeScaleComparisonChart — size-scale family
+   ------------------------------------------------------------
+   A row of N raster images sized by value. Lib owns ALL geometry
+   (per-item square px, baseline alignment, value/label placement);
+   the cs-* classes are theme paint hooks (text color, image
+   shadow). NO cs-graphic-item on the image box — host's
+   `.cs-column .cs-graphic-item` rule would paint a rectangle
+   behind the image (anti-pattern #13); this family uses the
+   neutral cs-sizescale orientation class instead.
+   ============================================================ */
+.ci-szc-chart-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.ci-szc-body {
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+.ci-szc-plot {
+    height: 100%;
+    overflow: visible;
+}
+
+.ci-szc-item {
+    overflow: visible;
+}
+
+/* Square image box — geometry inline (width/height/transform). The
+   image bottom-aligns on the common baseline via the flex-end
+   graphic-area. Theme may add a drop-shadow via cs-szc-graphic. */
+.ci-szc-graphic {
+    box-sizing: border-box;
+}
+
+.ci-szc-image {
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+.ci-szc-label,
+.ci-szc-secondary {
+    outline: none;
+    word-break: normal;
+    line-height: 1.25;
+    min-height: 1em;
+}
+
+/* Value wrapper — flows in normal layout (top/bottom) or overlays the
+   image center; the shared .ci-value-text-wrap absolute default is
+   overridden inline (position:static). */
+.ci-szc-value-wrap {
+    z-index: 1;
+}
+
+/* ============================================================
+   SizeScaleShapeComparisonChart — CSS shapes sized by value
+   ------------------------------------------------------------
+   Sibling of the size-scale image chart, but the primitive is a
+   CSS-drawn shape (circle / rectangle / polygon[hexagon]) with an
+   optional max-sized neutral backdrop shape. Lib owns geometry
+   (width / height / clip-path / transform inline); cs-* are theme
+   paint hooks. Uses the neutral cs-shapescale orientation class —
+   NO cs-graphic-item (anti-pattern #13). Shape FILL rides
+   th-section{N} via the host theme CSS.
+   ============================================================ */
+.ci-sszc-chart-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.ci-sszc-body {
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+.ci-sszc-plot {
+    height: 100%;
+    overflow: visible;
+}
+
+.ci-sszc-item {
+    overflow: visible;
+}
+
+.ci-sszc-graphic-box,
+.ci-sszc-shape,
+.ci-sszc-bg-shape {
+    box-sizing: border-box;
+}
+
+.ci-sszc-label,
+.ci-sszc-secondary {
+    outline: none;
+    word-break: normal;
+    line-height: 1.25;
+    min-height: 1em;
+}
+
+.ci-sszc-value-wrap {
+    z-index: 1;
+}
+
+/* ============================================================
+   CandlestickChart — financial family (OHLC)
+   ------------------------------------------------------------
+   Lib owns geometry + structural CSS. Theme paint is opt-in:
+   defensive defaults below ensure candles render in unthemed
+   contexts (storybook, headless render, host CSS not loaded).
+   Host theme is expected to override via cs-candle-body-up /
+   cs-candle-body-down / cs-candle-wick-* with brand colors.
+   The .cs-candle-body div carries .cs-graphic-item, but the
+   shared `.series .cs-graphic-item { background-color: var(--g-c1) }`
+   cascade would paint EVERY candle the same theme color regardless
+   of direction. The direction-specific rules below override that so
+   bullish/bearish bodies stay distinguishable. The component sets
+   inline backgroundColor when the user picks a non-"auto" up/down
+   color, which beats both.
+   ============================================================ */
+.ci-candle {
+    pointer-events: auto;
+}
+
+.ci-react-chart-container .ci-candle .cs-candle-body.cs-candle-body-up {
+    background-color: #26a69a;
+    border-color: #26a69a;
+}
+
+.ci-react-chart-container .ci-candle .cs-candle-body.cs-candle-body-down {
+    background-color: #ef5350;
+    border-color: #ef5350;
+}
+
+/* Wick — "auto" wickColor means inherit from body direction. Bodies are
+   filled rects; wicks are thin solid lines. Set explicit fallbacks per
+   direction. Inline backgroundColor on the wick div overrides when user
+   picks a non-"auto" wickColor. */
+.ci-react-chart-container .ci-candle .cs-candle-wick.cs-candle-wick-up {
+    background-color: #26a69a;
+}
+
+.ci-react-chart-container .ci-candle .cs-candle-wick.cs-candle-wick-down {
+    background-color: #ef5350;
+}
+
+/* Legend swatch — Bullish/Bearish chips mirror candle colors so the
+   legend stays consistent without host theme overrides. */
+.ci-react-chart-container .ci-legend-shape-fill.cs-candle-body-up {
+    background-color: #26a69a;
+}
+
+.ci-react-chart-container .ci-legend-shape-fill.cs-candle-body-down {
+    background-color: #ef5350;
+}
+
+/* Value labels — open/close/high/low. fit-content + nowrap is set
+   inline (matches dumbbell's absolute-positioned value-label pattern)
+   per memory feedback_absolute_value_label_width. */
+.ci-candle-label-high,
+.ci-candle-label-low,
+.ci-candle-label-open,
+.ci-candle-label-close {
+    pointer-events: auto;
+}
+
+/* ============================================================
+   BoxPlotChart — distribution family (box-and-whisker)
+   ------------------------------------------------------------
+   Structural / position only. Theme paint (cs-box-* colours,
+   th-section{N} tint) lives in core-chart-styles.css per the
+   3-file CSS contract.
+   ============================================================ */
+.ci-boxplot-layer {
+    pointer-events: none;
+}
+
+.ci-box {
+    pointer-events: none;
+}
+
+.ci-box-rect {
+    box-sizing: border-box;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.ci-box-whisker,
+.ci-box-cap,
+.ci-box-median {
+    pointer-events: none;
+}
+
+.ci-box-outlier {
+    box-sizing: border-box;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.ci-box-value-label {
+    pointer-events: auto;
+}
+
+/* ============================================================
+   GanttChart — timeline family (project schedule)
+   ------------------------------------------------------------
+   Structural / position / pointer-events only. Theme paint
+   (cs-gantt-* colours, th-section{N} tint) lives in
+   core-chart-styles.css per the 3-file CSS contract.
+   ============================================================ */
+/* Scroll viewport — when the schedule outgrows the slide (many tasks or a
+   long timeline) the grid overflows here instead of crushing rows/ticks.
+   The grid's inline width/height vs. minWidth/minHeight:100% decide when
+   the scrollbars actually appear. */
+.ci-gantt-scroll {
+    overflow: auto;
+}
+
+.ci-gantt-timescale,
+.ci-gantt-label-col,
+.ci-gantt-lanes {
+    overflow: hidden;
+}
+
+/* Tick / phase / non-bar layers never intercept pointer events. */
+.ci-gantt-gridlines,
+.ci-gantt-bands,
+.ci-gantt-today,
+.ci-gantt-arrows-layer,
+.ci-gantt-bar-track {
+    pointer-events: none;
+}
+
+.ci-gantt-tick-label {
+    pointer-events: auto;
+}
+
+/* Editable task name — text caret, no focus ring. */
+.ci-gantt-task-label {
+    cursor: text;
+    outline: none;
+}
+
+.ci-gantt-phase-name {
+    pointer-events: auto;
+}
+
+/* Duration bar — the only clickable schedule node. */
+.ci-gantt-bar {
+    box-sizing: border-box;
+    pointer-events: auto;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.ci-gantt-bar-progress {
+    pointer-events: none;
+}
+
+/* Unscheduled task marker — a row whose start/end did not parse. Stays
+   selectable so the task floater still opens; paint is host-side
+   (cs-gantt-unscheduled) with an italic/dim inline fallback. */
+.ci-gantt-unscheduled {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+/* Milestone diamond — outer is the hit-target, inner is the rotated shape. */
+.ci-gantt-milestone {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.ci-gantt-milestone-shape {
+    box-sizing: border-box;
+}
+
+.ci-gantt-bar-label {
+    pointer-events: auto;
+}
+
+.ci-gantt-arrow-head {
+    width: 0;
+    height: 0;
+}
+
+/* --- Icon-fill bar (barSimpleIconRepeatFill) — LAYOUT ONLY -------------
+   All color / fill / theming for this chart family is owned by
+   `design_assets/commonfiles/css/core-chart-styles.css` under the `.cs-row`
+   family — see `seriesnodeelements .cs-line-area` at line 2663 and the
+   `cs-label-text` / `cs-value-text` rules.
+
+   Layout guardrail: host theme CSS attaches
+   `.cs-graphic-item { background-color: ... }` / `.cs-row .cs-graphic-item
+   { border-radius: ... }` which would paint a solid rectangle BEHIND the
+   icon row. The bar div omits `cs-graphic-item`; this defensive transparent
+   override catches any host-side stylesheet that targets `.ci-bar` more
+   aggressively. No fill / color rules in this lib file — those live in
+   `core-chart-styles.css`. */
+.ci-react-chart-container .ci-icon-repeat-bar {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+.ci-react-chart-container .ci-icon-repeat-bar > svg {
+    overflow: visible;
+}
+
+/* --- Icon-fill compare (fillcompareChart) ---------------------------------
+   Variant 2 of the icon-fill family. Faithful port of legacy
+   SimpleFillCompareSeriesItem.doAddTopGraphicsContainer (js-chart-new.js:
+   71252). Uses legacy class names (.basegraphic, .chartgraphic,
+   .basetopgraphic, .seriesitemcond, .fillLevelFinder, #levelfinder,
+   .layoutContainer, .alterstylepos, .alterstylenoraml, .minheightvalue)
+   so host theme CSS in chartnew.css applies unchanged.
+
+   Defensive bg-transparent on the icon column — host theme `.cs-graphic-
+   item` is intentionally omitted on this element, but we add a belt-
+   suspenders override here for any host stylesheet that targets the
+   class more aggressively. */
+.ci-react-chart-container .ci-iconfill-graphic {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+.ci-react-chart-container .ci-iconfill-graphic > svg {
+    overflow: visible;
+}
+
+/* Colour rules live in the host design CSS
+   (`design_assets/commonfiles/css/core-chart-styles.css`, `cs-iconfill`
+   block): foreground `<use>` paints with `--th-section-primary`,
+   background `<use>` with `--th-slide-contrast`, fallback placeholder
+   neutral, divider stroke per `cs-iconfill-divider-color-{item|theme}`,
+   value/label text via the `cs-{value,label}-text.cs-{value,label}-pos-*`
+   pattern. Do not duplicate those rules here. */
+
+/* layoutContainer + content — pointer events wiring. Wrappers pass
+   through, individual text spans (.value, .label) re-enable. */
+.ci-react-chart-container .ci-iconfill-layout {
+    pointer-events: none;
+}
+.ci-react-chart-container .ci-iconfill-layout .value,
+.ci-react-chart-container .ci-iconfill-layout .label,
+.ci-react-chart-container .ci-iconfill-value-inside {
+    pointer-events: auto;
+}
+
+.ci-react-chart-container .ci-iconfill-layout .valuetext,
+.ci-react-chart-container .ci-iconfill-layout .labeltext {
+    cursor: text;
+    outline: none;
+}
+
+/* Side value+label alignment — class-driven, mirroring ComparisonColumn's
+   cs-comparison-cell-{left|right} rules. The outer row spans the text band;
+   `justify-content` pushes the value+label stack toward the divider line on
+   the icon side, and `text-align` aligns wrapped/multi-line text to match.
+   Left series → flex-end (right-aligned); right series → flex-start (left). */
+.ci-react-chart-container .cs-iconfill-callout-left {
+    justify-content: flex-end;
+}
+.ci-react-chart-container .cs-iconfill-callout-right {
+    justify-content: flex-start;
+}
+.ci-react-chart-container .cs-iconfill-callout-left .cs-iconfill-value,
+.ci-react-chart-container .cs-iconfill-callout-left .cs-iconfill-label {
+    text-align: right;
+    justify-content: flex-end;
+}
+.ci-react-chart-container .cs-iconfill-callout-right .cs-iconfill-value,
+.ci-react-chart-container .cs-iconfill-callout-right .cs-iconfill-label {
+    text-align: left;
+}
+
+/* ============================================================
+ * SingleIconFillChart (singleIconFill) — single-value icon-fill
+ * with an optional 12-position legend. Structure/layout only; the
+ * icon + callout reuse the shared `ci-iconfill-*` rules above, and
+ * the legend rides the shared `ci-chart-legend-*` primitives near
+ * the top of this file. `th-section{N}` carries the colour.
+ * ============================================================ */
+
+/* Main wrapper holds [legend + plot row]; base-side class drives the
+   flex-direction so the legend lands above/below/left/right of the plot.
+   The plot row fills the leftover space (flex:1) so IconFillCompareElement
+   can measure the full region for icon sizing; the legend shrink-wraps. */
+.ci-react-chart-container .ci-single-icon-fill-main {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+    align-items: stretch;
+    justify-content: center;
+}
+.ci-react-chart-container .ci-single-icon-fill-main-top,
+.ci-react-chart-container .ci-single-icon-fill-main-bottom {
+    flex-direction: column;
+}
+.ci-react-chart-container .ci-single-icon-fill-main-left,
+.ci-react-chart-container .ci-single-icon-fill-main-right {
+    flex-direction: row;
+}
+.ci-react-chart-container .ci-single-icon-fill-row {
+    flex: 1 1 auto;
+}
+
+/* Single-entry legend — swatch + (label over optional value) stacked. The
+   `ci-chart-legend-base-*` / `ci-chart-legend-pos-*` shared rules own the
+   strip's sizing + alignment; these only set the item's internal flow. */
+.ci-react-chart-container .ci-single-icon-fill-legend-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+.ci-react-chart-container .ci-single-icon-fill-legend-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+}
+.ci-react-chart-container .ci-single-icon-fill-legend-label {
+    pointer-events: auto;
+    cursor: text;
+    outline: none;
+}
+
+/* Inside overlay group — value and/or label centered on the icon
+   (single-icon "inside" position). Layout is inline; this only owns the
+   stacking flow + the inside label's wrapping. */
+.ci-react-chart-container .ci-iconfill-inside-group {
+    max-width: 80%;
+}
+.ci-react-chart-container .ci-iconfill-label-inside {
+    white-space: pre-wrap;
+    max-width: 100%;
+}
+
+/* ============================================================
+ * SimpleIconFillBarChart (barSimpleIconFill) — horizontal
+ * one-row-per-category icon-fill chart. Layout/structure here;
+ * the per-row `th-section{N}` cascade carries the colour.
+ * ============================================================ */
+
+/* Icon strip — defensive transparent bg (host theme `.cs-graphic-item`
+   is intentionally NOT on this element; belt-and-suspenders override). */
+.ci-react-chart-container .ci-iconfill-bar-graphic {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+.ci-react-chart-container .ci-iconfill-bar-graphic > svg {
+    overflow: visible;
+}
+
+/* Foreground icons — themed fill. The icon symbols carry no `fill` of
+   their own, so they inherit `fill` from the <use>. Colour rides the
+   `--th-section-primary` cascade set by the row's `th-section{N}` class;
+   the slate fallback keeps test renders visible when the theme var is
+   undefined. */
+.ci-react-chart-container .ci-iconfill-bar-fg-use {
+    fill: rgba(var(--th-section-primary, 71, 85, 105), 1);
+    stroke: rgba(var(--th-section-primary, 71, 85, 105), 1);
+}
+
+/* Background (unfilled) icons — same themed colour; the low opacity is
+   applied inline via `fill-opacity` / `stroke-opacity` so it reads as the
+   "empty" portion of the row. */
+.ci-react-chart-container .ci-iconfill-bar-bg-use {
+    fill: rgba(var(--th-section-primary, 71, 85, 105), 1);
+    stroke: rgba(var(--th-section-primary, 71, 85, 105), 1);
+}
+
+/* Value callout — themed per-row (matches the filled icons). */
+.ci-react-chart-container .cs-iconfill-bar-value {
+    color: rgba(var(--th-section-primary, 71, 85, 105), 1);
+}
+
+/* Text bands re-enable pointer events for inline editing. */
+.ci-react-chart-container .ci-iconfill-bar-value,
+.ci-react-chart-container .ci-iconfill-bar-label {
+    pointer-events: auto;
+    cursor: text;
+    outline: none;
+}
+
+/* ============================================================
+ * Scatter — position / layout only. Color paints live in
+ * design_assets/commonfiles/css/core-chart-styles.css under
+ * the `cs-scatter-*` selectors.
+ * ============================================================ */
+
+.ci-react-chart-container .ci-scatter-plot-area {
+    /* plot area inherits flex grow from parent */
+}
+
+.ci-react-chart-container .ci-scatter-plot-inner {
+    /* anchored inset is set inline (top/bottom/left/right) so reserves
+       can track measured Y-axis line width + value-label heights */
+}
+
+.ci-react-chart-container .ci-scatter-points-layer {
+    pointer-events: none; /* wrapper passes through; point divs re-enable */
+}
+
+.ci-react-chart-container .ci-scatter-point-slot {
+    /* slot is a full-bleed positioning context so the absolute point +
+       its labels share the same coordinate basis (left/top in %) */
+    pointer-events: none;
+}
+
+.ci-react-chart-container .ci-scatter-point {
+    /* size + color come from host theme CSS (cs-scatter-point). Lib
+       owns the absolute positioning math only. */
+    pointer-events: auto;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.ci-react-chart-container .ci-scatter-point-label,
+.ci-react-chart-container .ci-scatter-value-label {
+    /* label / value-label position comes from inline style (left/top%
+       + transform). Text color / size from host theme (cs-*). */
+    pointer-events: auto;
+}
+
+.ci-react-chart-container .ci-scatter-xaxis {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* The tick row + labels row use the shared ci-axis-x-tick-row / ci-axis-x-labels
+   pattern from the column/bar family (see ReactChart.css L302+). Tick mark
+   styling comes from host theme cs-label-tickmark (vertical 1×10 dash). */
+
+.ci-react-chart-container .ci-scatter-xaxis-title {
+    text-align: center;
+    margin-top: 6px;
+}
+
+.ci-react-chart-container .ci-grid-vline {
+    /* vertical grid line — paired with horizontal lines from GridLayer.
+       Theme paints stroke via cs-grid-line / cs-grid-vline. */
+    pointer-events: none;
+}
+
+/* ============================================================
+ * Bubble — position / layout only. Color paints live in
+ * design_assets/commonfiles/css/core-chart-styles.css under
+ * the `cs-bubble-*` selectors. Mirrors the scatter block above —
+ * bubble is a scatter variant with per-point Z-driven radius.
+ * ci-bubble-plot-area / ci-bubble-plot-inner intentionally have no
+ * rules here — flex grow + inline insets handle their geometry.
+ * ============================================================ */
+
+.ci-react-chart-container .ci-bubble-points-layer {
+    pointer-events: none; /* wrapper passes through; bubble divs re-enable */
+}
+
+.ci-react-chart-container .ci-bubble-point-slot {
+    pointer-events: none;
+}
+
+.ci-react-chart-container .ci-bubble-point {
+    /* Lib owns GEOMETRY only — width/height (z-driven) + position are inline.
+       ALL paint (fill, opacity, border) comes from the host theme class
+       cs-bubble-point + th-section{N}; nothing visual is set inline. The
+       circle shape lives here on the lib class (mirrors cs-scatter-point's
+       border-radius) so removing the inline borderRadius can't square the
+       bubble. */
+    pointer-events: auto;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.ci-react-chart-container .ci-bubble-point-label,
+.ci-react-chart-container .ci-bubble-value-label {
+    pointer-events: auto;
+}
+
+.ci-react-chart-container .ci-bubble-xaxis {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.ci-react-chart-container .ci-bubble-xaxis-title {
+    text-align: center;
+    margin-top: 6px;
+}
+
+/* ============================================================================
+   Bump Chart — rank-over-time line variant (BumpChart.jsx)
+   Structure / layout only. Colours, fonts and theme paint live in the host
+   theme sheet core-chart-styles.css (cs-bump-* rules).
+   ============================================================================ */
+
+/* ---- Rank Y-axis (absolute left strip inside ce-plot-area) ----
+   A flex row: rotated editable title (reuses the shared ci-axis-title-y /
+   cs-y-axis-title classes — rotation is inherited from those) + #N column.
+   The whole strip is measured (offsetWidth) to reserve the plot inset. */
+.ci-bump-axis-y {
+    box-sizing: border-box;
+}
+
+.ci-bump-axis-y-col {
+    box-sizing: border-box;
+}
+
+/* In-flow hidden strut — gives the absolutely-positioned #N column its width. */
+.ci-bump-axis-y-strut {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.ci-bump-axis-y-strut > * {
+    display: block;
+    white-space: nowrap;
+}
+
+.ci-bump-rank-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.ci-bump-rank-label {
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* ---- Plot ---- */
+.ci-bump-paths-svg {
+    overflow: visible;
+    pointer-events: none;
+}
+
+.ci-bump-line {
+    fill: none;
+}
+
+.ci-bump-points-layer,
+.ci-bump-value-labels-layer {
+    pointer-events: none;
+}
+
+.ci-bump-point {
+    box-sizing: border-box;
+}
+
+.ci-bump-axis-line {
+    pointer-events: none;
+}
+
+/* ---- Right-side series-name panel ---- */
+.ci-bump-series-label-panel {
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.ci-bump-series-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 10px;
+    pointer-events: none;
+}
+
+/* Wraps within the (capped) panel so a long name never leaves the chart —
+   no max-width / ellipsis, the full name always renders. The panel width
+   itself is measured live (see BumpChart.measurePanel). */
+.ci-bump-series-label-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    /* `pre-wrap` (not `normal`) so user-entered Enter breaks survive
+       blur/save round-trip. Width still caps to panel; a long single word is
+       kept whole (no mid-word break) and simply overflows the cap. */
+    white-space: pre-wrap;
+    overflow-wrap: normal;
+    outline: none;
+    cursor: text;
+    pointer-events: all;
+}
+
+/* ---- Category (X) axis ---- */
+.ci-bump-axis-x,
+.ci-bump-axis-x-labels,
+.ci-bump-axis-x-inner {
+    box-sizing: border-box;
+}
+
+/* In-flow, invisible — gives the absolutely-positioned year labels a row
+   height to live in. Carries the label font so the height matches. */
+.ci-bump-axis-x-strut {
+    visibility: hidden;
+    white-space: nowrap;
+    padding: 5px 0;
+}
+
+/* Year labels must never wrap character-by-character — they sit at exact
+   point x%; a single line that slightly overhangs the edge is correct. */
+.ci-bump-axis-x-inner .ci-label-text {
+    white-space: nowrap;
+    width: auto;
+    word-break: normal;
+    overflow: visible;
+}
+
+.ci-bump-axis-x-title-wrapper {
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* The category-axis title wraps within the plot span — never overflows. */
+.ci-bump-axis-x-title {
+    white-space: normal;
+    overflow-wrap: normal;
+    width: 100%;
+}
+
+/* ===== Pictorial chart (PictorialChart — "Candle Burn") =====
+   Categorical sprite-pictogram row. Each category renders one frame of a
+   CreateJS atlas (frame index = value). Layout is inline (flex row + measured
+   contain-scale on the sprite); these rules own structure only — the sprite is
+   painted by the atlas image, so paint lives on the cs-* pairs in host theme
+   CSS (cs-pictorial-*). */
+.ci-pictorial-layer {
+    box-sizing: border-box;
+}
+.ci-pictorial-series {
+    box-sizing: border-box;
+}
+.ci-pictorial-sprite-wrap {
+    cursor: pointer;
+}
+.ci-pictorial-sprite {
+    pointer-events: none;
+}
+.ci-pictorial-value {
+    white-space: nowrap;
+}
+
+/* ===== Bar Pictorial chart (BarPictorialChart) =====
+   Horizontal twin of the pictorial: categories stack vertically (one row each),
+   category labels in a left column, value-axis title along the bottom, sprites
+   anchored to the left baseline and growing right. Structure only — paint lives
+   on the cs-bar-pictorial-* pairs in host theme CSS. */
+.ci-bar-pictorial-layer {
+    box-sizing: border-box;
+}
+.ci-bar-pictorial-series {
+    box-sizing: border-box;
+}
+.ci-bar-pictorial-sprite-wrap {
+    cursor: pointer;
+}
+.ci-bar-pictorial-sprite {
+    pointer-events: none;
+}
+.ci-bar-pictorial-value {
+    white-space: nowrap;
+}
+.ci-bar-pictorial-label-col {
+    box-sizing: border-box;
+}
+.ci-bar-pictorial-value-axis {
+    box-sizing: border-box;
+}
+
+/* ===== Coin-stack column chart (CoinStackColumnChart) =====
+   Column variant whose bars are piles of raster coin <img>s (count encodes
+   value — legacy charts/coinStackBar.js math). Structure only; the coins are
+   painted by the PNG itself. The graphic + holder boxes must stay transparent —
+   they are canvas/contract elements for the host's present-mode rebuild
+   (MoodsUtil.createCoinChartAnimation), never theme-painted rects. */
+.ci-coin-layer {
+    box-sizing: border-box;
+}
+.ci-coin-anchor {
+    box-sizing: border-box;
+}
+.ci-coin-graphic {
+    background: transparent;
+    cursor: pointer;
+}
+.ci-coin-graphic .CoinStackBar {
+    background: transparent;
+    pointer-events: none;
+}
+.ci-coin-graphic img {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* ===== FlowChart (category "flow") — node-graph editor ===== *
+ * ci-* = structure/layout (lib owns); cs-* = theme paint (host owns).
+ * Colours fall back to a sensible default here so the chart is visible in
+ * the dev harness where host theme vars aren't loaded. */
+.ci-flow-chart {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* palette / style toolbar */
+/* Present-mode renders a static DOM clone of the editor canvas. Hide the
+   editor-only chrome (palette toolbar + connection ports) so the presented
+   flowchart shows only shapes + connectors, never the editing UI. */
+.presentViewClass .ci-flow-toolbar,
+.presentViewClass .ci-flow-port {
+    display: none !important;
+}
+
+.ci-flow-toolbar {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 5px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+    /* Unobtrusive: nearly transparent until the chart is hovered / a control is
+       focused, so the editing palette doesn't sit over the diagram permanently. */
+    opacity: 0.12;
+    transition: opacity 0.15s ease;
+    max-width: max-content;
+}
+.ci-flow-chart:hover .ci-flow-toolbar,
+.ci-flow-toolbar:hover,
+.ci-flow-toolbar:focus-within {
+    opacity: 1;
+}
+.ci-flow-add {
+    width: 26px;
+    height: 22px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+    background: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+.ci-flow-add:hover { background: #eef2ff; }
+.ci-flow-add-glyph {
+    display: inline-block;
+    width: 14px;
+    height: 11px;
+    background: rgba(var(--th-slide-contrast, 17, 24, 39), 0.65);
+}
+.cs-flow-glyph-process { border-radius: 2px; }
+.cs-flow-glyph-start-end { border-radius: 6px; }
+.cs-flow-glyph-circle { border-radius: 50%; width: 11px; }
+.cs-flow-glyph-decision { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.cs-flow-glyph-input-output { clip-path: polygon(22% 0, 100% 0, 78% 100%, 0 100%); }
+.ci-flow-toolbar-sep {
+    width: 1px;
+    height: 18px;
+    background: rgba(0, 0, 0, 0.12);
+    margin: 0 2px;
+}
+.ci-flow-shape-select,
+.ci-flow-conn-select {
+    height: 22px;
+    font-size: 11px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+    background: #fff;
+}
+.ci-flow-delete {
+    width: 24px;
+    height: 22px;
+    border: 1px solid rgba(220, 38, 38, 0.35);
+    border-radius: 5px;
+    background: #fff;
+    color: #dc2626;
+    cursor: pointer;
+    padding: 0;
+}
+.ci-flow-delete:hover { background: #fef2f2; }
+
+/* nodes — theme fill: th-section{tint} on the node publishes --th-section-primary
+   which cs-graphic-item consumes (same recipe as bar/column/pie). Fallback keeps
+   it visible when a per-theme stylesheet isn't loaded. Canonical rule also lives
+   in core-chart-styles.css (higher specificity, wins in the host). */
+.ci-flow-node {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(var(--th-section-primary, 79, 124, 255), 1);
+    /* text sits ON the section-primary fill → use its contrast pair (NOT #fff,
+       which vanishes on light themes where section-primary is a pale colour). */
+    color: rgba(var(--th-section-contrast, 255, 255, 255), 1);
+    border: none;
+    overflow: hidden;
+    transition: box-shadow 0.12s ease;
+}
+.cs-flow-node-decision,
+.cs-flow-node-input-output { border: none; }
+.cs-flow-node-selected {
+    box-shadow: 0 0 0 2px #2563eb, 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+.ci-flow-node-title {
+    width: 100%;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.2;
+    padding: 2px 6px;
+    outline: none;
+    color: inherit;
+    white-space: pre-wrap;
+    overflow-wrap: normal;
+}
+
+/* connection ports — small, subtle dots centered on each side midpoint; hidden
+   until the node is hovered/selected. Grab area is larger than the visible dot
+   via a transparent padding ring (box-shadow-free) for easier connector starts. */
+.ci-flow-port {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1.5px solid rgba(37, 99, 235, 0.9);
+    box-sizing: border-box;
+    opacity: 0;
+    cursor: crosshair;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    z-index: 4;
+}
+.ci-flow-node:hover .ci-flow-port,
+.cs-flow-node-selected .ci-flow-port { opacity: 1; }
+.ci-flow-port:hover { transform: scale(1.25); }
+.cs-flow-port-top { top: 0; left: 50%; transform: translate(-50%, -50%); }
+.cs-flow-port-bottom { bottom: 0; left: 50%; transform: translate(-50%, 50%); }
+.cs-flow-port-left { left: 0; top: 50%; transform: translate(-50%, -50%); }
+.cs-flow-port-right { right: 0; top: 50%; transform: translate(50%, -50%); }
+/* keep the hover-scale transform-origin correct per side */
+.ci-flow-port.cs-flow-port-top:hover { transform: translate(-50%, -50%) scale(1.25); }
+.ci-flow-port.cs-flow-port-bottom:hover { transform: translate(-50%, 50%) scale(1.25); }
+.ci-flow-port.cs-flow-port-left:hover { transform: translate(-50%, -50%) scale(1.25); }
+.ci-flow-port.cs-flow-port-right:hover { transform: translate(50%, -50%) scale(1.25); }
+
+/* connectors */
+.cs-flow-connector-line {
+    stroke: rgba(var(--th-slide-contrast, 17, 24, 39), 0.75);
+    stroke-width: 2;
+}
+.cs-flow-connector-selected .cs-flow-connector-line {
+    stroke: #2563eb;
+    stroke-width: 3;
+}
+.cs-flow-arrowhead {
+    fill: rgba(var(--th-slide-contrast, 17, 24, 39), 0.75);
+}
+.cs-flow-connector-preview {
+    stroke: #2563eb;
+    stroke-width: 2;
+    stroke-dasharray: 5 4;
+}
+/* connector label: hugs its own text (width:max-content) so the flex wrapper
+   can centre it exactly on the line midpoint — a fixed-width box drifted the
+   pill off-centre. Subtle theme-tinted plate keeps the text legible where it
+   crosses the line. */
+.ci-flow-conn-label {
+    display: inline-block;
+    width: max-content;
+    max-width: 132px;
+    font-size: 11px;
+    line-height: 1.3;
+    text-align: center;
+    white-space: nowrap;
+    background: rgba(var(--th-slide-primary, 255, 255, 255), 0.9);
+    border-radius: 3px;
+    padding: 0 4px;
+    outline: none;
+    color: rgba(var(--th-slide-contrast, 17, 24, 39), 0.95);
+}
+/* empty selected-connector label shows a faint prompt until the user types */
+.ci-flow-conn-label:empty::before {
+    content: "Text";
+    opacity: 0.45;
+}
+
+/* ---- High value break ----
+   The zigzag "cut" across the outsized bar when the value axis is broken
+   (engine/HighValueBreak.js). Geometry — position, teeth, band thickness — is
+   owned by HighValueBreakMarker.jsx; this block owns only paint.
+
+   FILL ONLY — no stroke. The filled zigzag band alone IS the tear: painted in the
+   SLIDE background (`--th-slide-primary`, the same var the pie-slice separator
+   strokes use) it reads as the bar being cut open. An earlier version also stroked
+   the two torn edges in the section colour; that just drew a dark border which
+   fought the bar's own colour, so it's gone. The fallback keeps the marker visible
+   in test renders where the theme var is undefined. */
+.ci-react-chart-container .ci-high-value-break-notch {
+    fill: rgba(var(--th-slide-primary, 255, 255, 255), 1);
+}
