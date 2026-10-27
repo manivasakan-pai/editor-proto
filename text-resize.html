@@ -1654,10 +1654,12 @@ function armReorder(e, blk, onClick){
 }
 $('#wrap').addEventListener('mousedown', e => {
   const s = classify(e.target);
+  // Text already in edit mode: a drag selects text (no move). The first click + drag on text still moves the element.
+  const ae = document.activeElement, editingThis = !!(s && s.el && ae && ae.isContentEditable && (ae === s.el || ae.contains(s.el) || s.el.contains(ae)));
   if(!s){ clearSel(); return; }
   if(s.type === 'head'){ e.preventDefault(); if(document.activeElement && document.activeElement.isContentEditable) document.activeElement.blur(); select(s); return; }
   // One click into text (headings, body, chart titles): the caret goes straight in.
-  if(s.blk && TEXT_SEL.includes(s.type)){ select(s); if(isAbs(state) && state.pos) armMove(e, s.blk); return; }
+  if(s.blk && TEXT_SEL.includes(s.type)){ select(s); if(isAbs(state) && state.pos && !editingThis) armMove(e, s.blk); return; }
   if(!isAbs(state) && s.blk && s.blk.dataset.blk !== 'fw'){
     const whole = s.kind === 'image' ? 'image' : s.kind === 'chart' ? 'chart' : s.kind === 'table' ? 'table' : 'diagram';
     if(sel && sel.blk === s.blk && sel.el === sel.blk){
@@ -1680,7 +1682,7 @@ $('#wrap').addEventListener('mousedown', e => {
   }
   select(s);
   // Title block text: a click edits it; click and drag moves the whole group.
-  if(s.type === 'title' || s.part){ const hd = s.el.closest('.pz-head'); if(hd) armHead(e, hd); }
+  if((s.type === 'title' || s.part) && !editingThis){ const hd = s.el.closest('.pz-head'); if(hd) armHead(e, hd); }
 });
 $('#wrap').addEventListener('mousemove', e => {
   const s = classify(e.target), h = $('#hov');
