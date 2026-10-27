@@ -1,0 +1,1844 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text resize · Editor Objects Proto</title>
+<!-- Real editor assets: pastel mood, glaze theme, Plus Jakarta Sans / IBM Plex Sans pair (dev CDN). -->
+<link rel="stylesheet" href="https://devcdn.presentations.ai/docs/htmlAssets/assets/resources/commonfiles/css/commoncss.css">
+<link rel="stylesheet" href="https://devcdn.presentations.ai/docs/htmlAssets/assets/resources/commonfiles/css/diagramcommoncss.css">
+<link rel="stylesheet" href="https://devcdn.presentations.ai/docs/htmlAssets/assets/resources/moods/pastel/pastel-layout.css">
+<link rel="stylesheet" href="https://devcdn.presentations.ai/docs/htmlAssets/assets/resources/moods/pastel/pastel-design-shapes.css">
+<link rel="stylesheet" href="lib/ReactChart.css">
+<link rel="stylesheet" href="https://devcdn.presentations.ai/docs/htmlAssets/assets/resources/commonfiles/css/common-template-styles.css">
+<link rel="stylesheet" href="https://devcdn.presentations.ai/docs/htmlAssets/assets/resources/fonts/css/PlusJakartaSans_IBMPlexSans.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" id="themeCss" href="https://devcdn.presentations.ai/docs/htmlAssets/assets/resources/themes/css/com.pitchdeck.glaze.css">
+<link rel="stylesheet" href="https://devcdn.presentations.ai/docs/htmlAssets/assets/resources/moods/pastel/component-styles.css">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="lib/lodash.min.js"></script>
+<script src="lib/js-apputils.js"></script>
+<style>
+:root{
+  --brand-50:236 235 255;--brand-100:220 217 255;--brand-600:52 39 255;--brand-700:42 31 214;--brand-fg:52 39 255;
+  --canvas:248 248 251;--surface:255 255 255;--sunken:243 243 247;--line:228 228 236;
+  --ink:20 20 31;--ink-2:78 78 94;--ink-3:108 108 124;--ink-off:163 163 176;
+  --good:21 128 61;--good-bg:220 252 231;--bad:185 28 28;--bad-bg:254 226 226;
+  --r-control:6px;--r-card:12px;
+  --sh-hairline:0 1px 2px rgb(16 12 60 / .06);
+  --sh-menu:0 1px 2px rgb(16 12 60 / .06),0 8px 24px -6px rgb(16 12 60 / .16);
+  --sh-btn:0 1px 0 rgb(255 255 255 / .15) inset,0 1px 2px rgb(16 12 60 / .2);
+  --ease:cubic-bezier(.2,0,0,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --brand-50:30 27 75;--brand-100:45 40 110;--brand-600:99 88 255;--brand-700:82 70 240;--brand-fg:150 165 255;
+    --canvas:12 12 20;--surface:20 20 30;--sunken:27 27 40;--line:44 44 62;
+    --ink:240 240 247;--ink-2:190 190 205;--ink-3:150 150 168;--ink-off:95 95 112;
+    --good:74 222 128;--good-bg:15 45 28;--bad:248 113 113;--bad-bg:60 18 18;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --brand-50:30 27 75;--brand-100:45 40 110;--brand-600:99 88 255;--brand-700:82 70 240;--brand-fg:150 165 255;
+  --canvas:12 12 20;--surface:20 20 30;--sunken:27 27 40;--line:44 44 62;
+  --ink:240 240 247;--ink-2:190 190 205;--ink-3:150 150 168;--ink-off:95 95 112;
+  --good:74 222 128;--good-bg:15 45 28;--bad:248 113 113;--bad-bg:60 18 18;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:rgb(var(--canvas));color:rgb(var(--ink));font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid rgb(var(--brand-600));outline-offset:2px;border-radius:6px}
+
+/* ---------- App shell ---------- */
+.app{display:grid;grid-template-columns:208px 1fr;grid-template-rows:56px 1fr;height:100vh}
+.hdr{grid-column:1 / -1;display:flex;align-items:center;gap:8px;padding:0 12px;background:rgb(var(--surface));border-bottom:1px solid rgb(var(--line))}
+.hdr .doc{font-size:14px;font-weight:600;margin-left:8px;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hdr .gbtn.sec,.hdr .gbtn.pri{height:36px;margin-left:4px}
+.hdr .doc small{display:block;font-size:12px;line-height:16px;font-weight:400;color:rgb(var(--ink-3))}
+.hdr .sp{flex:1}
+.gbtn{height:36px;min-width:36px;padding:0 12px;border-radius:6px;border:0;background:transparent;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:500;color:rgb(var(--ink-2))}
+.gbtn:hover{background:rgb(var(--sunken));color:rgb(var(--ink))}
+.gbtn.ico{padding:0}
+.gbtn i{font-size:18px}
+.gbtn[disabled]{opacity:.4;cursor:default;background:transparent}
+.gbtn.sec{border:1px solid rgb(var(--line));background:rgb(var(--surface))}
+.gbtn.pri{background:rgb(var(--brand-600));color:#fff;box-shadow:var(--sh-btn)}
+.gbtn.pri:hover{background:rgb(var(--brand-700))}
+.gbtn.on{background:rgb(var(--sunken));color:rgb(var(--ink))}
+.gbtn .spark-ic{color:rgb(var(--brand-fg))}
+.vdiv{width:1px;height:24px;background:rgb(var(--line));margin:0 2px}
+.pillbar{display:flex;align-items:center;gap:4px;padding:4px;border-radius:12px;border:1px solid rgb(var(--line));background:rgb(var(--surface));box-shadow:var(--sh-menu)}
+.ifl{position:absolute;z-index:30;display:none;white-space:nowrap}
+.ifl.show{display:flex}
+.counter{position:absolute;bottom:100%;left:0;margin-bottom:8px;font-size:12px;line-height:16px;color:rgb(var(--ink-3))}
+.rail{border-right:1px solid rgb(var(--line));background:rgb(var(--surface));padding:16px 12px;overflow:auto}
+.rail-h{font-size:12px;line-height:16px;font-weight:600;color:rgb(var(--ink-3));letter-spacing:.08em;text-transform:uppercase;margin:2px 4px 12px}
+.thumb-row{display:flex;gap:8px;align-items:flex-start}
+.thumb-n{font-size:12px;color:rgb(var(--ink-3));width:12px;text-align:right;padding-top:2px}
+.thumb-row{margin-bottom:14px;cursor:pointer}
+.thumb-row:hover .thumb{outline-color:rgb(var(--line))}
+.thumb{width:156px;height:88px;border-radius:6px;overflow:hidden;position:relative;outline:2px solid transparent;outline-offset:2px;background:#fff;box-shadow:var(--sh-hairline)}
+.thumb-row.on .thumb{outline-color:rgb(var(--brand-600))}
+.thumb-cap{font-size:12px;line-height:16px;color:rgb(var(--ink-3));margin:6px 0 0 20px}
+.thumb-row.on .thumb-cap{color:rgb(var(--ink))}
+.thumb .slide{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none}
+
+.main{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0}
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:40px 40px 12px}
+.stage{padding-top:92px;padding-bottom:92px}
+.slide-wrap{position:relative;flex:none}
+.slide-wrap > .slide{position:absolute;left:0;top:0;transform-origin:0 0;box-shadow:0 1px 2px rgb(16 12 60 / .08),0 12px 40px -12px rgb(16 12 60 / .18);border-radius:4px}
+
+.bbar{position:absolute;left:50%;top:0;transform:translateX(-50%);display:flex;align-items:center;gap:4px;padding:4px;border-radius:12px;background:rgb(var(--surface));border:1px solid rgb(var(--line));box-shadow:var(--sh-menu);z-index:15;white-space:nowrap}
+.bbar .tb{height:36px;padding:0 12px;font-size:14px}
+.bbar .tb i{font-size:16px}
+.bbar .tb.ico{width:36px;padding:0}
+.bbar .tsep{margin:0 2px;height:24px}
+.shead{position:absolute;display:flex;align-items:center;font-size:13px;color:rgb(var(--ink-3));z-index:14}
+.shead .sp{flex:1}
+.shead .gbtn{height:28px;min-width:28px;color:rgb(var(--ink-3))}
+.shead .gbtn i{font-size:16px}
+.bb-n{font-size:12px;color:rgb(var(--ink-3));padding:0 8px;font-variant-numeric:tabular-nums}
+.rail-add{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:36px;margin:0 0 16px;border-radius:8px;border:1px solid rgb(var(--line));background:rgb(var(--surface));box-shadow:var(--sh-hairline);font-size:13px;font-weight:500;color:rgb(var(--ink-2))}
+.rail-add:hover{border-color:rgb(var(--brand-600) / .5);background:rgb(var(--brand-50));color:rgb(var(--ink))}
+.dock{flex:none;display:flex;align-items:center;justify-content:center;padding:12px 0 24px}
+.add-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 14px;border-radius:8px;border:1px solid rgb(var(--line));background:rgb(var(--surface));box-shadow:var(--sh-hairline);font-weight:500;transition:background .15s var(--ease),border-color .15s var(--ease)}
+.add-btn:hover{border-color:rgb(var(--brand-600) / .5);background:rgb(var(--brand-50))}
+.add-btn i{font-size:18px}
+.add-btn[aria-disabled="true"]{opacity:.5;cursor:not-allowed}
+.add-btn[aria-disabled="true"]:hover{background:rgb(var(--surface));border-color:rgb(var(--line))}
+.chips{display:flex;gap:4px;padding:3px;border-radius:8px;background:rgb(var(--sunken));border:1px solid rgb(var(--line))}
+.chip{height:28px;padding:0 10px;border-radius:6px;border:0;background:transparent;font-size:13px;color:rgb(var(--ink-2))}
+.chip:hover{color:rgb(var(--ink))}
+.chip.on{background:rgb(var(--surface));color:rgb(var(--ink));box-shadow:var(--sh-hairline);font-weight:500}
+.is-b .chips{display:none}
+
+/* Prototype controls (not part of the editor) */
+.proto{position:absolute;left:16px;bottom:16px;display:flex;flex-direction:column;gap:6px;align-items:flex-start;z-index:20}
+.pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:9999px;font-size:12px;font-weight:500;border:1px solid rgb(var(--line));background:rgb(var(--surface));color:rgb(var(--ink-2))}
+.pill.good{background:rgb(var(--good-bg));color:rgb(var(--good));border-color:transparent}
+.pill.bad{background:rgb(var(--bad-bg));color:rgb(var(--bad));border-color:transparent}
+.seg{display:inline-flex;padding:2px;border-radius:9999px;border:1px solid rgb(var(--line));background:rgb(var(--surface))}
+.seg button{height:24px;padding:0 10px;border:0;border-radius:9999px;background:transparent;font-size:12px;font-weight:500;color:rgb(var(--ink-3))}
+.seg button.on{background:rgb(var(--ink));color:rgb(var(--surface))}
+.icon-btn{width:28px;height:28px;border-radius:9999px;border:1px solid rgb(var(--line));background:rgb(var(--surface));display:inline-flex;align-items:center;justify-content:center;color:rgb(var(--ink-2))}
+
+/* ---------- Floating toolbar (variant B) ---------- */
+.tbar{position:absolute;top:20px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:2px;height:44px;padding:0 6px;border-radius:10px;background:rgb(var(--surface));border:1px solid rgb(var(--line));box-shadow:var(--sh-menu);z-index:15;white-space:nowrap;max-width:calc(100% - 32px)}
+.tbar{display:flex}
+[hidden]{display:none!important}
+.tbar:not(:has(.ctx.show)){display:none}
+.tbar .ctx::before{display:none}
+.pctl{display:flex;align-items:center;gap:2px;height:40px;padding:0 6px;border-radius:10px;background:rgb(var(--sunken));border:1px dashed rgb(var(--line));z-index:14;white-space:nowrap}
+.pctl-h{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgb(var(--ink-3));padding:0 6px}
+.pctl .tb.brand{margin-left:4px}
+.tb{height:32px;min-width:32px;padding:0 8px;border:0;border-radius:6px;background:transparent;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:500;color:rgb(var(--ink-2))}
+.tb:hover{background:rgb(var(--sunken));color:rgb(var(--ink))}
+.tb i{font-size:17px}
+.tb .caret{font-size:12px;color:rgb(var(--ink-3))}
+.tb[disabled]{opacity:.4;cursor:default;background:transparent}
+.tb.danger{color:rgb(var(--bad))}
+.tb.danger:hover{background:rgb(var(--bad-bg))}
+.tsep{width:1px;height:20px;background:rgb(var(--line));margin:0 4px}
+.tseg{display:inline-flex;padding:2px;border-radius:8px;background:rgb(var(--sunken))}
+.tseg .tb{height:28px}
+.tseg .tb.on{background:rgb(var(--surface));color:rgb(var(--ink));box-shadow:var(--sh-hairline)}
+.swatch{width:16px;height:16px;border-radius:9999px;box-shadow:inset 0 0 0 1px rgb(0 0 0 / .1)}
+.tslider{display:inline-flex;align-items:center;gap:6px;padding:0 6px;color:rgb(var(--ink-2))}
+.tslider input{width:76px;accent-color:rgb(var(--brand-600))}
+.tb.brand{background:rgb(var(--brand-600));color:#fff;box-shadow:var(--sh-btn);margin-left:8px}
+.tb.brand:hover{background:rgb(var(--brand-700));color:#fff}
+.tb.brand .caret{color:rgb(255 255 255 / .8)}
+
+/* ---------- Menus ---------- */
+.menu{position:fixed;z-index:50;min-width:220px;padding:6px;border-radius:10px;background:rgb(var(--surface));border:1px solid rgb(var(--line));box-shadow:var(--sh-menu);display:none}
+.menu.open{display:block}
+.m-h{font-size:12px;line-height:16px;font-weight:600;color:rgb(var(--ink-3));padding:8px 8px 4px}
+.m-i{display:flex;align-items:center;gap:10px;width:100%;height:34px;padding:0 8px;border:0;border-radius:6px;background:transparent;text-align:left;font-size:13px;color:rgb(var(--ink))}
+.m-i:hover{background:rgb(var(--sunken))}
+.m-i i{font-size:17px;color:rgb(var(--ink-2))}
+.m-i .chk{margin-left:auto;color:rgb(var(--brand-fg))}
+.m-i[disabled]{color:rgb(var(--ink-off));cursor:not-allowed;background:transparent}
+.m-i[disabled] i{color:rgb(var(--ink-off))}
+.m-i .hint{margin-left:auto;font-size:12px;color:rgb(var(--ink-off))}
+.m-sep{height:1px;background:rgb(var(--line));margin:6px 2px}
+
+.toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,8px);background:rgb(var(--ink));color:rgb(var(--surface));font-size:13px;padding:8px 14px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s var(--ease),transform .2s var(--ease);z-index:60}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* Rail extras */
+.thumb .pz-slide{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none}
+.thumb.loading{background:linear-gradient(90deg,#f3f3f7 0,#fafafc 50%,#f3f3f7 100%);background-size:200% 100%;animation:shim 1.2s linear infinite}
+@keyframes shim{to{background-position:-200% 0}}
+
+/* Loading veil over the canvas while the real assets render */
+.veil{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgb(255 255 255 / .75);z-index:3;opacity:0;pointer-events:none;transition:opacity .2s}
+.veil span{font-size:13px;font-weight:500;color:rgb(var(--ink-2));background:rgb(var(--surface));border:1px solid rgb(var(--line));box-shadow:var(--sh-menu);padding:8px 14px;border-radius:9999px}
+.veil.show{opacity:1}
+
+/* Selection + hover boxes (editor chrome, drawn over the scaled slide) */
+.selbox,.hovbox,.parbox{position:absolute;pointer-events:none;z-index:25;display:none;border-radius:3px}
+/* Focus is blue; everything around it is quiet light grey (Gamma-style). Text gets no box, only the caret. */
+.selbox{border:1.5px solid rgb(var(--brand-600));box-sizing:border-box}
+.parbox{border:1px dashed rgb(20 20 31 / .22);box-sizing:border-box}
+.hovbox{border:1px solid rgb(20 20 31 / .18);box-sizing:border-box}
+.selbox.show,.hovbox.show,.parbox.show{display:block}
+.pz-slide [contenteditable="true"]{caret-color:rgb(52 39 255)}
+.pz-slide :focus,.pz-slide :focus-visible{outline:none!important}
+
+/* Selection options inside the toolbar */
+.ctx{display:none;align-items:center;gap:2px}
+.ctx.show{display:inline-flex}
+.ctx::before{content:"";width:1px;height:20px;background:rgb(var(--line));margin:0 6px 0 4px}
+.ctx .gbtn{height:32px;min-width:32px;padding:0 8px;font-size:13px;gap:6px}
+.ctx .gbtn.ico{padding:0}
+.ctx .gbtn i{font-size:17px}
+.ctx .gbtn.on{background:rgb(var(--sunken));color:rgb(var(--ink))}
+.ctx .gbtn.danger:hover{background:rgb(var(--bad-bg));color:rgb(var(--bad))}
+.ctx .caret{font-size:12px;color:rgb(var(--ink-3));margin-left:-2px}
+.ctx .vdiv{height:20px;margin:0 4px}
+.ctx .split,.ctx .stepper{height:32px}
+.ctx .split .gbtn{height:30px}
+.ctx .stepper button{width:26px;height:26px}
+.ctx-label{font-size:12px;font-weight:600;color:rgb(var(--ink-3));padding:0 8px 0 6px;white-space:nowrap}
+/* Toolbar rhythm: every control 32px tall, 4px apart; dividers 20px with even 6px space each side */
+.ctx{gap:4px}
+.ctx .gbtn{height:32px;min-width:32px;padding:0 8px;border-radius:6px}
+.ctx .gbtn.ico{width:32px;padding:0}
+.ctx .stepper,.ctx .split{height:32px;box-sizing:border-box;border-radius:6px}
+.ctx .stepper{padding:0 3px;gap:0}
+.ctx .stepper button{width:24px;height:24px}
+.ctx .stepper span{min-width:30px}
+.ctx .split .gbtn{height:30px;border-radius:5px 0 0 5px}
+.ctx .split .gbtn + .gbtn{width:28px;min-width:28px;padding:0;border-radius:0 5px 5px 0}
+.ctx .vdiv{height:20px;margin:0 6px;flex:none}
+.ctx .colA{font-size:14px;line-height:14px;gap:2px}
+.ctx .colA b{width:14px;height:2px}
+.ctx .dd-trig{gap:4px}
+/* Inline floater: real redesign pill (rounded-card, 36px ghost tiles, hairline dividers) */
+.ifl{gap:4px;padding:4px 4px 4px 4px}
+.ifl .gbtn{height:36px}
+.ifl .gbtn.on{background:rgb(var(--sunken));color:rgb(var(--ink))}
+.ifl .gbtn.danger:hover{background:rgb(var(--bad-bg));color:rgb(var(--bad))}
+.ifl .caret{font-size:12px;color:rgb(var(--ink-3));margin-left:-2px}
+.split{display:inline-flex;align-items:center;border:1px solid rgb(var(--line));border-radius:6px;height:36px}
+.split .gbtn{height:34px;border-radius:5px 0 0 5px}
+.split .gbtn + .gbtn{border-radius:0 5px 5px 0;border-left:1px solid rgb(var(--line));padding:0 6px;min-width:28px}
+.stepper{display:inline-flex;align-items:center;height:36px;padding:2px;border:1px solid rgb(var(--line));border-radius:6px}
+.stepper button{width:30px;height:30px;border:0;border-radius:4px;background:transparent;display:inline-flex;align-items:center;justify-content:center;color:rgb(var(--ink-2))}
+.stepper button:hover{background:rgb(var(--sunken))}
+.stepper span{min-width:34px;text-align:center;font-size:13px;font-variant-numeric:tabular-nums}
+.colA{display:inline-flex;flex-direction:column;align-items:center;gap:1px;font-weight:700;font-size:15px;line-height:16px}
+.colA b{display:block;width:16px;height:3px;border-radius:2px}
+.dd-trig{gap:4px}
+
+/* =====================================================================
+   SLIDE: real 1920 x 1080 logical size, scaled to fit. Real mood classes.
+   ===================================================================== */
+.pz-slide{width:1920px;height:1080px;background:rgba(var(--th-slide-primary),1);color:rgba(var(--th-slide-contrast),1);display:flex;flex-direction:column;padding:64px 84px 72px;gap:36px;overflow:hidden;position:relative}
+.pz-head{flex:none}
+.pz-head{display:flex;flex-direction:column;gap:18px}
+.pz-title,.pz-sub{width:fit-content;max-width:100%}
+.pz-slide:not(.pz-split) > .pz-head{width:fit-content;max-width:100%}
+.pz-title{margin:0;outline:none;color:rgba(var(--th-slide-contrast),1)}
+/* Title block parts (the editor's title options: graphic, label, subtitle, CTA button) */
+.pz-head{--gs:1}
+.pz-gfx{width:calc(80px*var(--gs));height:calc(80px*var(--gs));border-radius:calc(18px*var(--gs));display:flex;align-items:center;justify-content:center;font-size:calc(44px*var(--gs));flex:none;background:rgba(var(--th-section-color1),.12);color:rgba(var(--th-section-color1),1)}
+.pz-label{display:inline-block;font-family:"IBM Plex Sans",sans-serif;font-size:calc(20px*var(--gs));line-height:1.4;font-weight:500;padding:calc(4px*var(--gs)) calc(16px*var(--gs));border-radius:9999px;border:1.5px solid rgba(var(--th-section-color1),.35);color:rgba(var(--th-section-color1),1);outline:none}
+.pz-sub{font-family:"IBM Plex Sans",sans-serif;font-size:calc(30px*var(--gs));line-height:1.4;color:rgba(var(--th-slide-secondary),1);outline:none}
+.pz-cta{display:inline-flex;align-items:center;height:calc(60px*var(--gs));padding:0 calc(32px*var(--gs));border-radius:9999px;background:rgba(var(--th-section-color1),1);color:#fff;font-family:"IBM Plex Sans",sans-serif;font-size:calc(22px*var(--gs));font-weight:600;outline:none;margin-top:6px}
+.pz-solo{justify-content:center}
+.pz-slide.pz-split{flex-direction:row;align-items:stretch;gap:80px}
+.pz-split > .pz-head{flex:0 0 40%;align-self:center}
+.pz-split > .pz-body{flex:1;height:100%}
+.pz-empty{flex:1;display:flex;align-items:center;justify-content:center;border:3px dashed rgba(var(--th-slide-tertiary),.35);border-radius:24px;color:rgba(var(--th-slide-tertiary),1);font-family:"IBM Plex Sans",sans-serif;font-size:32px}
+.pz-body{flex:1;min-height:0;display:grid;gap:var(--gap)}
+.pz-body.pz-abs{display:block;position:relative}
+/* Freeform: nothing is linked. Every block and the title block sit at their own spot on the slide. */
+.pz-slide.pz-free{display:block}
+.pz-free > .pz-body.pz-abs{position:absolute;inset:0}
+.pz-free > .pz-head{z-index:3}
+.pz-abs > .pz-blk{cursor:default}
+/* Smart guides while moving in Freeform */
+.dropbox{position:absolute;z-index:24;display:none;pointer-events:none;border:2px solid rgb(var(--brand-600));background:rgb(var(--brand-600) / .08);border-radius:6px}
+.dropbox.show{display:block}
+.dropbox.bar{background:rgb(var(--brand-600));border:0;border-radius:9999px}
+.dragghost{position:absolute;z-index:29;display:none;pointer-events:none;border:1.5px dashed rgb(var(--brand-600));background:rgb(255 255 255 / .55);border-radius:6px;box-shadow:0 12px 32px -8px rgb(16 12 60 / .35);align-items:center;justify-content:center;font-size:13px;font-weight:600;color:rgb(var(--brand-600))}
+.dragghost.show{display:flex}
+.pz-blk.dragging{opacity:.35}
+/* Hover affordances (Structured): drag handle and + to add beside / below */
+.grab,.addb{position:absolute;z-index:27;display:none;align-items:center;justify-content:center;border:1px solid rgb(var(--line));background:rgb(var(--surface));box-shadow:var(--sh-menu);color:rgb(var(--ink-2))}
+.grab{width:22px;height:30px;border-radius:6px;cursor:grab;font-size:16px;border:1.5px solid rgb(20 20 31 / .14);background:#fff;box-shadow:none;color:rgb(var(--ink-3));transition:border-color .12s,color .12s}
+.grab:hover{border-color:rgb(20 20 31 / .38);color:rgb(var(--ink))}
+.grab:active,body.mv .grab{cursor:grabbing;border-color:rgb(20 20 31 / .5);color:rgb(var(--ink))}
+.addb{width:24px;height:24px;border-radius:9999px;font-size:13px;transform:translate(-50%,-50%)}
+.addb:hover{color:#fff;background:rgb(var(--brand-600));border-color:rgb(var(--brand-600))}
+.grab.show,.addb.show{display:flex}
+.gridov{position:absolute;z-index:22;display:none;pointer-events:none}
+.gridov.show{display:block}
+#guides .gl{position:absolute;z-index:26;background:rgb(255 45 117);pointer-events:none}
+#guides .gl.v{width:1px}
+#guides .gl.h{height:1px}
+#guides .gl.soft{background:rgb(255 45 117 / .45)}
+body.mv,body.mv *{cursor:move!important;user-select:none!important}
+.pz-blk{position:relative;min-width:0;min-height:0}
+.pz-objs{display:flex;flex-direction:column;gap:var(--gap);min-width:0;min-height:0}
+.pz-row{flex:1 1 0;display:grid;gap:var(--gap);min-height:0}
+.pz-cell{display:flex;flex-direction:column;gap:var(--gap);min-width:0;min-height:0}
+.pz-cell > .pz-blk{flex:1 1 0}
+/* Resize handles: 4 corners + 4 edges, native resize cursors */
+/* Corners: small white squares. Edges: invisible full-length drag zones; a short bar shows on hover. */
+.rh{position:absolute;z-index:27;display:none}
+.rh.show{display:block}
+.rh.c{width:12px;height:12px;margin:-6px 0 0 -6px;background:#fff;border:1px solid rgb(20 20 31 / .14);border-radius:50%;box-shadow:0 1px 3px rgb(16 12 60 / .28);z-index:28;transition:transform .12s,background .12s,border-color .12s}
+.rh.c:hover,.rh.c.drag{transform:scale(1.2);background:rgb(var(--brand-600));border-color:rgb(var(--brand-600))}
+/* Edges: full-length drag zone, with a white pill at the middle that is always visible */
+.rh.ed::after{content:"";position:absolute;left:50%;top:50%;background:#fff;border:1px solid rgb(20 20 31 / .14);border-radius:9999px;box-shadow:0 1px 3px rgb(16 12 60 / .28);transform:translate(-50%,-50%);transition:background .12s,border-color .12s,width .12s,height .12s}
+.rh.ed:hover::after,.rh.ed.drag::after{background:rgb(var(--brand-600));border-color:rgb(var(--brand-600))}
+.rh[data-d="n"],.rh[data-d="s"]{height:12px;margin-top:-6px;cursor:row-resize}
+.rh[data-d="n"]::after,.rh[data-d="s"]::after{width:22px;height:7px}
+.rh[data-d="n"]:hover::after,.rh[data-d="s"]:hover::after,.rh[data-d="n"].drag::after,.rh[data-d="s"].drag::after{width:30px}
+.rh[data-d="e"],.rh[data-d="w"]{width:12px;margin-left:-6px;cursor:col-resize}
+.rh[data-d="e"]::after,.rh[data-d="w"]::after{width:7px;height:22px}
+.rh[data-d="e"]:hover::after,.rh[data-d="w"]:hover::after,.rh[data-d="e"].drag::after,.rh[data-d="w"].drag::after{height:30px}
+.sel-tag{position:absolute;z-index:28;display:none;transform:translateY(-100%);margin-top:-6px;background:rgb(var(--brand-600));color:#fff;font-size:11px;font-weight:600;line-height:14px;padding:3px 7px;border-radius:4px;pointer-events:none;white-space:nowrap}
+.sel-tag.show{display:block}
+
+/* ---------- Handle style explorations (proto only). html[data-hs] picks one. 1 = Pills (default). ---------- */
+.hs-bar{display:none;align-items:center;gap:2px;padding:3px;border-radius:9999px;background:rgb(var(--surface));border:1px solid rgb(var(--line));box-shadow:var(--sh-menu)}
+.hs-bar b{font-size:12px;font-weight:600;color:rgb(var(--ink-2));padding:0 8px 0 10px}
+.hs-bar button{height:26px;padding:0 10px;border-radius:9999px;border:0;background:transparent;font-size:12px;color:rgb(var(--ink-2))}
+.hs-bar button:hover{color:rgb(var(--ink))}
+.hs-bar button.on{background:rgb(var(--brand-600));color:#fff;font-weight:600}
+
+/* 2 Brackets: camera-viewfinder corners, no box, edges show only on hover */
+[data-hs="2"] .selbox{border-color:transparent}
+[data-hs="2"] .rh.c{width:18px;height:18px;margin:-3px 0 0 -3px;background:none;border:0;border-radius:0;box-shadow:none;transform:none!important}
+[data-hs="2"] .rh[data-d="nw"]{border-top:3px solid rgb(var(--brand-600))!important;border-left:3px solid rgb(var(--brand-600))!important}
+[data-hs="2"] .rh[data-d="ne"]{margin-left:-15px;border-top:3px solid rgb(var(--brand-600))!important;border-right:3px solid rgb(var(--brand-600))!important}
+[data-hs="2"] .rh[data-d="sw"]{margin-top:-15px;border-bottom:3px solid rgb(var(--brand-600))!important;border-left:3px solid rgb(var(--brand-600))!important}
+[data-hs="2"] .rh[data-d="se"]{margin:-15px 0 0 -15px;border-bottom:3px solid rgb(var(--brand-600))!important;border-right:3px solid rgb(var(--brand-600))!important}
+[data-hs="2"] .rh.c:hover{width:24px;height:24px;background:none}
+[data-hs="2"] .rh.ed::after{opacity:0;background:rgb(var(--brand-600));border:0;box-shadow:none}
+[data-hs="2"] .rh.ed:hover::after,[data-hs="2"] .rh.ed.drag::after{opacity:1}
+[data-hs="2"] .rh[data-d="n"]::after,[data-hs="2"] .rh[data-d="s"]::after{height:3px}
+[data-hs="2"] .rh[data-d="e"]::after,[data-hs="2"] .rh[data-d="w"]::after{width:3px}
+
+/* 3 Neon: glowing line, glowing blue dots */
+[data-hs="3"] .selbox{border:1.5px solid rgb(99 82 255);box-shadow:0 0 0 3px rgb(99 82 255 / .14),0 0 18px rgb(99 82 255 / .45)}
+[data-hs="3"] .rh.c{width:10px;height:10px;margin:-5px 0 0 -5px;background:rgb(99 82 255);border:2px solid #fff;box-shadow:0 0 0 1px rgb(99 82 255),0 0 10px 2px rgb(99 82 255 / .7)}
+[data-hs="3"] .rh.ed::after{background:rgb(99 82 255);border:2px solid #fff;box-shadow:0 0 0 1px rgb(99 82 255),0 0 10px 2px rgb(99 82 255 / .6)}
+
+/* 4 Figma: hairline, tiny white squares, edges invisible (cursor only) */
+[data-hs="4"] .selbox{border-width:1px;border-radius:0}
+[data-hs="4"] .rh.c{width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:1px;border:1px solid rgb(var(--brand-600));box-shadow:none}
+[data-hs="4"] .rh.c:hover{transform:none;background:#fff}
+[data-hs="4"] .rh.ed::after{opacity:0}
+[data-hs="4"] .sel-tag{display:none!important}
+
+/* 5 Chunky: thick line, big blue dots with white ring (iOS markup) */
+[data-hs="5"] .selbox{border-width:3px;border-radius:10px}
+[data-hs="5"] .rh.c{width:18px;height:18px;margin:-9px 0 0 -9px;background:rgb(var(--brand-600));border:3px solid #fff;box-shadow:0 2px 6px rgb(16 12 60 / .35)}
+[data-hs="5"] .rh.ed::after{background:rgb(var(--brand-600));border:3px solid #fff;box-shadow:0 2px 6px rgb(16 12 60 / .35)}
+[data-hs="5"] .rh[data-d="n"]::after,[data-hs="5"] .rh[data-d="s"]::after{width:36px;height:12px}
+[data-hs="5"] .rh[data-d="e"]::after,[data-hs="5"] .rh[data-d="w"]::after{width:12px;height:36px}
+[data-hs="5"] .sel-tag{font-size:12px;padding:5px 10px;border-radius:9999px;margin-top:-10px}
+
+/* 6 Aurora: gradient border, gradient-ring dots */
+@keyframes hsSpin{to{--hsA:360deg}}
+@property --hsA{syntax:'<angle>';inherits:false;initial-value:0deg}
+[data-hs="6"] .selbox{border:2px solid transparent;border-radius:8px;background:conic-gradient(from var(--hsA),#3427ff,#c13cff,#ff5fa2,#ffb03b,#3427ff) border-box;-webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:hsSpin 4s linear infinite}
+[data-hs="6"] .rh.c{width:12px;height:12px;margin:-6px 0 0 -6px;border:0;background:radial-gradient(#fff 0 3px,transparent 3.5px),conic-gradient(#3427ff,#c13cff,#ff5fa2,#ffb03b,#3427ff)}
+[data-hs="6"] .rh.ed::after{border:0;background:linear-gradient(90deg,#3427ff,#c13cff,#ff5fa2)}
+[data-hs="6"] .sel-tag{background:linear-gradient(90deg,#3427ff,#c13cff,#ff5fa2)}
+
+/* 7 Marching ants: animated dashed line, black squares (Photoshop) */
+@keyframes hsAnts{to{background-position:12px 0,-12px 100%,0 -12px,100% 12px}}
+[data-hs="7"] .selbox{border:0;border-radius:0;background:linear-gradient(90deg,#14141f 50%,#fff 0) 0 0/12px 1px repeat-x,linear-gradient(90deg,#14141f 50%,#fff 0) 0 100%/12px 1px repeat-x,linear-gradient(0deg,#14141f 50%,#fff 0) 0 0/1px 12px repeat-y,linear-gradient(0deg,#14141f 50%,#fff 0) 100% 0/1px 12px repeat-y;animation:hsAnts .6s linear infinite}
+[data-hs="7"] .rh.c{width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:0;background:#14141f;border:1px solid #fff;box-shadow:none}
+[data-hs="7"] .rh.c:hover{transform:none;background:rgb(var(--brand-600))}
+[data-hs="7"] .rh.ed::after{width:8px!important;height:8px!important;border-radius:0;background:#14141f;border:1px solid #fff;box-shadow:none}
+[data-hs="7"] .rh.ed:hover::after{background:rgb(var(--brand-600))}
+[data-hs="7"] .sel-tag{background:#14141f;border-radius:0}
+
+/* 8 Arrows: dark dots that show the direction you can drag */
+[data-hs="8"] .selbox{border:1.5px dashed rgb(20 20 31 / .55);border-radius:4px}
+[data-hs="8"] .rh.c,[data-hs="8"] .rh.ed::after{display:flex;align-items:center;justify-content:center;background:#14141f;border:2px solid #fff;box-shadow:0 2px 6px rgb(16 12 60 / .35);color:#fff;font-size:11px;line-height:1;font-weight:700}
+[data-hs="8"] .rh.c{width:20px;height:20px;margin:-10px 0 0 -10px}
+[data-hs="8"] .rh.ed::after{width:20px!important;height:20px!important;border-radius:50%}
+[data-hs="8"] .rh.c:hover,[data-hs="8"] .rh.ed:hover::after{background:rgb(var(--brand-600));border-color:#fff}
+[data-hs="8"] .rh[data-d="nw"]::before{content:"↖"}[data-hs="8"] .rh[data-d="ne"]::before{content:"↗"}
+[data-hs="8"] .rh[data-d="sw"]::before{content:"↙"}[data-hs="8"] .rh[data-d="se"]::before{content:"↘"}
+[data-hs="8"] .rh[data-d="n"]::after,[data-hs="8"] .rh[data-d="s"]::after{content:"↕"}
+[data-hs="8"] .rh[data-d="e"]::after,[data-hs="8"] .rh[data-d="w"]::after{content:"↔"}
+[data-hs="8"] .sel-tag{background:#14141f}
+
+.rh[data-d="nw"],.rh[data-d="se"]{cursor:nwse-resize}
+.rh[data-d="ne"],.rh[data-d="sw"]{cursor:nesw-resize}
+.rz-tip{position:absolute;z-index:28;display:none;transform:translateX(-50%);background:rgb(var(--brand-600));color:#fff;font-size:11px;font-weight:600;line-height:14px;padding:4px 8px;border-radius:9999px;box-shadow:0 2px 6px rgb(16 12 60 / .2);font-variant-numeric:tabular-nums;pointer-events:none;white-space:nowrap}
+.rz-tip.show{display:block}
+body.rz-nwse,body.rz-nwse *{cursor:nwse-resize!important}body.rz-nesw,body.rz-nesw *{cursor:nesw-resize!important}
+body.rz-ew,body.rz-ew *{cursor:col-resize!important}body.rz-ns,body.rz-ns *{cursor:row-resize!important}
+.pz-blk > div{width:100%;height:100%}
+.pz-img{border-radius:20px;overflow:hidden;background:rgba(var(--th-slide-alternate-primary),1)}
+.pz-img img{display:block;width:100%;height:100%}
+.measuring,.measuring *{overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important}
+.pz-slide *{hyphens:none}
+.pz-blk.overflow{outline:3px dashed #dc2626;outline-offset:4px}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="hdr">
+    <button class="gbtn ico" title="Home"><i class="ph ph-house"></i></button>
+    <span class="vdiv"></span>
+    <div class="doc">Slack for Mid-Market SaaS: The Productivity Platform</div>
+    <span class="sp"></span>
+    <!-- Prototype controls, kept apart from the editor UI -->
+    <div class="pctl" aria-label="Prototype controls">
+      <span class="pctl-h">Proto</span>
+      <button class="tb" id="tbLayouts"><i class="ph ph-layout"></i><span id="layLbl">Layouts</span><i class="ph ph-caret-down caret"></i></button>
+      <span class="tslider" title="Spacing"><i class="ph ph-columns"></i><input type="range" id="gap" min="16" max="56" step="4" aria-label="Spacing"></span>
+      <button class="tb brand" id="tbFree"><i class="ph ph-stack"></i><span id="freeLbl">Structured</span><i class="ph ph-caret-down caret"></i></button>
+    </div>
+    <span class="vdiv"></span>
+    <button class="gbtn ico" id="hUndo" title="Undo"><i class="ph ph-arrow-u-up-left"></i></button>
+    <button class="gbtn ico" id="hRedo" title="Redo" hidden><i class="ph ph-arrow-u-up-right"></i></button>
+    <button class="gbtn ico" id="hTheme" title="Light / dark"><i class="ph ph-sun"></i></button>
+    <button class="gbtn ico" id="hMore" title="More"><i class="ph ph-dots-three"></i></button>
+    <button class="gbtn sec" id="hShare"><i class="ph ph-share-network"></i>Share</button>
+    <button class="gbtn sec" id="hPresent"><i class="ph ph-play"></i>Present</button>
+    <button class="gbtn pri" id="hDownload"><i class="ph ph-download-simple"></i>Download</button>
+  </header>
+  <aside class="rail" aria-label="Slides"><button class="rail-add" id="newSlide"><i class="ph ph-plus"></i>New slide</button><div id="thumbs"></div></aside>
+
+  <main class="main">
+    <!-- Toolbar: only the selection's options. Shows when something is selected. -->
+    <div class="tbar" role="toolbar" aria-label="Selection toolbar"><button class="tb" id="tbUndo" hidden></button><button class="tb" id="tbRedo" hidden></button><span class="ctx" id="ctx"></span></div>
+
+    <div class="stage" id="stage"><div class="slide-wrap" id="wrap"></div></div>
+
+    <!-- Footer bar, as in the redesign editor: one pill 24px under the slide. -->
+    <div class="bbar" role="toolbar" aria-label="Slide actions">
+      <button class="tb" data-ins="insert"><i class="ph-bold ph-plus"></i>Insert</button>
+      <button class="tb" data-ins="style"><i class="ph ph-swatches"></i>Style</button>
+      <button class="tb" data-ins="ai"><i class="ph-fill ph-sparkle" style="color:rgb(var(--brand-600))"></i>Edit with AI</button>
+      <span class="tsep"></span>
+      <button class="tb ico" data-ins="more" title="More options"><i class="ph-bold ph-dots-three"></i></button>
+    </div>
+    <div class="shead" id="shead"><span id="sCount"></span><span class="sp"></span><button class="gbtn ico" id="sPrev" title="Previous slide"><i class="ph ph-caret-left"></i></button><button class="gbtn ico" id="sNext" title="Next slide"><i class="ph ph-caret-right"></i></button></div>
+    <div class="gridov" id="gridov"></div>
+    <div id="guides"></div>
+    <div class="dropbox" id="dropb"></div><div class="dragghost" id="ghost"></div>
+    <button class="grab" id="grab" aria-label="Drag to move"><i class="ph-bold ph-dots-six-vertical"></i></button>
+    <button class="addb" id="addR" title="Add an element to the right"><i class="ph-bold ph-plus"></i></button>
+    <button class="addb" id="addB" title="Add an element below"><i class="ph-bold ph-plus"></i></button>
+    <div class="hovbox" id="hov"></div>
+    <div class="parbox" id="parb"></div>
+    <div class="rh c" data-d="nw"></div><div class="rh ed" data-d="n"></div><div class="rh c" data-d="ne"></div><div class="rh ed" data-d="e"></div><div class="rh c" data-d="se"></div><div class="rh ed" data-d="s"></div><div class="rh c" data-d="sw"></div><div class="rh ed" data-d="w"></div>
+    <div class="rz-tip" id="rzTip"></div>
+    <div class="sel-tag" id="selTag"></div>
+    <div class="selbox" id="selb"></div>
+
+    <div class="proto" aria-label="Prototype controls">
+      <span class="pill" id="floor"></span>
+      <span class="pill" id="fit"></span>
+      <div class="hs-bar" id="hsBar"></div>
+    </div>
+  </main>
+</div>
+
+<div class="menu" id="menu"></div>
+<div class="toast" id="toast"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0?deps=react@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client?deps=react@18.2.0",
+    "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+    "agentation": "https://esm.sh/agentation@3?deps=react@18.2.0,react-dom@18.2.0"
+  }
+}
+</script>
+<script type="module">
+import * as R from './lib/real.js';
+const $ = s => document.querySelector(s);
+const MAX = 4;
+const TH = 'th-light pastel PlusJakartaSans_IBMPlexSans commonLayout';
+
+/* ---------- Content ---------- */
+const FW_ITEMS = [
+  ['Goal',    'What outcome must this screen move?'],
+  ['Insight', 'What do we know about the user at this moment?'],
+  ['Choice',  'Which option serves that insight best?'],
+  ['Result',  'How will we measure that it worked?']
+];
+// Real menus from the pastel template menu.
+const TYPES = {
+  column:  {name:'Column chart', icon:'ph-chart-bar',            group:'Chart',   kind:'chart',   menu:'cfg-react-chart-column-simple'},
+  bar:     {name:'Bar chart',    icon:'ph-chart-bar-horizontal', group:'Chart',   kind:'chart',   menu:'cfg-react-chart-bar-simple'},
+  line:    {name:'Line chart',   icon:'ph-chart-line',           group:'Chart',   kind:'chart',   menu:'cfg-react-chart-line'},
+  area:    {name:'Area chart',   icon:'ph-chart-line-up',        group:'Chart',   kind:'chart',   menu:'cfg-react-chart-area'},
+  doughnut:{name:'Doughnut',     icon:'ph-chart-donut',          group:'Chart',   kind:'chart',   menu:'cfg-react-chart-doughnut', multi:true},
+  pie:     {name:'Pie chart',    icon:'ph-chart-pie-slice',      group:'Chart',   kind:'chart',   menu:'cfg-react-chart-pie', multi:true},
+  table:   {name:'Table',        icon:'ph-table',                group:'Table',   kind:'table',   menu:'cfg-standard-table'},
+  kpi:     {name:'Metric cards', icon:'ph-gauge',                group:'Diagram', kind:'diagram', menu:'cfg-data-driven-short-points'},
+  process: {name:'Process',      icon:'ph-flow-arrow',           group:'Diagram', kind:'diagram', menu:'cfg-chevron-process-diagram'},
+  cycle:   {name:'Cycle',        icon:'ph-arrows-clockwise',     group:'Diagram', kind:'diagram', menu:'cfg-segmented-circular-diagram'},
+  funnel:  {name:'Funnel',       icon:'ph-funnel',               group:'Diagram', kind:'diagram', menu:'cfg-horizontal-funnel-diagram'},
+  image:   {name:'Image',        icon:'ph-image',                group:'Media',   kind:'image'},
+  pyramid: {name:'Pyramid',      icon:'ph-triangle',             group:'Diagram', kind:'diagram', menu:'cfg-layered-pyramid-diagram'}
+};
+// Stock photos for image objects (Unsplash).
+const PHOTOS = [['Team at work','1522071820081-009f0129c71c'],['Meeting','1556761175-5973dc0f32e7'],['Handshake','1600880292203-757bb62b4baf'],['Office','1497366216548-37526070297c'],['Workshop','1552664730-d307ca884978'],['Laptops','1531482615713-2afd69097998'],['Strategy','1542744173-8e7e53415bb0'],['Planning','1517245386807-bb43f82c33c4']];
+const photo = id => `https://images.unsplash.com/photo-${id}?w=1600&q=80&auto=format&fit=crop`;
+const CHART_TYPES = ['column','bar','line','area','doughnut','pie'];
+const DIAGRAM_TYPES = ['kpi','process','cycle','funnel','pyramid'];
+const DATA = {
+  series: [['2021',12],['2022',18],['2023',21],['2024',27],['2025',34],['2026',41],['2027',46],['2028',52]],
+  share:  [['Goal',18],['Insight',34],['Choice',30],['Result',18],['Other',6],['Admin',4]],
+  title:  {column:'Decisions signed off', bar:'Decisions signed off', line:'Days to sign-off', area:'Screens reviewed', doughnut:'Where review time goes', pie:'Where review time goes'},
+  table:  [['Team','Screens','Sign-off','Status'],['Growth','42','4.1d','On track'],['Payments','31','5.3d','On track'],['Onboarding','27','6.8d','Watch'],['Search','19','3.9d','On track']],
+  kpi:     [['Sign-off','Faster sign-off since Q1','68%'],['Shipped','Decisions shipped this year','41'],['Review','Median days to sign-off','6d'],['Target','Points above target','+12']],
+  process: [['Brief','Agree the outcome'],['Frame','Bring the insight'],['Decide','Pick one option'],['Ship','Measure the result'],['Learn','Feed the next brief']],
+  cycle:   [['Plan','Set the goal'],['Build','Make the screen'],['Test','Try it with users'],['Learn','Keep what worked']],
+  funnel:  [['Ideas','Proposals','120'],['Framed','With a goal','64'],['Decided','Picked','30'],['Shipped','Live','22']],
+  pyramid: [['Result','Proven in numbers'],['Choice','One clear option'],['Insight','What users need'],['Goal','The outcome to move']]
+};
+const lineLabel = l => l;
+
+// Framework step styles, each a real diagram menu.
+const STEP_STYLES = [
+  {id:'staircase', name:'Steps',          icon:'ph-chart-bar',     menu:'cfg-steps-diagram'},
+  {id:'grid',      name:'Cards',          icon:'ph-squares-four',  menu:'cfg-plain-icon-detailed-points'},
+  {id:'list',      name:'Numbered list',  icon:'ph-list-numbers',  menu:'cfg-numbered-list-vertical'},
+  {id:'strip',     name:'Chevron strip',  icon:'ph-arrow-fat-right', menu:'cfg-chevron-process-diagram'}
+];
+const STRIP = '300px';
+const LAYOUTS = {
+  0:[{id:'hero',  name:'Framework',      cols:'1fr', rows:'1fr', areas:'"f"', fw:'staircase', kind:'full'}],
+  1:[{id:'side',  name:'Side by side',   cols:'1fr 1fr', rows:'1fr', areas:'"f o1"', fw:'grid', kind:'half'},
+     {id:'stack', name:'Stacked',        cols:'1fr', rows:STRIP+' 1fr', areas:'"f" "o1"', fw:'strip', kind:'strip'},
+     {id:'focus', name:'Object first',   cols:'1.6fr 1fr', rows:'1fr', areas:'"o1 f"', fw:'list', kind:'narrow'}],
+  2:[{id:'split', name:'Split',          cols:'.8fr 1.4fr', rows:'1fr 1fr', areas:'"f o1" "f o2"', fw:'list', kind:'narrow'},
+     {id:'row',   name:'Strip + row',    cols:'1fr 1fr', rows:STRIP+' 1fr', areas:'"f f" "o1 o2"', fw:'strip', kind:'strip'},
+     {id:'trio',  name:'Three columns',  cols:'1fr 1fr 1fr', rows:'1fr', areas:'"f o1 o2"', fw:'list', kind:'narrow'}],
+  3:[{id:'row',   name:'Strip + row',    cols:'1fr 1fr 1fr', rows:STRIP+' 1fr', areas:'"f f f" "o1 o2 o3"', fw:'strip', kind:'strip'},
+     {id:'feat',  name:'Feature',        cols:'.75fr 1fr 1fr', rows:'1.15fr 1fr', areas:'"f o1 o1" "f o2 o3"', fw:'list', kind:'narrow'},
+     {id:'mosaic',name:'2 x 2',          cols:'1fr 1fr', rows:'1fr 1fr', areas:'"f o1" "o2 o3"', fw:'grid', kind:'box'}],
+  4:[{id:'grid',  name:'List + grid',    cols:'.7fr 1fr 1fr', rows:'1fr 1fr', areas:'"f o1 o2" "f o3 o4"', fw:'list', kind:'narrow'},
+     {id:'mosaic',name:'Strip + 2 x 2',  cols:'1fr 1fr', rows:'240px 1fr 1fr', areas:'"f f" "o1 o2" "o3 o4"', fw:'strip', kind:'strip'},
+     {id:'row',   name:'Strip + row',    cols:'repeat(4,1fr)', rows:STRIP+' 1fr', areas:'"f f f f" "o1 o2 o3 o4"', fw:'strip', kind:'strip'}]
+};
+const FITS = {full:['staircase','grid','list','strip'], half:['grid','list','staircase'], narrow:['list','grid'], box:['grid','list'], strip:['strip']};
+const THEMES = [
+  {id:'com.pitchdeck.glaze',      name:'Glaze',       c:'rgb(26,83,25)'},
+  {id:'com.pitchdeck.deeporange', name:'Deep orange', c:'rgb(255,87,34)'},
+  {id:'com.pitchdeck.sunset',     name:'Sunset',      c:'rgb(211,34,29)'},
+  {id:'com.pitchdeck.cerise',     name:'Cerise',      c:'rgb(218,38,109)'}
+];
+
+// Deck built from "Slack for Mid-Market SaaS: The Productivity Platform" (PDF). Each object can carry its own copy (data).
+const K = (h, b, v) => [h, b, v];
+const CONCEPTS = [
+  {name:'Cover', title:'Scale your SaaS operations with Slack', gfx:'ph-slack-logo', label:'Slack for mid-market SaaS', sub:'The productivity platform that connects your people, tools, and partners.', cta:'See the platform', split:true, cls:'h4', objs:[{t:'image', src:'1522071820081-009f0129c71c'}]},
+  {name:'Problem', title:'Mid-market SaaS teams face execution friction', sub:'Siloed tools, fragmented communications, and manual handoffs slow growth and increase developer context switching.',
+    objs:[{t:'kpi', menu:'cfg-icon-heading-blocks-4', data:[K('Tool Fragmentation','Updates buried across disparate cloud apps and emails.','01'), K('Siloed Departments','Sales, engineering, and support lack shared context.','02'), K('Manual Operations','Approvals and triage consume weekly capacity.','03'), K('Context Switching','Engineers jump between consoles, repos, and chat.','04')]}]},
+  {name:'Operating system', title:'Slack is an operating system', sub:'Organize work around channels, connect partners, and trigger actions in your conversation flow.',
+    objs:[{t:'cycle', menu:'cfg-segmented-circular-diagram', data:[K('Topic Channels','Discussions and telemetry in one searchable place'), K('Workflow Builder','No-code actions inside the conversation'), K('Slack Connect','Partners in shared channels'), K('Native AI','Answers from your workspace history')]}]},
+  {name:'Economic impact', title:'Slack delivers validated economic impact', sub:'Independent Forrester studies prove massive efficiency gains.',
+    objs:[{t:'kpi', menu:'cfg-grid-data-driven-label-heading', data:[K('Return','Measured return across engineering organizations.','302%'), K('Email Reduction','Decrease in internal email volume and inbox time.','20%'), K('Weekly Time Saved','Productivity returned per user from automation.','100 min'), K('Faster Resolution','Reduction in ticket resolution time for support.','16%')]},
+          {t:'process', menu:'cfg-plain-icon-detailed-points', data:[K('Developer Flow','Engineers stay in their workspace with automated deployment alerts.'), K('Swarming','Teams resolve escalations together in dedicated channels.'), K('Onboarding','New hires search history and pinned docs from day one.')]}]},
+  {name:'Capabilities', title:'Four capabilities set Slack apart from legacy tools', label:'Capabilities',
+    objs:[{t:'cycle', menu:'cfg-grid-plain-icon-4-points-style-2', data:[K('Ecosystem Breadth','2,600+ marketplace apps linking CRM, ticketing, and CI/CD.'), K('Slack Connect','External collaboration replacing insecure email threads.'), K('Workflow Automation','No-code triggers and bots where teams converse.'), K('Enterprise Security','Data loss prevention, key management, SOC 2.')]}]},
+  {name:'Integrations', title:'Slack integrates your entire modern SaaS stack', label:'Integrations',
+    objs:[{t:'kpi', menu:'cfg-data-driven-short-points-separator', data:[K('Apps','Marketplace integrations','2.6K+'), K('Custom','Custom apps built','550K+')]},
+          {t:'table', data:[['Functional Stack','Key Integrations','Operational Value'],['Dev & Engineering','GitHub, Jira, Datadog','Instant incident alerts and PR reviews'],['Sales & Revenue','Salesforce, HubSpot, Gong','Deal desk alerts and pipeline notices'],['Support & Success','Zendesk, Intercom','Tier-3 swarming and CSAT alerts'],['Product & Ops','Figma, Asana, Notion','Design reviews and task triggers']]},
+          {t:'process', menu:'cfg-numbered-list-vertical-heading-body', data:[K('Salesforce sync','Native two-way sync with CRM records'), K('Security scanning','Automated scans on external shared channels'), K('Audit logs','Central logs across all custom and third-party apps')]}]},
+  {name:'Spotify', title:'Spotify boosted sales efficiency by 40% with Slack', sub:'The advertising sales team streamlined campaign operations and accelerated complex client delivery.',
+    objs:[{t:'kpi', menu:'cfg-large-data-driven-heading-body', data:[K('Efficiency','Increase in efficiency across advertising teams.','40%'), K('Delivery rate','Campaign delivery, up from 97%.','99%')]},
+          {t:'process', menu:'cfg-icon-heading-blocks', data:[K('Campaigns','AEs, ad ops, and creative align in client channels.'), K('Live Deals','CRM and booking updates pushed live.'), K('Partners','Slack Connect replaces slow external email.')]}]},
+  {name:'QuickBooks', title:'QuickBooks cases 36% faster', sub:'Support agents saved hours annually via bot triage and swarming.',
+    objs:[{t:'kpi', menu:'cfg-data-driven-heading-body', data:[K('Hours Saved','Freed up frontline agent capacity.','9,000'), K('Faster Resolve','Replaced a 2-day resolution lag.','36%')]},
+          {t:'process', menu:'cfg-numbered-list-process', data:[K('Quincy Bot','Bot triages queries and finds articles instantly.'), K('Expert Swarms','Specialists swarm bugs in live channels.'), K('Knowledge Sharing','Answers pinned in searchable channels.')]}]},
+  {name:'Customers', title:'Teams that already run on channels', label:'Customers', sub:'Spotify, QuickBooks, and Canva moved their daily work into Slack.',
+    objs:[{t:'image', src:'1556761175-5973dc0f32e7'}, {t:'image', src:'1552664730-d307ca884978'}, {t:'image', src:'1531482615713-2afd69097998'}]},
+  {name:'Canva', title:'Canva saved 63.75 hours weekly', gfx:'ph-thumbs-up', sub:'No-code Slack workflows automated financial operations to support rapid global expansion.', objs:[]},
+  {name:'Deployment path', title:'A proven 4-stage path to enterprise deployment', align:'center',
+    objs:[{t:'process', menu:'cfg-horizontal-roadmap', data:[K('Discovery & Audit','Map the toolchain and define security.'), K('Pilot & Integrations','Connect core tools and pilot channels.'), K('Company Rollout','Onboard with custom architecture and bots.'), K('Optimization','Review analytics and launch partner rooms.')]}]},
+  {name:'Next steps', title:'Start your team’s productivity transformation',
+    objs:[{t:'image', src:'1600880292203-757bb62b4baf'}, {t:'process', menu:'cfg-simple-linear-process-diagram', data:[K('Technical Assessment','Engineers analyze your stack for automation wins.'), K('30-Day Guided Pilot','Test Enterprise with engineering and revenue teams.'), K('Custom ROI Projection','Expected time savings and license consolidation.')]}]},
+  {name:'References', title:'References', gfx:'ph-book-open', cta:'Click here', objs:[]}
+];
+let uid = 1;
+const blank = () => ({objs:[], fw:false, li:{0:0,1:0,2:0,3:0,4:0}, steps:null, gap:32, title:{on:true, text:'Add a title', cls:'h5', size:null, align:'left', b:false, i:false, label:null, sub:null, cta:null, gfx:null}, free:'Freeform', ff:'auto', pos:null});
+const slides = CONCEPTS.map(c => { const st = blank(); st.objs = c.objs.map(x => typeof x === 'string' ? {id:'o'+(uid++), t:x, n:null} : {id:'o'+(uid++), n:null, ...x}); st.fw = !!c.fw; if(c.free) st.free = c.free;
+  st.split = !!c.split; if(c.cls) st.title.cls = c.cls;
+  Object.assign(st.title, {text:c.title, label:c.label ?? null, sub:c.sub ?? null, cta:c.cta ?? null, gfx:c.gfx ?? null, align:c.align || 'left'}); return st; });
+let cur = 0, state = slides[0], theme = THEMES[0].id;
+const thumbs = slides.map(() => '');
+let sel = null;   // {blk, kind, el}
+const past = [], future = [];
+function commit(fn){ past.push(JSON.stringify(state)); future.length = 0; fn(); render(); }
+function undo(){ if(!past.length) return; future.push(JSON.stringify(state)); state = JSON.parse(past.pop()); clearSel(); render(); }
+function redo(){ if(!future.length) return; past.push(JSON.stringify(state)); state = JSON.parse(future.pop()); clearSel(); render(); }
+
+/* ---------- Freeform: any number of objects, arranged to fit ---------- */
+const FF_ARRANGE = [
+  {id:'auto', name:'Auto fit',        icon:'ph-magic-wand'},
+  {id:'left', name:'Framework left',  icon:'ph-sidebar-simple'},
+  {id:'top',  name:'Framework top',   icon:'ph-rows'},
+  {id:'row',  name:'One row',         icon:'ph-columns'}
+];
+// Structured = auto layout in rows (any number of objects). Freeform = each object placed and sized freely (no snap).
+const isFree = st => true;
+const isAbs = st => st.free === 'Freeform';
+const flow = st => true;
+const esc = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+// Manual sizes: per-grid track weights, valid only for the layout they were made in.
+const sigOf = st => { const n = st.objs.length; if(st.lay && n) return 'L|' + (st.fw ? 1 : 0) + '|' + ffArrange(st) + '|' + JSON.stringify(st.lay); return flow(st) && n ? `F|${st.fw ? 1 : 0}|${ffArrange(st)}|${n}|${ffRows(n, BODY_W, bodyH(st), st.gap).join('.')}` : `S|${n}|${st.li[n] || 0}|${st.steps || ''}`; };
+const trk = st => (st.trk && st.trk.sig === sigOf(st)) ? st.trk : null;
+const hasSizes = st => !!trk(st) || !!(st.title.w) || !!st.title.hw || !!st.title.gs || !!st.title.off || st.objs.some(o => o.sz);
+const frs = (arr, fallback) => arr ? arr.map(v => `minmax(0,${(+v).toFixed(2)}fr)`).join(' ') : fallback;
+const ffArrange = st => { const a = st.ff || 'auto'; return a === 'auto' ? (st.objs.length >= 3 ? 'top' : 'left') : a; };
+// Body area in slide units (1920 x 1080 slide, padding and title taken off).
+const BODY_W = 1752, BODY_H = 780;
+// Body height left after the title block (rough, in slide units).
+const bodyH = st => { const t = st.title; if(t.on === false || st.split) return 908; return 944 - 36 - 120 - (t.gfx ? 98 : 0) - (t.label != null ? 54 : 0) - (t.sub != null ? 60 : 0) - (t.cta != null ? 84 : 0); };
+// Splits n objects into rows so each cell keeps a chart-friendly shape (about 3:2), fewest empty slots.
+function ffRows(n, W, H, g, maxRows){
+  let best = null;
+  for(let r = 1; r <= Math.min(n, maxRows || n); r++){
+    const c = Math.ceil(n / r), cw = (W - (c - 1) * g) / c, ch = (H - (r - 1) * g) / r;
+    const score = Math.abs(Math.log((cw / ch) / 1.45)) + (c * r - n) * .12;
+    if(!best || score < best.score) best = {r, score};
+  }
+  const r = best.r, rows = [];
+  let left = n;
+  for(let i = 0; i < r; i++){ const k = Math.ceil(left / (r - i)); rows.push(k); left -= k; }
+  return rows;
+}
+function ffPlan(st){
+  const n = st.objs.length, a = ffArrange(st), g = st.gap;
+  if(!st.fw) return {a, cols:'1fr', rows:'1fr', areas:'"o"', rowsOf: a === 'row' ? [n] : ffRows(n, BODY_W, bodyH(st), g)};
+  if(a === 'left'){
+    const W = BODY_W * 2 / 2.62 - g;
+    return {a, cols:'.62fr 2fr', rows:'1fr', areas:'"f o"', rowsOf: ffRows(n, W, BODY_H, g)};
+  }
+  const strip = n > 4 ? 240 : 300;
+  return {a, cols:'1fr', rows:`${strip}px 1fr`, areas:'"f" "o"', rowsOf: a === 'row' ? [n] : ffRows(n, BODY_W, BODY_H - strip - g, g)};
+}
+const layout = st => {
+  const n = st.objs.length;
+  if(flow(st) && n){ if(!st.fw) return {kind:'none', name:'Auto fit'}; const a = ffArrange(st); return a === 'left' ? {kind:'narrow', fw:'list', name:'Framework left'} : {kind:'strip', fw:'strip', name: a === 'row' ? 'One row' : 'Framework top'}; }
+  return LAYOUTS[n][st.li[n] || 0];
+};
+const stepStyle = (st, L) => (st.steps && FITS[L.kind].includes(st.steps)) ? st.steps : L.fw;
+
+/* ---------- Items per object (respecting point count) ---------- */
+// Point count: what the user picked, else the full data set. Layout never drops data (no data loss).
+const autoN = {};
+function fitCount(){ return null; }
+function itemsFor(o){
+  const base = o.data || DATA[o.t];
+  const n = o.n || autoN[o.id] || Math.min(base.length, o.t === 'process' ? 4 : base.length);
+  const out = (o.order || base.map((_, i) => i)).map(i => base[i]).filter(Boolean).slice(0, n);
+  while(out.length < n) out.push(['Point ' + (out.length + 1), 'Add a short description', String(out.length + 1)]);
+  return out;
+}
+function rowsFor(o){
+  const multi = TYPES[o.t].multi;
+  const base = o.data || (multi ? DATA.share : DATA.series);
+  const n = o.n || autoN[o.id] || (multi ? 4 : 6);
+  return base.slice(0, n);
+}
+
+/* ---------- Slide DOM ---------- */
+function slideHTML(st){
+  const L = layout(st), t = st.title, n = st.objs.length;
+  const tStyle = `text-align:${t.align};${t.w ? `max-width:${t.w}px;${t.align === 'center' ? 'margin-left:auto;margin-right:auto;' : ''}` : ''}${t.size ? `font-size:${t.size}px;` : ''}${t.b ? 'font-weight:800;' : ''}${t.i ? 'font-style:italic;' : ''}${t.color ? `color:${t.color};` : ''}`;
+  const ed = 'contenteditable="true" spellcheck="false"';
+  const head = t.on === false ? '' : `<div class="pz-head" style="align-items:${t.align === 'center' ? 'center' : 'flex-start'};text-align:${t.align};--gs:${t.gs || 1};${t.align === 'center' ? 'align-self:center;' : ''}${t.hw ? `max-width:${t.hw}px;width:${t.hw}px;` : ''}${t.hh ? `min-height:${t.hh}px;justify-content:center;` : ''}${t.off ? `transform:translate(${t.off.x}px,${t.off.y}px);` : ''}${isAbs(st) && st.pos && t.hpos ? `position:absolute;left:${t.hpos.x}px;top:${t.hpos.y}px;${t.hw ? '' : `width:${t.hpos.w}px;`}` : ''}">
+      ${t.gfx ? `<div class="pz-gfx" data-part="gfx"><i class="ph ${t.gfx}"></i></div>` : ''}
+      ${t.label != null ? `<span class="pz-label" data-part="label" ${ed}>${esc(t.label)}</span>` : ''}
+      <div class="pz-title ${t.cls}" data-sel="title" ${ed} style="${tStyle}">${esc(t.text)}</div>
+      ${t.sub != null ? `<div class="pz-sub" data-part="sub" ${ed}>${esc(t.sub)}</div>` : ''}
+      ${t.cta != null ? `<span class="pz-cta" data-part="cta" ${ed}>${esc(t.cta)}</span>` : ''}</div>`;
+  let body;
+  if(!st.fw && !n) body = t.on === false ? '<div class="pz-empty">Empty slide. Add a title or an element from the bar below.</div>' : '';
+  else if(isAbs(st) && st.pos) body = absBody(st);
+  else if(flow(st) && n) body = freeBody(st);
+  else body = `<div class="pz-body" style="grid-template-columns:${frs((trk(st)||{}).bodyCols, L.cols)};grid-template-rows:${frs((trk(st)||{}).bodyRows, L.rows)};grid-template-areas:${L.areas.replace(/"/g,"'")}">
+      <div class="pz-blk" data-blk="fw" style="grid-area:f"></div>
+      ${st.objs.map((o,i) => `<div class="pz-blk" data-blk="${o.id}" style="grid-area:o${i+1};${szStyle(o)}"></div>`).join('')}
+    </div>`;
+  const free = isAbs(st) && st.pos;
+  return `<div class="pz-slide ${TH}${free ? ' pz-free' : ''}${!st.fw && !n && t.on !== false ? ' pz-solo' : ''}${st.split && n && !free ? ' pz-split' : ''}" style="--gap:${st.gap}px">${head}${body}</div>`;
+}
+// Freeform: every block sits at its own x / y / w / h (slide units, relative to the body area).
+function absBody(st){
+  const at = (id, i) => { const q = st.pos[id] || defaultPos(st, i); return `position:absolute;left:${q.x}px;top:${q.y}px;width:${q.w}px;height:${q.h}px`; };
+  return `<div class="pz-body pz-abs">${st.fw ? `<div class="pz-blk" data-blk="fw" style="${at('fw', 0)}"></div>` : ''}${st.objs.map((o, i) => `<div class="pz-blk" data-blk="${o.id}" style="${at(o.id, i)}"></div>`).join('')}</div>`;
+}
+// Freeform positions are in slide units from the slide's top-left corner (1920 x 1080).
+const defaultPos = (st, i) => { const w = 720, h = 440; return {x: Math.round((1920 - w) / 2 + (i % 5) * 32), y: Math.round((1080 - h) / 2 + (i % 5) * 32), w, h}; };
+// Reads where each block sits right now, so switching to Freeform starts from the current layout.
+function capturePos(){
+  const body = $('#wrap .pz-body'), sl = $('#wrap .pz-slide'); if(!body || !sl) return {};
+  const b = sl.getBoundingClientRect(), pos = {};
+  body.querySelectorAll('.pz-blk').forEach(el => { const r = el.getBoundingClientRect(); pos[el.dataset.blk] = {x: Math.round((r.left - b.left) / k), y: Math.round((r.top - b.top) / k), w: Math.round(r.width / k), h: Math.round(r.height / k)}; });
+  return pos;
+}
+// Where the title block sits (slide units), so it can stand on its own in Freeform.
+function captureHead(){
+  const hd = $('#wrap .pz-head'), sl = $('#wrap .pz-slide'); if(!hd || !sl) return null;
+  const b = sl.getBoundingClientRect(), r = hd.getBoundingClientRect(), o = state.title.off || {x: 0, y: 0};
+  return {x: Math.round((r.left - b.left) / k) - o.x, y: Math.round((r.top - b.top) / k) - o.y, w: Math.round(r.width / k)};
+}
+// An object's own size, set by dragging an edge that has no neighbour. It can shrink inside its slot or grow
+// past it (up to the slide's margins); the opposite edge stays put.
+const szStyle = o => o.sz ? `${o.sz.w ? `width:${o.sz.w}px;justify-self:${o.sz.ax || 'center'};` : ''}${o.sz.h ? `height:${o.sz.h}px;align-self:${o.sz.ay || 'center'};` : ''}position:relative;z-index:2` : '';
+// Custom arrangement from drag and drop: rows of cells, each cell a stack of blocks. Kept in step with objs.
+// Display name of a block (for the drag card and size tips).
+const blkName = b => { if(!b || !b.dataset) return 'Row'; if(b.dataset.blk === 'fw') return 'Framework'; const o = state.objs.find(x => x.id === b.dataset.blk); return o ? TYPES[o.t].name : 'Row'; };
+// Puts an object id next to a target block in the arrangement: n / s stack in the same cell, w / e add a column.
+function placeIn(L, id, tid, zone){
+  let r = -1, c = -1, j = -1;
+  L.forEach((row, ri) => row.forEach((cell, ci) => { const k2 = cell.indexOf(tid); if(k2 >= 0){ r = ri; c = ci; j = k2; } }));
+  if(r < 0){ L.push([[id]]); return L; }
+  if(zone === 'n' || zone === 's') L[r][c].splice(zone === 'n' ? j : j + 1, 0, id);
+  else L[r].splice(zone === 'w' ? c : c + 1, 0, [id]);
+  return L;
+}
+// Adds a new object right next to another one (the + buttons, and duplicate).
+function insertAt(tid, zone, t, extra){
+  if(isAbs(state)){ addObj(t); return; }
+  commit(() => {
+    const L = JSON.parse(JSON.stringify(normLay(state) || autoLay(state)));
+    const id = 'o' + (uid++); state.objs.push({id, t, n:null, ...(extra || {})});
+    state.lay = placeIn(L, id, tid, zone); state.trk = null;
+  });
+}
+const autoLay = st => { const P = ffPlan(st); let i = 0; return P.rowsOf.map(k => st.objs.slice(i, i += k).map(o => [o.id])); };
+function cleanLay(L){ return L.map(row => row.map(c => c.filter(Boolean)).filter(c => c.length)).filter(row => row.length); }
+function normLay(st){
+  if(!st.lay) return null;
+  const ids = st.objs.map(o => o.id);
+  let L = cleanLay(st.lay.map(row => row.map(c => c.filter(id => ids.includes(id)))));
+  const have = L.flat(2);
+  ids.filter(id => !have.includes(id)).forEach(id => { if(!L.length || L[L.length - 1].length >= 3) L.push([[id]]); else L[L.length - 1].push([id]); });
+  st.lay = L.length ? L : null;
+  return st.lay;
+}
+function freeBody(st){
+  const P = ffPlan(st);
+  let i = 0;
+  const T = trk(st) || {};
+  const L = normLay(st), byId = id => st.objs.find(o => o.id === id);
+  if(L){
+    const rowsL = L.map((row, r) => `<div class="pz-row" data-row="${r}" style="flex:${T.objs ? T.objs[r] : 1} 1 0;grid-template-columns:${frs(T['row' + r], `repeat(${row.length},minmax(0,1fr))`)}">${row.map((cell, c) => `<div class="pz-cell" data-cell="${r}_${c}">${cell.map((id, j) => `<div class="pz-blk" data-blk="${id}" style="flex:${T['c' + r + '_' + c] ? T['c' + r + '_' + c][j] : 1} 1 0;${szStyle(byId(id))}"></div>`).join('')}</div>`).join('')}</div>`).join('');
+    return `<div class="pz-body" style="grid-template-columns:${frs(T.bodyCols, P.cols)};grid-template-rows:${frs(T.bodyRows, P.rows)};grid-template-areas:${P.areas.replace(/"/g,"'")}">
+      ${st.fw ? '<div class="pz-blk" data-blk="fw" style="grid-area:f"></div>' : ''}
+      <div class="pz-objs" style="grid-area:o">${rowsL}</div>
+    </div>`;
+  }
+  const rows = P.rowsOf.map((k, r) => { const objs = st.objs.slice(i, i += k);
+    return `<div class="pz-row" data-row="${r}" style="flex:${T.objs ? T.objs[r] : 1} 1 0;grid-template-columns:${frs(T['row' + r], `repeat(${k},minmax(0,1fr))`)}">${objs.map(o => `<div class="pz-blk" data-blk="${o.id}" style="${szStyle(o)}"></div>`).join('')}</div>`; }).join('');
+  return `<div class="pz-body" style="grid-template-columns:${frs(T.bodyCols, P.cols)};grid-template-rows:${frs(T.bodyRows, P.rows)};grid-template-areas:${P.areas.replace(/"/g,"'")}">
+      ${st.fw ? '<div class="pz-blk" data-blk="fw" style="grid-area:f"></div>' : ''}
+      <div class="pz-objs" style="grid-area:o">${rows}</div>
+    </div>`;
+}
+// Mounts the real assets into a slide element. Resolves when every block reported done.
+async function mountSlide(slideEl, st, scale){
+  const L = layout(st);
+  const fwEl = slideEl.querySelector('[data-blk="fw"]');
+  const fwStyle = fwEl && STEP_STYLES.find(s => s.id === stepStyle(st, L));
+  const mk = (blk, multi) => { const d = document.createElement('div'); d.className = multi ? 'th-sections-theme-multiple' : 'th-sections-theme1'; blk.appendChild(d); return d; };
+  // One render per block. `draw(d)` paints the block's asset into a fresh container d.
+  const draws = fwEl ? [[fwEl, false, d => R.renderDiagram(d, fwStyle.menu, FW_ITEMS, scale)]] : [];
+  for(const o of st.objs){
+    const blk = slideEl.querySelector(`[data-blk="${o.id}"]`), T = TYPES[o.t];
+    autoN[o.id] = fitCount(o, blk.clientWidth, blk.clientHeight);
+    blk.dataset.kind = T.kind;
+    draws.push([blk, T.multi, d => T.kind === 'image' ? new Promise(res => { d.className = 'pz-img'; d.innerHTML = `<img src="${photo(o.src || PHOTOS[0][1])}" alt="" style="object-fit:${o.fit || 'cover'}">`; const im = d.firstChild; im.onload = im.onerror = res; setTimeout(res, 3000); })
+      : T.kind === 'chart' ? R.renderChart(d, T.menu, {rows: rowsFor(o), title: o.ttl || DATA.title[o.t]}, scale)
+      : T.kind === 'table' ? R.renderTable(d, (o.data || DATA.table).slice(0, (o.n || autoN[o.id] || (o.data || DATA.table).length - 1) + 1), scale, o.menu || T.menu)
+      : R.renderDiagram(d, o.menu || T.menu, itemsFor(o), scale)]);
+  }
+  fitHead(slideEl, st);
+  await Promise.all(draws.map(([blk, multi, draw]) => draw(mk(blk, multi))));
+  await new Promise(r => setTimeout(r, 350));
+  // Fit to space: no scaling. Each block keeps its real size and its text gets real font-size values:
+  // bigger when there is room (up to 1.35x, never past 44px), smaller when it spills. Floor 8px. No data is dropped.
+  const fitted = [];
+  for(const [blk] of draws){
+    const d = blk.lastElementChild; if(!d || blk.dataset.kind === 'chart') continue;   // chart text is laid out by the chart itself
+    // Big numbers (data-driven text): one size for every number in the block, on one line, as big as the
+    // narrowest card allows (design size at most, 16px at least). Then the rest of the text fits around them.
+    const nums = [...d.querySelectorAll('[name="data-driventext"]')];
+    if(nums.length){
+      const spans = nums.flatMap(n => [...n.querySelectorAll('*')].filter(el => [...el.childNodes].some(c => c.nodeType === 3 && c.textContent.trim())));
+      spans.forEach(el => { el.style.fontSize = ''; el.dataset.n0 = parseFloat(getComputedStyle(el).fontSize); });
+      nums.forEach(n => { n.style.whiteSpace = 'nowrap'; });
+      const ratio = Math.min(1, ...nums.map(n => { const np = n.closest('[name="node-parent"]'), bt = np && np.querySelector('[name="bodytext"]'), w = bt && bt.clientWidth > 40 ? bt.clientWidth : np ? np.clientWidth * .8 : n.clientWidth; return w > 0 && n.scrollWidth > 0 ? w / n.scrollWidth : 1; }));
+      spans.forEach(el => { el.style.fontSize = Math.max(16, Math.floor(+el.dataset.n0 * ratio * .96)) + 'px'; el.style.lineHeight = '1.1'; });
+    }
+    const texts = [...d.querySelectorAll('*')].filter(el => !el.closest('[name="data-driventext"]') && [...el.childNodes].some(c => c.nodeType === 3 && c.textContent.trim()));
+    if(!texts.length) continue;
+    texts.forEach(el => { const cs = getComputedStyle(el); el.dataset.f0 = parseFloat(cs.fontSize); el.dataset.l0 = cs.lineHeight.endsWith('px') ? parseFloat(cs.lineHeight) : ''; });
+    const apply = Z => texts.forEach(el => {
+      const f = Math.min(Math.max(8, +el.dataset.f0 * Z), Math.max(+el.dataset.f0, 44)), fr = Math.round(f * 10) / 10;
+      el.style.fontSize = fr + 'px';
+      if(el.dataset.l0) el.style.lineHeight = Math.max(fr * 1.1, Math.round(+el.dataset.l0 * (fr / +el.dataset.f0) * 10) / 10) + 'px';
+    });
+    const fits = Z => {
+      apply(Z);
+      const W = blk.clientWidth, H = blk.clientHeight;
+      if(Math.max(d.scrollWidth / W, d.scrollHeight / H, blk.scrollWidth / W, blk.scrollHeight / H, cramped(d)) > 1.02) return false;
+      const br = blk.getBoundingClientRect();
+      return texts.every(el => { const r = el.getBoundingClientRect(); if(!r.width) return true;
+        if(r.right > br.right + 1 || r.bottom > br.bottom + 1 || r.left < br.left - 1 || r.top < br.top - 1) return false;
+        const node = el.closest('[name="node-parent"]'); if(!node || !blk.contains(node)) return true;
+        const nr = node.getBoundingClientRect(); return r.bottom <= nr.bottom + 1 && r.right <= nr.right + 1; });
+    };
+    let lo, hi;
+    if(fits(1)){ lo = 1; hi = 1.35; }
+    else { lo = Math.min(...texts.map(el => 8 / +el.dataset.f0)); hi = 1; }
+    for(let i = 0; i < 8; i++){ const m = (lo + hi) / 2; if(fits(m)) lo = m; else hi = m; }
+    fitted.push({apply, lo});
+  }
+  // Text sizes come from fixed steps, so blocks on a slide (and across the deck) land on the same few sizes.
+  // Blocks that fit within one step of each other share the smaller step.
+  if(fitted.length){
+    const STEPS = [.4, .5, .6, .7, .8, .9, 1, 1.1, 1.2, 1.35], snap = z => [...STEPS].reverse().find(v => v <= z + .001) || z;
+    const zs = fitted.map(f => snap(f.lo));
+    fitted.forEach((f, i) => { const near = zs.filter(z => Math.abs(z - zs[i]) <= .11); f.apply(Math.min(...near)); });
+  }
+}
+// Slides with only a title block: grow the whole group (title + label + subtitle + button) until it fills the free space.
+function fitHead(slideEl, st){
+  const t = st.title, hd = slideEl.querySelector('.pz-head');
+  if(!hd || st.fw || st.objs.length || t.gs || t.size) return;
+  const ti = hd.querySelector('[data-sel="title"]'); if(!ti) return;
+  const cs = getComputedStyle(slideEl);
+  const availH = (slideEl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 0) * .55;
+  const availW = slideEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), f0 = parseFloat(getComputedStyle(ti).fontSize);
+  const fits = g => { hd.style.setProperty('--gs', g); ti.style.fontSize = Math.min(120, f0 * g) + 'px';
+    hd.classList.add('measuring'); const ok = hd.scrollHeight <= availH && hd.scrollWidth <= availW + 1 && ti.scrollWidth <= ti.clientWidth + 1; hd.classList.remove('measuring'); return ok; };
+  let lo = 1, hi = 1.6;
+  if(!fits(lo)){ hd.style.removeProperty('--gs'); ti.style.fontSize = ''; return; }
+  for(let i = 0; i < 9; i++){ const m = (lo + hi) / 2; if(fits(m)) lo = m; else hi = m; }
+  fits(lo);
+}
+// How much text is squeezed inside a block: words that would break mid-word, or text clipped by its box.
+// Measured with mid-word breaking turned off, so a word that does not fit shows up as overflow.
+function cramped(root){
+  root.classList.add('measuring');
+  let worst = 1;
+  root.querySelectorAll('*').forEach(el => {
+    if(el.closest('[name="data-driventext"]') || ![...el.childNodes].some(c => c.nodeType === 3 && c.textContent.trim())) return;
+    for(let p = el, i = 0; p && p !== root && i < 4; p = p.parentElement, i++){
+      if(p.clientWidth > 0) worst = Math.max(worst, p.scrollWidth / p.clientWidth);
+      if(p.clientHeight > 0 && getComputedStyle(p).overflowY !== 'visible') worst = Math.max(worst, p.scrollHeight / p.clientHeight);
+    }
+  });
+  root.classList.remove('measuring');
+  return worst;
+}
+
+/* ---------- Render ---------- */
+let k = .5, renderSeq = 0;
+function fitSlide(){
+  const st = $('#stage'), w = $('#wrap');
+  const cs = getComputedStyle(st);
+  const aw = st.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const ah = st.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  k = Math.max(.1, Math.min(aw/1920, ah/1080));
+  w.style.width = 1920*k+'px'; w.style.height = 1080*k+'px';
+  const wr = w.getBoundingClientRect(), mr = $('.main').getBoundingClientRect();
+  Object.assign($('.bbar').style, {top: (wr.bottom - mr.top + 24) + 'px', left: (wr.left - mr.left + wr.width / 2) + 'px'});
+  Object.assign($('#shead').style, {top: (wr.top - mr.top - 40) + 'px', left: (wr.left - mr.left) + 'px', width: wr.width + 'px'});
+  const s = w.querySelector('.pz-slide'); if(s){ s.style.transform = `scale(${k})`; s.style.transformOrigin = '0 0'; s.style.position = 'absolute'; s.style.left = 0; s.style.top = 0; }
+  placeSel();
+}
+async function render(){
+  const seq = ++renderSeq;
+  slides[cur] = state;
+  const w = $('#wrap'), old = w.querySelector('.pz-slide');
+  // Freeform edits on the same slide: draw the new version hidden behind the current one and swap when ready,
+  // so there is no "Rendering" veil and no flash. Opening a slide (or Structured) still shows the veil.
+  if(old && isAbs(state) && w.dataset.cur === String(cur)){
+    const tmp = document.createElement('div'); tmp.innerHTML = slideHTML(state);
+    const ns = tmp.firstElementChild;
+    Object.assign(ns.style, {position:'absolute', left:0, top:0, transformOrigin:'0 0', transform:`scale(${k})`, visibility:'hidden'});
+    w.appendChild(ns); syncChrome();
+    await mountSlide(ns, state, k);
+    if(seq !== renderSeq){ ns.remove(); return; }
+    w.querySelectorAll('.pz-slide').forEach(el => { if(el !== ns) el.remove(); });
+    ns.style.visibility = '';
+  } else {
+    w.innerHTML = slideHTML(state) + `<div class="veil show" id="veil"><span>Rendering real assets…</span></div>`;
+    fitSlide();
+    syncChrome();
+    await mountSlide(w.querySelector('.pz-slide'), state, k);
+    if(seq !== renderSeq) return;
+  }
+  w.dataset.cur = String(cur);
+  // Freeform with no saved positions yet: take them from the auto layout just drawn, then redraw as free blocks.
+  if(isAbs(state) && !state.pos && (state.objs.length || state.fw)){ state.pos = capturePos(); state.title.hpos = captureHead(); return render(); }
+  const v = $('#veil'); if(v) v.classList.remove('show');
+  thumbs[cur] = w.querySelector('.pz-slide').outerHTML;
+  drawRail();
+  hugText(w.querySelector('.pz-slide'));
+  if(sel) reselect();
+  check();
+}
+// Text boxes in the title block end where their longest line ends (no empty strip after a wrapped line).
+function hugText(slideEl){
+  slideEl.querySelectorAll('.pz-head [data-sel="title"], .pz-head [data-part="sub"]').forEach(el => {
+    el.style.width = ''; const rg = document.createRange(); rg.selectNodeContents(el);
+    const rs = [...rg.getClientRects()]; if(!rs.length) return;
+    const w = (Math.max(...rs.map(r => r.right)) - Math.min(...rs.map(r => r.left))) / k;
+    if(w > 0 && w < el.offsetWidth - 2) el.style.width = Math.ceil(w + 2) + 'px';
+  });
+}
+function drawRail(){
+  $('#thumbs').innerHTML = slides.map((st,i) => `<div class="thumb-row${i===cur?' on':''}" data-slide="${i}"><div style="display:flex;gap:8px"><span class="thumb-n">${i+1}</span><div class="thumb${thumbs[i]?'':' loading'}">${thumbs[i]}</div></div><div class="thumb-cap">${CONCEPTS[i].name}</div></div>`).join('');
+  document.querySelectorAll('#thumbs .pz-slide').forEach(s => { s.style.transform = `scale(${156/1920})`; s.style.transformOrigin = '0 0'; s.style.position = 'absolute'; s.style.left = 0; s.style.top = 0; });
+}
+// Thumbnails for the other slides: render each off screen once, keep its markup.
+async function buildThumbs(){
+  const host = document.createElement('div');
+  host.style.cssText = 'position:fixed;left:-30000px;top:0;width:1920px;height:1080px;pointer-events:none';
+  document.body.appendChild(host);
+  for(let i = 0; i < slides.length; i++){
+    if(thumbs[i]) continue;
+    host.innerHTML = slideHTML(slides[i]);
+    await mountSlide(host.firstElementChild, slides[i], 1);
+    thumbs[i] = host.firstElementChild.outerHTML;
+    drawRail();
+  }
+  host.remove();
+}
+function syncChrome(){
+  const n = state.objs.length;
+  $('#tbUndo').disabled = $('#hUndo').disabled = !past.length;
+  $('#tbRedo').disabled = $('#hRedo').disabled = !future.length;
+  $('#gap').value = state.gap;
+  $('#freeLbl').textContent = state.free;
+  $('#layLbl').textContent = flow(state) ? 'Arrange' : 'Layouts';
+  $('#sCount').textContent = `Slide ${cur + 1} of ${slides.length}`;
+  $('#sPrev').disabled = cur === 0; $('#sNext').disabled = cur >= slides.length - 1;
+}
+
+// Rule checks: smallest visible text (slide units) and blocks whose content spills.
+function check(){
+  const slide = $('#wrap .pz-slide'); if(!slide) return;
+  let min = Infinity;
+  slide.querySelectorAll('*').forEach(el => {
+    const hasText = [...el.childNodes].some(c => c.nodeType===3 && c.textContent.trim());
+    if(!hasText || !el.getClientRects().length) return;
+    const s = getComputedStyle(el); if(s.visibility === 'hidden' || s.display === 'none') return;
+    min = Math.min(min, parseFloat(s.fontSize));
+  });
+  const f = $('#floor');
+  f.className = 'pill ' + (min >= 8 ? 'good' : 'bad');
+  f.innerHTML = `<i class="ph ${min>=8?'ph-check-circle':'ph-warning'}"></i>Smallest text ${Math.round(min)}px`;
+  let bad = 0;
+  slide.querySelectorAll('.pz-blk').forEach(b => {
+    const over = b.scrollHeight > b.clientHeight + 4 || b.scrollWidth > b.clientWidth + 4;
+    b.classList.toggle('overflow', over); if(over) bad++;
+  });
+  const t = $('#fit');
+  t.className = 'pill ' + (bad ? 'bad' : 'good');
+  t.innerHTML = bad ? `<i class="ph ph-warning"></i>${bad} block${bad>1?'s':''} overflow` : `<i class="ph ph-check-circle"></i>Everything fits`;
+}
+
+/* =====================================================================
+   SELECTION + INLINE FLOATER (item sets match the real redesign floater)
+   ===================================================================== */
+function blkInfo(blk){
+  if(blk.dataset.blk === 'fw') return {kind:'diagram', fw:true};
+  const o = state.objs.find(x => x.id === blk.dataset.blk);
+  return o ? {kind: TYPES[o.t].kind, o} : null;
+}
+// Works out what was clicked the way the editor does: text, a chart point, a diagram node, a table cell, or the whole element.
+function classify(target){
+  const hd = target.closest('.pz-head');
+  if(target.closest('[data-sel="title"]')) return {type:'title', el: target.closest('[data-sel="title"]')};
+  const part = target.closest('[data-part]'); if(part) return {type:'tp-' + part.dataset.part, part: part.dataset.part, el: part};
+  if(hd) return {type:'title', el: hd.querySelector('[data-sel="title"]')};
+  const blk = target.closest('.pz-blk'); if(!blk) return null;
+  const info = blkInfo(blk); if(!info) return null;
+  const base = {blk, ...info};
+  const txt = target.closest('[contenteditable="true"]');
+  if(info.kind === 'image') return {...base, type:'image', el: blk};
+  if(info.kind === 'chart'){
+    if(txt) return {...base, type: txt.dataset.type === 'charttiletext' ? 'chart-title' : 'chart-text', el: txt};
+    const pt = target.closest('.cs-graphic-item, .ci-pie-slice, .ci-polar-arc, circle, .ci-line-point, .ci-point');
+    if(pt && blk.contains(pt)) return {...base, type:'chart-node', el: pt};
+    return {...base, type:'chart', el: blk};
+  }
+  if(info.kind === 'table'){
+    const td = target.closest('td.ci-table-cell');
+    if(td) return {...base, type:'cell', el: td};
+    return {...base, type:'table', el: blk};
+  }
+  if(txt){
+    const nm = txt.parentElement && txt.parentElement.getAttribute('name') || '';
+    return {...base, type: nm.startsWith('body') ? 'diagram-body' : 'diagram-heading', el: txt};
+  }
+  const node = target.closest('[name="node-parent"], [name="node"], [name="placeholder-node"]');
+  if(node && blk.contains(node)){
+    const np = node.closest('[name="node-parent"]') || node;
+    return {...base, type:'node', el: np, index: +(np.getAttribute('index') || 0)};
+  }
+  return {...base, type:'diagram', el: blk};
+}
+
+const ICON = (n) => `<i class="ph ${n}"></i>`;
+const B = (act, icon, label, opt = {}) => `<button class="gbtn${label?'':' ico'}${opt.on?' on':''}${opt.danger?' danger':''}${opt.dd?' dd-trig':''}" data-act="${act}" ${opt.tip?`title="${opt.tip}"`:''} ${opt.disabled?'disabled':''}>${icon}${label||''}${opt.dd?'<i class="ph ph-caret-down caret"></i>':''}</button>`;
+const SEP = '<span class="vdiv"></span>';
+const STEPPER = v => `<div class="stepper"><button data-act="size-" title="Decrease font size"><i class="ph ph-minus"></i></button><span>${v}</span><button data-act="size+" title="Increase font size"><i class="ph ph-plus"></i></button></div>`;
+const COLOR = c => B('color', `<span class="colA">A<b style="background:${c}"></b></span>`, '', {tip:'Font Color'});
+const ALIGN = a => B('align', ICON('ph-text-align-' + (a || 'left')), '', {tip:'Alignment', dd:true});
+const GEAR_ADV = B('advanced', ICON('ph-gear'), '', {tip:'Advanced Options'});
+const GEAR_SET = B('settings', ICON('ph-gear-six'), '', {tip:'Configure additional settings for this slide'});
+const TRASH = (tip = 'Delete graphic') => B('delete', ICON('ph-trash'), '', {tip, danger:true});
+const SPLIT_ADD = label => `<span class="split">${B('addpoint', ICON('ph-plus-circle'), label)}${B('addpoint-menu', ICON('ph-caret-down'), '', {tip:'Choose how many points'})}</span>`;
+const CHANGE = B('change', ICON('ph-arrows-clockwise'), 'Change');
+
+const STYLE_NAMES = {h3:'Huge', h4:'Extra large', h5:'Large', h6:'Medium', h7:'Small'};
+function fontPx(el){ return Math.round(parseFloat(getComputedStyle(el).fontSize)); }
+function colorOf(el){ return getComputedStyle(el).color; }
+function alignOf(el){ const a = getComputedStyle(el).textAlign; return a === 'start' ? 'left' : a === 'end' ? 'right' : a; }
+const isB = el => +getComputedStyle(el).fontWeight >= 700, isI = el => getComputedStyle(el).fontStyle === 'italic';
+
+function floaterHTML(s){
+  const el = s.el;
+  const base = floaterBase(s);
+  // Freeform: arrange tools for a whole element.
+  if(isAbs(state) && s.blk && s.el === s.blk && state.pos){
+    const tools = B('objalign', ICON('ph-align-left'), 'Align', {dd:true}) + B('layers', ICON('ph-stack'), 'Layers', {dd:true});
+    const at = base.search(/<button[^>]*data-act="(settings|delete)"/);
+    return at < 0 ? base + SEP + tools : base.slice(0, at) + SEP + tools + SEP + base.slice(at);
+  }
+  return base;
+}
+function floaterBase(s){
+  const el = s.el;
+  switch(s.type){
+    case 'title': return B('textstyle', ICON('ph-text-aa'), STYLE_NAMES[state.title.cls] || 'Large', {tip:'Font Size', dd:true}) + STEPPER(fontPx(el)) + COLOR(colorOf(el)) + ALIGN(state.title.align) + SEP + B('bold', ICON('ph-text-b'), '', {tip:'Bold', on:state.title.b}) + B('italic', ICON('ph-text-italic'), '', {tip:'Italic', on:state.title.i}) + SEP + B('titleadd', ICON('ph-plus'), 'Add', {tip:'Add graphic, label, subtitle or button', dd:true}) + GEAR_ADV + TRASH('Delete title');
+    case 'head': return ALIGN(state.title.align) + SEP + B('titleadd', ICON('ph-plus'), 'Add', {tip:'Add graphic, label, subtitle or button', dd:true}) + SEP + TRASH('Delete title block');
+    case 'tp-gfx': return B('gfxicon', ICON(state.title.gfx || 'ph-smiley'), 'Change icon', {dd:true}) + SEP + B('titleadd', ICON('ph-plus'), 'Add', {tip:'Add or remove graphic, label, subtitle or button', dd:true}) + SEP + TRASH('Remove graphic');
+    case 'tp-label': case 'tp-sub': case 'tp-cta': return STEPPER(fontPx(el)) + COLOR(colorOf(el)) + SEP + B('bold', ICON('ph-text-b'), '', {tip:'Bold', on:isB(el)}) + B('italic', ICON('ph-text-italic'), '', {tip:'Italic', on:isI(el)}) + SEP + (s.type === 'tp-cta' ? B('link', ICON('ph-link'), '', {tip:'Add a link to a website or a slide'}) + SEP : '') + B('titleadd', ICON('ph-plus'), 'Add', {tip:'Add or remove graphic, label, subtitle or button', dd:true}) + SEP + TRASH('Remove ' + TP_NAMES[s.part].toLowerCase());
+    case 'chart': return CHANGE + SPLIT_ADD('Add Point') + B('editchart', ICON('ph-pencil-simple'), 'Edit chart') + GEAR_SET + TRASH();
+    case 'chart-node': return B('highlight', ICON('ph-highlighter'), 'Highlight', {on: el.classList.contains('pz-hl')}) + B('link', ICON('ph-link'), '', {tip:'Add a link to a website or a slide'}) + B('more', ICON('ph-dots-three'), '', {tip:'More options'}) + SEP + TRASH('Delete point');
+    case 'chart-title': return STEPPER(fontPx(el)) + COLOR(colorOf(el)) + ALIGN(alignOf(el)) + SEP + B('bold', ICON('ph-text-b'), '', {tip:'Bold', on:isB(el)}) + B('italic', ICON('ph-text-italic'), '', {tip:'Italic', on:isI(el)}) + SEP + GEAR_ADV;
+    case 'chart-text': return STEPPER(fontPx(el)) + COLOR(colorOf(el)) + SEP + B('bold', ICON('ph-text-b'), '', {tip:'Bold', on:isB(el)}) + B('italic', ICON('ph-text-italic'), '', {tip:'Italic', on:isI(el)}) + SEP + GEAR_ADV;
+    case 'diagram': return CHANGE + SPLIT_ADD('Add Point') + B('gridlayout', ICON('ph-grid-four'), '', {tip:'Layout grid'}) + GEAR_SET + TRASH();
+    case 'node': {
+      const count = s.blk.querySelectorAll('[name="node-parent"]').length;
+      return B('highlight', ICON('ph-highlighter'), 'Highlight', {on: el.classList.contains('pz-hl')}) + SEP + B('link', ICON('ph-link'), '', {tip:'Add a link to a website or a slide'}) + B('nodevar', ICON('ph-layout'), '', {tip:'Change node variation'}) + SEP + B('more', ICON('ph-dots-three'), '', {tip:'More options'}) + B('swapprev', ICON('ph-caret-left'), '', {tip:'Swap Previous', disabled: s.index <= 0}) + B('swapnext', ICON('ph-caret-right'), '', {tip:'Swap Next', disabled: s.index >= count - 1}) + TRASH('Delete point');
+    }
+    case 'diagram-heading': return STEPPER(fontPx(el)) + COLOR(colorOf(el)) + ALIGN(alignOf(el)) + SEP + B('bold', ICON('ph-text-b'), '', {tip:'Bold', on:isB(el)}) + B('italic', ICON('ph-text-italic'), '', {tip:'Italic', on:isI(el)}) + SEP + GEAR_ADV;
+    case 'diagram-body': return STEPPER(fontPx(el)) + COLOR(colorOf(el)) + ALIGN(alignOf(el)) + SEP + B('bold', ICON('ph-text-b'), '', {tip:'Bold', on:isB(el)}) + B('italic', ICON('ph-text-italic'), '', {tip:'Italic', on:isI(el)}) + SEP + B('list-num', ICON('ph-list-numbers'), '', {tip:'Decimal'}) + B('list-para', ICON('ph-paragraph'), '', {tip:'Paragraph', on:true}) + B('list-bul', ICON('ph-list-bullets'), '', {tip:'Bullet list'}) + B('list-chk', ICON('ph-list-checks'), '', {tip:'Check list'}) + SEP + GEAR_ADV;
+    case 'image': return B('replace', ICON('ph-image'), 'Replace', {dd:true}) + B('imgfit', ICON('ph-crop'), (s.o.fit === 'contain' ? 'Fit' : 'Fill'), {tip:'Image fit', dd:true}) + SEP + TRASH('Delete image');
+    case 'table': return CHANGE + B('resize', ICON('ph-arrows-out-simple'), '', {tip:'Resize', dd:true}) + GEAR_SET + TRASH();
+    case 'cell': return B('celltype', ICON('ph-text-t'), 'Text', {dd:true}) + B('cellalign', ICON('ph-text-align-' + (alignOf(el) || 'left')), '', {tip:'Alignment', dd:true}) + B('fill', `<span class="swatch" style="background:${getComputedStyle(el).backgroundColor}"></span>`, 'Fill', {tip:'Background Color'});
+  }
+  return '';
+}
+function clearSel(){ sel = null; hideAff(); $('#ctx').classList.remove('show'); $('#ctx').innerHTML = ''; $('#selb').classList.remove('show'); $('#parb').classList.remove('show'); $('#selTag').classList.remove('show'); document.querySelectorAll('.rh').forEach(h => h.classList.remove('show')); closeMenu(); }
+function select(s){ sel = s; drawFloater(); }
+const TP_NAMES = {gfx:'Graphic', label:'Label', sub:'Subtitle', cta:'Button'};
+const SEL_NAMES = {head:'Title block', image:'Image', 'tp-gfx':'Graphic', 'tp-label':'Label', 'tp-sub':'Subtitle', 'tp-cta':'Button', title:'Title', chart:'Chart', 'chart-node':'Data point', 'chart-title':'Chart title', 'chart-text':'Chart text', diagram:'Diagram', node:'Node', 'diagram-heading':'Heading', 'diagram-body':'Body text', table:'Table', cell:'Cell'};
+// The selection's options render in the top toolbar (no inline floater).
+function drawFloater(){ if(!sel) return; $('#ctx').innerHTML = `<span class="ctx-label">${sel.fw && sel.type === 'diagram' ? 'Framework' : SEL_NAMES[sel.type] || ''}</span>` + floaterHTML(sel); $('#ctx').classList.add('show'); placeSel(); }
+// After a re-render the old element is gone; pick the same block again.
+function reselect(){
+  if(!sel) return;
+  const blk = sel.blk && $('#wrap').querySelector(`[data-blk="${sel.blk.dataset.blk}"]`);
+  if(sel.type === 'head'){ sel.el = $('#wrap .pz-head'); if(!sel.el){ clearSel(); return; } drawFloater(); return; }
+  if(sel.type === 'title' || sel.part){ sel.el = $('#wrap ' + (sel.part ? `[data-part="${sel.part}"]` : '[data-sel="title"]')); if(!sel.el){ clearSel(); return; } drawFloater(); return; }
+  if(!blk){ clearSel(); return; }
+  const info = blkInfo(blk); if(!info){ clearSel(); return; }
+  sel = {blk, ...info, type: info.kind === 'image' ? 'image' : info.kind === 'chart' ? 'chart' : info.kind === 'table' ? 'table' : 'diagram', el: blk};
+  drawFloater();
+}
+function boxOf(el){ const m = $('.main').getBoundingClientRect(), r = el.getBoundingClientRect(); return {x:r.left-m.left, y:r.top-m.top, w:r.width, h:r.height, mw:m.width}; }
+const TEXT_SEL = ['title','tp-label','tp-sub','tp-cta','chart-title','chart-text','diagram-heading','diagram-body'];
+const PART_SEL = ['chart-node','node','cell'];
+// Outlines sit a few px outside the content so they never touch it.
+const PAD = 2;
+const grow = (b, p = PAD) => ({x:b.x - p, y:b.y - p, w:b.w + 2*p, h:b.h + 2*p, mw:b.mw});
+function boxTo(node, b, p = PAD){ const g = grow(b, p); Object.assign(node.style, {left:g.x+'px', top:g.y+'px', width:g.w+'px', height:g.h+'px'}); node.classList.add('show'); }
+function placeSel(){
+  const sb = $('#selb'), pb = $('#parb');
+  sb.classList.remove('show'); pb.classList.remove('show'); $('#selTag').classList.remove('show');
+  if(!sel || !sel.el || !document.contains(sel.el)) return;
+  // Text: caret only. A part (bar, node, cell): blue on the part, light grey on its element.
+  if(!TEXT_SEL.includes(sel.type)) boxTo(sb, boxOf(sel.el));
+  if(sel.blk && sel.el !== sel.blk && document.contains(sel.blk)) boxTo(pb, boxOf(sel.blk));
+  placeHandles();
+  selAff();
+  const tg = $('#selTag'), sb2 = $('#selb');
+  if(sb2.classList.contains('show')){ tg.textContent = sel.fw && sel.type === 'diagram' ? 'Framework' : SEL_NAMES[sel.type] || ''; tg.style.left = sb2.style.left; tg.style.top = sb2.style.top; tg.classList.add('show'); }
+}
+
+/* ---------- Resize (all elements, both modes) ----------
+   8 handles on the selected element. An edge moves the grid line it sits on, trading space with the
+   neighbour across that line (row neighbour, next row, framework or the object area). Corners move two
+   lines at once. The title resizes its own box: sides set its width, corners and top/bottom its text size.
+   Sizes are stored as track weights for the current layout; "Reset sizes" clears them. */
+let resizeOn = true;
+const px = v => v.split(' ').map(parseFloat);
+// Controller for one edge of a block: which grid line it is, and how to move it.
+function edgeCtl(item, side){
+  const horiz = side === 'e' || side === 'w', fwd = side === 'e' || side === 's';
+  const par = item.parentElement;
+  if(par.classList.contains('pz-row')){
+    if(horiz){
+      const sib = fwd ? item.nextElementSibling : item.previousElementSibling;
+      if(sib){ const kids = [...par.children], a = kids.indexOf(item), b = kids.indexOf(sib);
+        return Object.assign(gridCtl(par, 'cols', Math.min(a, b), Math.max(a, b), 'row' + par.dataset.row), {nb: sib.classList.contains('pz-cell') ? sib.firstElementChild : sib}); }
+    } else {
+      const sib = fwd ? par.nextElementSibling : par.previousElementSibling;
+      if(sib){ const rows = [...par.parentElement.children], a = rows.indexOf(par), b = rows.indexOf(sib);
+        return flexCtl(rows, Math.min(a, b), Math.max(a, b)); }
+    }
+    return edgeCtl(par.parentElement, side);   // the object area's own edge, against the framework
+  }
+  if(par.classList.contains('pz-cell')){
+    if(!horiz){ const sib = fwd ? item.nextElementSibling : item.previousElementSibling;
+      if(sib){ const kids = [...par.children], a = kids.indexOf(item), b = kids.indexOf(sib); return Object.assign(flexCtl(kids, Math.min(a, b), Math.max(a, b), 'c' + par.dataset.cell), {nb: sib}); } }
+    return edgeCtl(par, side);
+  }
+  if(par.classList.contains('pz-objs')) return edgeCtl(par, side);
+  if(!par.classList.contains('pz-body')) return null;
+  const axis = horiz ? 'cols' : 'rows', cs = getComputedStyle(par);
+  const T = px(horiz ? cs.gridTemplateColumns : cs.gridTemplateRows), gap = parseFloat(horiz ? cs.columnGap : cs.rowGap) || 0;
+  const start = horiz ? item.offsetLeft - par.offsetLeft : item.offsetTop - par.offsetTop;
+  const end = start + (horiz ? item.offsetWidth : item.offsetHeight);
+  let pos = 0, si = -1, ei = -1;
+  T.forEach((t, k) => { if(Math.abs(pos - start) < 4) si = k; if(Math.abs(pos + t - end) < 4) ei = k; pos += t + gap; });
+  if(fwd){ if(ei < 0 || ei >= T.length - 1) return null; return gridCtl(par, axis, ei, ei + 1, horiz ? 'bodyCols' : 'bodyRows'); }
+  if(si <= 0) return null; return gridCtl(par, axis, si - 1, si, horiz ? 'bodyCols' : 'bodyRows');
+}
+// Edge with no neighbour: the object resizes on its own, in any direction, up to the slide's margins.
+function selfCtl(blk, side){
+  const o = state.objs.find(x => x.id === blk.dataset.blk); if(!o) return null;
+  const horiz = side === 'e' || side === 'w', sign = side === 'e' || side === 's' ? 1 : -1, v0 = horiz ? blk.offsetWidth : blk.offsetHeight;
+  const sl = blk.closest('.pz-slide'), br = blk.getBoundingClientRect(), sr = sl.getBoundingClientRect();
+  const room = {n: (br.top - sr.top) / k - 64, s: (sr.bottom - br.bottom) / k - 72, w: (br.left - sr.left) / k - 84, e: (sr.right - br.right) / k - 84}[side];
+  const anchor = {n:'end', s:'start', w:'end', e:'start'}[side];
+  return {
+    move(d){ const v = Math.max(120, Math.min(v0 + Math.max(0, room), v0 + sign * d));
+      Object.assign(blk.style, horiz ? {width: v + 'px', justifySelf: anchor} : {height: v + 'px', alignSelf: anchor}, {position:'relative', zIndex: 2}); this.v = Math.round(v); },
+    commit(){ if(!this.v) return; const ob = state.objs.find(x => x.id === o.id); ob.sz = {...(ob.sz || {}), ...(horiz ? {w: this.v, ax: anchor} : {h: this.v, ay: anchor})}; }
+  };
+}
+function gridCtl(el, axis, a, b, key){
+  const cs = getComputedStyle(el), T0 = px(axis === 'cols' ? cs.gridTemplateColumns : cs.gridTemplateRows), MIN = axis === 'cols' ? 200 : 140;
+  return {
+    move(d){ const T = T0.slice(), dd = Math.max(MIN - T0[a], Math.min(T0[b] - MIN, d)); T[a] += dd; T[b] -= dd;
+      el.style[axis === 'cols' ? 'gridTemplateColumns' : 'gridTemplateRows'] = frs(T); this.T = T; return dd; },
+    commit(t){ if(this.T) t[key] = this.T.map(v => Math.round(v)); }
+  };
+}
+function flexCtl(rows, a, b, key = 'objs'){
+  const H0 = rows.map(r => r.offsetHeight), MIN = 140;
+  return {
+    move(d){ const H = H0.slice(), dd = Math.max(MIN - H0[a], Math.min(H0[b] - MIN, d)); H[a] += dd; H[b] -= dd;
+      rows.forEach((r, k) => r.style.flex = `${H[k]} 1 0`); this.H = H; return dd; },
+    commit(t){ if(this.H) t[key] = this.H.map(v => Math.round(v)); }
+  };
+}
+const DIRS = ['nw','n','ne','e','se','s','sw','w'];
+function resizeTarget(){
+  if(!resizeOn || !sel) return null;
+  // Title text and its parts resize as one group: the handles always sit on the title block.
+  if(sel.type === 'head' || sel.type === 'title' || sel.part){ const hd = sel.el.closest('.pz-head'); return hd ? {head: true, el: hd} : null; }
+  if(sel.blk && sel.el === sel.blk) return {el: sel.blk};
+  return null;
+}
+function placeHandles(){
+  const hs = document.querySelectorAll('.rh'); hs.forEach(h => h.classList.remove('show'));
+  const t = resizeTarget(); if(!t) return;
+  const b0 = grow(boxOf(t.el)), C = 12;   // C keeps edge zones clear of the corner squares
+  // Keep handles on screen: when the box runs past the canvas, its handles sit on the visible edge instead.
+  const mr = $('.main').getBoundingClientRect(), M = 10, cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const x1 = cl(b0.x, M, mr.width - M), y1 = cl(b0.y, M, mr.height - M), x2 = cl(b0.x + b0.w, M, mr.width - M), y2 = cl(b0.y + b0.h, M, mr.height - M);
+  const b = {x: x1, y: y1, w: Math.max(24, x2 - x1), h: Math.max(24, y2 - y1)};
+  hs.forEach(h => {
+    const d = h.dataset.d;
+    // A handle only shows if something is on the other side of that edge to trade space with.
+    const ok = t.title || t.head || isAbs(state) ? true : d.split('').every(sd => edgeCtl(t.el, sd) || selfCtl(t.el, sd));
+    if(!ok) return;   // exploration: the title block also gets top and bottom handles
+    const st = h.style; st.width = st.height = '';
+    if(d === 'n' || d === 's'){ st.left = (b.x + C) + 'px'; st.width = (b.w - 2*C) + 'px'; st.top = (d === 'n' ? b.y : b.y + b.h) + 'px'; }
+    else if(d === 'e' || d === 'w'){ st.top = (b.y + C) + 'px'; st.height = (b.h - 2*C) + 'px'; st.left = (d === 'w' ? b.x : b.x + b.w) + 'px'; }
+    else { st.left = (d.includes('w') ? b.x : b.x + b.w) + 'px'; st.top = (d.includes('n') ? b.y : b.y + b.h) + 'px'; }
+    h.classList.add('show');
+  });
+  // The title is text (caret only), but while it can be resized it gets the same blue frame as other elements.
+  if(t.title) boxTo($('#selb'), boxOf(t.el));
+  if(t.head){
+    // Title block: one item (title only) gets the blue frame. A nested block (title + label, subtitle, button, graphic)
+    // works like other objects: blue on the part you picked, dashed light grey around the group (handles stay on the group).
+    const nested = t.el.children.length > 1;
+    // The picked part's box spans the group's full width (the widest line), so title and subtitle boxes line up.
+    if(nested){ const g = boxOf(t.el); boxTo($('#parb'), g); boxTo($('#selb'), {...boxOf(sel.el), x: g.x, w: g.w}); }
+    else boxTo($('#selb'), boxOf(t.el));
+  }
+}
+const mods = {shift: false, alt: false};
+function startResize(dir, e){
+  const t = resizeTarget(); if(!t) return;
+  e.preventDefault(); e.stopPropagation();
+  const h = e.currentTarget, tip = $('#rzTip'), x0 = e.clientX, y0 = e.clientY;
+  h.classList.add('drag');
+  document.body.classList.add('rz-' + (dir.length === 2 ? (dir === 'nw' || dir === 'se' ? 'nwse' : 'nesw') : (dir === 'e' || dir === 'w' ? 'ew' : 'ns')));
+  let move, done;
+  if(t.head){
+    // Title block as one group.
+    const el = t.el, w0 = el.offsetWidth, h0 = el.offsetHeight, g0 = parseFloat(el.style.getPropertyValue('--gs')) || state.title.gs || 1, ti = el.querySelector('[data-sel="title"]'), f0 = ti ? parseFloat(getComputedStyle(ti).fontSize) : 0;
+    let w = null, g = null, f = null, off = null;
+    const off0 = {...(state.title.off || {x: 0, y: 0})}, centred = state.title.align === 'center';
+    // The edge or corner opposite the handle stays put: dragging the left side moves the left edge, the top moves the top.
+    el.querySelectorAll('[data-sel="title"], [data-part="sub"]').forEach(c => { c.style.width = ''; });   // text re-wraps as the box changes (like Canva)
+    const pin = () => {
+      const dw = el.offsetWidth - w0, dh = el.offsetHeight - h0;
+      off = {x: Math.round(off0.x - (dir.includes('w') && !centred ? dw : 0)), y: Math.round(off0.y - (dir.includes('n') ? dh : 0))};
+      el.style.transform = `translate(${off.x}px,${off.y}px)`;
+    };
+    // Canva text box: side handles set the width (text re-wraps, height follows the text). Corner handles scale
+    // the whole box and its text together, keeping its shape, with the corner tracking the cursor. No top / bottom handles.
+    let hh = null;
+    move = (dx, dy) => {
+      if(dir === 'e' || dir === 'w'){
+        w = Math.round(Math.max(160, Math.min(1840, w0 + (dir === 'e' ? dx : -dx) * (centred ? 2 : 1)))); el.style.maxWidth = w + 'px'; el.style.width = w + 'px'; pin();
+        return `Width ${w}px`;
+      }
+      // Exploration: top / bottom. Taller than the text = more room, text stays centred in the box.
+      // Shorter than the text = the text scales down so it always fits the box (never clipped).
+      if(dir === 'n' || dir === 's'){
+        const target = Math.max(40, h0 + (dir === 's' ? dy : -dy));
+        el.style.minHeight = ''; el.style.setProperty('--gs', g0); if(ti) ti.style.fontSize = f0 + 'px';
+        const natural = el.scrollHeight;
+        if(target >= natural){ hh = Math.round(target); g = null; f = null; el.style.minHeight = hh + 'px'; el.style.justifyContent = 'center'; pin(); return `Height ${hh}px`; }
+        const rt = Math.max(.25, target / natural);
+        g = Math.round(g0 * rt * 1000) / 1000; f = Math.round(Math.max(12, f0 * rt)); hh = null;
+        el.style.setProperty('--gs', g); if(ti) ti.style.fontSize = f + 'px'; el.style.justifyContent = '';
+        pin(); return `Height ${Math.round(el.offsetHeight)}px · text ${Math.round(rt * 100)}%`;
+      }
+      const sx = dir.includes('e') ? dx : -dx, sy = dir.includes('s') ? dy : -dy;
+      // Project the cursor onto the box's diagonal, so the corner stays under the pointer.
+      const rt = Math.max(.25, Math.min(4, 1 + (sx * w0 + sy * h0) / (w0 * w0 + h0 * h0)));
+      g = Math.round(g0 * rt * 1000) / 1000; f = Math.round(Math.max(12, Math.min(240, f0 * rt)));
+      w = Math.round(Math.min(1840, w0 * rt));
+      el.style.setProperty('--gs', g); if(ti) ti.style.fontSize = f + 'px'; el.style.maxWidth = w + 'px'; el.style.width = w + 'px';
+      pin();
+      return `Scale ${Math.round(rt * 100)}%`;
+    };
+    done = () => commit(() => { if(w) state.title.hw = w; if(hh) state.title.hh = hh; else if(dir === 'n' || dir === 's') state.title.hh = null; if(g){ state.title.gs = g; state.title.size = f; } if(off && (off.x || off.y)) state.title.off = off; });
+  } else if(t.title){
+    const el = t.el, w0 = el.offsetWidth, f0 = parseFloat(getComputedStyle(el).fontSize);
+    let w = null, f = null;
+    move = (dx, dy) => {
+      if(dir === 'e' || dir === 'w'){ w = Math.round(Math.max(480, Math.min(1752, w0 + (dir === 'e' ? dx : -dx) * (state.title.align === 'center' ? 2 : 1)))); el.style.maxWidth = w + 'px'; return `Width ${w}px`; }
+      const sx = dir.includes('e') ? dx : dir.includes('w') ? -dx : 0, sy = dir.includes('s') ? dy : dir.includes('n') ? -dy : 0;
+      f = Math.round(Math.max(24, Math.min(160, f0 * (1 + (Math.abs(sx) > Math.abs(sy) ? sx / w0 * 2.2 : sy / el.offsetHeight * .9)))));
+      el.style.fontSize = f + 'px'; return `Text ${f}px`;
+    };
+    done = () => commit(() => { if(w) state.title.w = w; if(f) state.title.size = f; });
+  } else if(isAbs(state)){
+    const id = t.el.dataset.blk, p0 = {...(state.pos[id] || capturePos()[id])}, MIN = 80;
+    let p = p0;
+    move = (dx, dy) => {
+      p = {...p0};
+      if(dir.includes('e')) p.w = Math.max(MIN, p0.w + dx);
+      if(dir.includes('s')) p.h = Math.max(MIN, p0.h + dy);
+      if(dir.includes('w')){ p.w = Math.max(MIN, p0.w - dx); p.x = p0.x + p0.w - p.w; }
+      if(dir.includes('n')){ p.h = Math.max(MIN, p0.h - dy); p.y = p0.y + p0.h - p.h; }
+      if(mods.shift && dir.length === 2){ const ar = p0.w / p0.h; p.h = Math.max(MIN, p.w / ar); if(dir.includes('n')) p.y = p0.y + p0.h - p.h; }
+      if(mods.alt){ const cx = p0.x + p0.w / 2, cy = p0.y + p0.h / 2; if(/[ew]/.test(dir)){ p.w = Math.max(MIN, p0.w + 2 * (p.w - p0.w)); p.x = cx - p.w / 2; } if(/[ns]/.test(dir)){ p.h = Math.max(MIN, p0.h + 2 * (p.h - p0.h)); p.y = cy - p.h / 2; } }
+      p = {x:Math.round(p.x), y:Math.round(p.y), w:Math.round(p.w), h:Math.round(p.h)};
+      Object.assign(t.el.style, {left:p.x+'px', top:p.y+'px', width:p.w+'px', height:p.h+'px'});
+      return `W ${p.w}  ×  H ${p.h}`;
+    };
+    done = () => commit(() => { state.pos = {...state.pos, [id]: p}; });
+  } else {
+    const ctls = dir.split('').map(sd => ({sd, c: edgeCtl(t.el, sd) || selfCtl(t.el, sd)})).filter(x => x.c);
+    move = (dx, dy) => { ctls.forEach(({sd, c}) => c.move(sd === 'e' || sd === 'w' ? dx : dy));
+      const nb = ctls.map(x => x.c.nb).find(Boolean), sz = el => `${el.offsetWidth} × ${el.offsetHeight}`;
+      return `${blkName(t.el)} ${sz(t.el)}` + (nb ? `  ·  ${blkName(nb)} ${sz(nb)}` : ''); };
+    done = () => { const sig = sigOf(state); commit(() => { const T = (state.trk && state.trk.sig === sig) ? {...state.trk} : {sig}; ctls.forEach(({c}) => c.commit(T)); state.trk = T; }); };
+  }
+  let moved = false;
+  const mm = ev => {
+    moved = true; mods.shift = ev.shiftKey; mods.alt = ev.altKey;
+    const lbl = move((ev.clientX - x0) / k, (ev.clientY - y0) / k); placeSel();
+    tip.textContent = lbl; tip.classList.add('show');
+    const sb = $('#selb'); tip.style.left = (parseFloat(sb.style.left) + parseFloat(sb.style.width) / 2) + 'px'; tip.style.top = (parseFloat(sb.style.top) + parseFloat(sb.style.height) + 10) + 'px';
+  };
+  const mu = () => {
+    removeEventListener('mousemove', mm); removeEventListener('mouseup', mu);
+    h.classList.remove('drag'); tip.classList.remove('show'); document.body.className = document.body.className.replace(/\brz-\w+/g, '').trim();
+    if(moved) done();
+  };
+  addEventListener('mousemove', mm); addEventListener('mouseup', mu);
+}
+document.querySelectorAll('.rh').forEach(h => h.addEventListener('mousedown', e => startResize(h.dataset.d, e)));
+/* Handle style explorations (proto only). ?h=1..8 */
+const HS = ['Pills','Brackets','Neon','Figma','Chunky','Aurora','Ants','Arrows'];
+const hsSet = n => { document.documentElement.dataset.hs = n; $('#hsBar').innerHTML = '<b>Handles</b>' + HS.map((x,i)=>`<button data-h="${i+1}" class="${+n===i+1?'on':''}">${i+1} ${x}</button>`).join(''); const u = new URL(location); u.searchParams.set('h', n); history.replaceState(null,'',u); };
+$('#hsBar').onclick = e => { const b = e.target.closest('[data-h]'); if(b){ hsSet(b.dataset.h); placeSel(); } };
+hsSet(Math.min(8, Math.max(1, +new URLSearchParams(location.search).get('h') || 4)));
+
+
+/* ---------- Floater actions ---------- */
+const SIZES = [8,10,12,14,16,18,20,22,24,28,32,36,44,56,72,96,120,148,176,240];
+function step(el, dir){
+  const v = fontPx(el); let i = SIZES.findIndex(s => s >= v); if(i < 0) i = SIZES.length - 1;
+  const nv = dir > 0 ? (SIZES[SIZES[i] > v ? i : i + 1] || v) : (SIZES[(SIZES[i] > v ? i : i) - 1] || v);
+  return nv;
+}
+const COLORS = () => { const r = getComputedStyle($('#wrap .pz-slide')); return [
+  ['Slide text', `rgb(${r.getPropertyValue('--th-slide-contrast')})`], ['Accent 1', `rgb(${r.getPropertyValue('--th-section-color1')})`], ['Accent 2', `rgb(${r.getPropertyValue('--th-section-color2')})`],
+  ['Accent 3', `rgb(${r.getPropertyValue('--th-section-color3')})`], ['Accent 4', `rgb(${r.getPropertyValue('--th-section-color4')})`], ['Accent 5', `rgb(${r.getPropertyValue('--th-section-color5')})`]]; };
+const GFX = ['ph-rocket-launch','ph-thumbs-up','ph-lightbulb','ph-target','ph-chart-line-up','ph-star','ph-handshake','ph-flag'];
+const TP_DEFAULT = {gfx:'ph-thumbs-up', label:'Label text', sub:'Add a short subtitle that supports the title', cta:'Click here'};
+const nodeCountRange = name => { const nc = (R.menu(name) || {}).template?.nodecount || {}; const lo = +nc.min || 2, hi = Math.min(+nc.max || 6, 8); return [lo, hi]; };
+
+$('#ctx').addEventListener('mousedown', e => e.preventDefault()); // keep the caret in the text being styled
+$('#ctx').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if(!b || b.disabled || !sel) return;
+  const a = b.dataset.act, s = sel, el = s.el;
+  const live = ['chart-title','chart-text','diagram-heading','diagram-body','cell','chart-node','node'].includes(s.type);
+  switch(a){
+    case 'size+': case 'size-': {
+      const nv = step(el, a === 'size+' ? 1 : -1);
+      if(s.type === 'title') commit(() => { state.title.size = nv; }); else { el.style.fontSize = nv + 'px'; drawFloater(); }
+      return;
+    }
+    case 'bold': if(s.type === 'title') commit(() => { state.title.b = !state.title.b; }); else { el.style.fontWeight = isB(el) ? '400' : '700'; drawFloater(); } return;
+    case 'italic': if(s.type === 'title') commit(() => { state.title.i = !state.title.i; }); else { el.style.fontStyle = isI(el) ? 'normal' : 'italic'; drawFloater(); } return;
+    case 'textstyle': return openMenu(b, `<div class="m-h">Font Size</div>` + Object.entries(STYLE_NAMES).map(([c,n]) => `<button class="m-i" data-fn="tstyle" data-v="${c}">${n}${state.title.cls===c?'<i class="ph ph-check chk"></i>':''}</button>`).join(''));
+    case 'align': case 'cellalign': return openMenu(b, `<div class="m-h">Alignment</div>` + ['left','center','right'].concat(a==='align'?['justify']:[]).map(v => `<button class="m-i" data-fn="align" data-v="${v}"><i class="ph ph-text-align-${v}"></i>${v[0].toUpperCase()+v.slice(1)}</button>`).join(''));
+    case 'color': case 'fill': return openMenu(b, `<div class="m-h">${a==='fill'?'Background Color':'Font Color'}</div>` + COLORS().map(([n,c]) => `<button class="m-i" data-fn="${a}" data-v="${c}"><span class="swatch" style="background:${c}"></span>${n}</button>`).join(''));
+    case 'highlight': el.classList.toggle('pz-hl'); el.style.filter = el.classList.contains('pz-hl') ? 'drop-shadow(0 0 10px rgba(var(--th-section-color4),.9)) brightness(1.15)' : ''; drawFloater(); return;
+    case 'delete': {
+      if(s.type === 'title' || s.type === 'head'){ commit(() => { state.title.on = false; }); clearSel(); return; }
+      if(s.part){ commit(() => { state.title[s.part] = null; }); clearSel(); return; }
+      if(s.type === 'chart-node' || s.type === 'node'){ return removePoint(s); }
+      if(s.fw){ commit(() => { state.fw = false; state.trk = null; }); clearSel(); return; }
+      commit(() => { state.objs = state.objs.filter(o => o !== s.o && o.id !== s.o.id); }); clearSel(); return;
+    }
+    case 'change': {
+      if(s.fw){ const L = layout(state); return openMenu(b, `<div class="m-h">Change framework</div>` + STEP_STYLES.map(st => { const ok = FITS[L.kind].includes(st.id); return `<button class="m-i" data-fn="steps" data-v="${st.id}" ${ok?'':'disabled'}><i class="ph ${st.icon}"></i>${st.name}${!ok?'<span class="hint">Needs more room</span>':(stepStyle(state,L)===st.id?'<i class="ph ph-check chk"></i>':'')}</button>`; }).join('')); }
+      if(s.kind === 'table'){ const vs = ['cfg-standard-table','cfg-sales-funnel-table','cfg-product-roadmap-table'].filter(R.menu); return openMenu(b, `<div class="m-h">Change table</div>` + vs.map(v => `<button class="m-i" data-fn="tablemenu" data-v="${v}"><i class="ph ph-table"></i>${(R.menu(v).displayName||v)}${(s.o.menu||'cfg-standard-table')===v?'<i class="ph ph-check chk"></i>':''}</button>`).join('')); }
+      const list = s.kind === 'chart' ? CHART_TYPES : DIAGRAM_TYPES;
+      return openMenu(b, `<div class="m-h">${s.kind === 'chart' ? 'Change chart' : 'Change diagram'}</div>` + list.map(t => `<button class="m-i" data-fn="type" data-v="${t}"><i class="ph ${TYPES[t].icon}"></i>${TYPES[t].name}${s.o.t===t?'<i class="ph ph-check chk"></i>':''}</button>`).join(''));
+    }
+    case 'addpoint': return changeCount(s, +1);
+    case 'addpoint-menu': {
+      let lo = 2, hi = 8, now;
+      if(s.kind === 'chart'){ now = rowsFor(s.o).length; hi = TYPES[s.o.t].multi ? 6 : 8; }
+      else if(s.fw){ toast('The framework always has its four steps.'); return; }
+      else { [lo, hi] = nodeCountRange(s.o.menu || TYPES[s.o.t].menu); now = itemsFor(s.o).length; }
+      return openMenu(b, `<div class="m-h">Points</div>` + Array.from({length: hi - lo + 1}, (_, i) => lo + i).map(n => `<button class="m-i" data-fn="count" data-v="${n}">${n} Points${n===now?'<i class="ph ph-check chk"></i>':''}</button>`).join(''));
+    }
+    case 'titleadd': { const t = state.title; return openMenu(b, `<div class="m-h">Title parts</div>` + [['gfx','ph-smiley','Graphic'],['label','ph-tag','Label'],['sub','ph-text-align-left','Subtitle'],['cta','ph-cursor-click','Button']].map(([k,i,n]) => `<button class="m-i" data-fn="tpart" data-v="${k}"><i class="ph ${i}"></i>${n}${t[k] != null ? '<span class="hint" style="color:rgb(var(--bad))">Remove</span>' : '<span class="hint">Add</span>'}</button>`).join('')); }
+    case 'gfxicon': return openMenu(b, `<div class="m-h">Icon</div>` + GFX.map(i => `<button class="m-i" data-fn="gfx" data-v="${i}"><i class="ph ${i}"></i>${i.slice(3).replace(/-/g,' ')}${state.title.gfx===i?'<i class="ph ph-check chk"></i>':''}</button>`).join(''));
+    case 'replace': return openMenu(b, `<div class="m-h">Replace image</div>` + PHOTOS.map(([n,id]) => `<button class="m-i" data-fn="img" data-v="${id}"><img src="${photo(id).replace('w=1600','w=80')}" alt="" style="width:28px;height:20px;object-fit:cover;border-radius:3px">${n}${(s.o.src || PHOTOS[0][1]) === id ? '<i class="ph ph-check chk"></i>' : ''}</button>`).join(''));
+    case 'imgfit': return openMenu(b, `<div class="m-h">Image fit</div>` + [['cover','Fill'],['contain','Fit']].map(([v,n]) => `<button class="m-i" data-fn="imgfit" data-v="${v}">${n}${(s.o.fit || 'cover') === v ? '<i class="ph ph-check chk"></i>' : ''}</button>`).join(''));
+    case 'objalign': return openMenu(b, `<div class="m-h">Align to slide</div>` + [['l','ph-align-left','Left'],['c','ph-align-center-horizontal','Centre'],['r','ph-align-right','Right'],['t','ph-align-top','Top'],['m','ph-align-center-vertical','Middle'],['b','ph-align-bottom','Bottom']].map(([v,i,n]) => `<button class="m-i" data-fn="objalign" data-v="${v}"><i class="ph ${i}"></i>${n}</button>`).join('') + `<div class="m-sep"></div><div class="m-h">All objects</div><button class="m-i" data-fn="distribute" data-v="x"><i class="ph ph-columns"></i>Distribute horizontally</button><button class="m-i" data-fn="distribute" data-v="y"><i class="ph ph-rows"></i>Distribute vertically</button>`);
+    case 'layers': { const i = state.objs.findIndex(o => o.id === s.o?.id), n = state.objs.length;
+      return openMenu(b, `<div class="m-h">Order</div>` + [['front','ph-stack-plus','Bring to front', i === n - 1],['fwd','ph-arrow-up','Bring forward', i === n - 1],['back','ph-arrow-down','Send backward', i <= 0],['bottom','ph-stack-minus','Send to back', i <= 0]].map(([v,ic,nm,off]) => `<button class="m-i" data-fn="layer" data-v="${v}" ${off?'disabled':''}><i class="ph ${ic}"></i>${nm}</button>`).join('')
+        + `<div class="m-sep"></div><div class="m-h">Layers (top first)</div>` + [...state.objs].reverse().map(o => `<button class="m-i" data-fn="pick" data-v="${o.id}"><i class="ph ${TYPES[o.t].icon}"></i>${TYPES[o.t].name}${o.id === s.o?.id ? '<i class="ph ph-check chk"></i>' : ''}</button>`).join('')); }
+    case 'swapprev': case 'swapnext': return swapNode(s, a === 'swapnext' ? 1 : -1);
+    case 'resize': return openMenu(b, `<div class="m-h">Resize</div>` + ['Auto size','Fill Container','Fit Width','Fit Height'].map((n,i) => `<button class="m-i" data-fn="resize" data-v="${i}">${n}${(s.o.rs||0)===i?'<i class="ph ph-check chk"></i>':''}</button>`).join(''));
+    case 'celltype': return openMenu(b, `<div class="m-h">Type</div>` + [['ph-text-t','Text'],['ph-hash','Number'],['ph-star','Icon'],['ph-image','Image']].map(([i,n]) => `<button class="m-i" data-fn="toast"><i class="ph ${i}"></i>${n}${n==='Text'?'<i class="ph ph-check chk"></i>':''}</button>`).join(''));
+    case 'more': return openMenu(b, `<div class="m-h">More options</div>` + (s.kind === 'chart' ? ['Projection','Emphasize'] : ['Emphasize']).map(n => `<button class="m-i" data-fn="toggle" data-v="${n}"><i class="ph ph-square"></i>${n}</button>`).join(''));
+  }
+  toast(`${b.getAttribute('title') || b.textContent.trim() || 'This'} opens the editor panel. Not part of this prototype.`);
+});
+function changeCount(s, d, abs){
+  if(s.fw){ toast('The framework always has its four steps.'); return; }
+  const o = state.objs.find(x => x.id === s.o.id);
+  if(s.kind === 'chart'){ const n = abs || rowsFor(o).length + d, hi = TYPES[o.t].multi ? 6 : 8; if(n < 2 || n > hi) return toast(`This chart has room for 2 to ${hi} points here.`); commit(() => { state.objs.find(x => x.id === o.id).n = n; }); return; }
+  if(s.kind === 'table'){ const n = abs || (o.n || autoN[o.id] || 4) + d; if(n < 1 || n > 4) return toast('This table holds up to 4 rows here.'); commit(() => { state.objs.find(x => x.id === o.id).n = n; }); return; }
+  const [lo, hi] = nodeCountRange(o.menu || TYPES[o.t].menu), n = abs || itemsFor(o).length + d;
+  if(n < lo || n > hi) return toast(`This diagram takes ${lo} to ${hi} points.`);
+  commit(() => { state.objs.find(x => x.id === o.id).n = n; });
+}
+function removePoint(s){
+  if(s.fw){ toast('The framework always has its four steps.'); return; }
+  const o = state.objs.find(x => x.id === s.o.id);
+  if(s.kind === 'chart') return changeCount(s, -1);
+  const items = itemsFor(o), order = (o.order || (o.data || DATA[o.t]).map((_, i) => i)).slice(0, items.length);
+  const [lo] = nodeCountRange(o.menu || TYPES[o.t].menu); if(items.length - 1 < lo) return toast(`This diagram needs at least ${lo} points.`);
+  order.splice(s.index, 1);
+  commit(() => { const t = state.objs.find(x => x.id === o.id); t.order = order; t.n = order.length; });
+}
+function swapNode(s, d){
+  if(s.fw){ toast('The framework steps keep their order.'); return; }
+  const o = state.objs.find(x => x.id === s.o.id), n = itemsFor(o).length;
+  const order = (o.order || (o.data || DATA[o.t]).map((_, i) => i)).slice(0, Math.max(n, (o.data || DATA[o.t]).length));
+  const j = s.index + d; if(j < 0 || j >= n) return;
+  [order[s.index], order[j]] = [order[j], order[s.index]];
+  commit(() => { state.objs.find(x => x.id === o.id).order = order; });
+}
+
+/* ---------- Menus ---------- */
+const menu = $('#menu'); let menuFor = null;
+function openMenu(anchor, html, up){
+  if(menuFor === anchor && menu.classList.contains('open')){ closeMenu(); return; }
+  menu.innerHTML = html; menu.classList.add('open'); menuFor = anchor;
+  const r = anchor.getBoundingClientRect(), m = menu.getBoundingClientRect();
+  const left = Math.min(Math.max(8, r.left + r.width/2 - m.width/2), innerWidth - m.width - 8);
+  let top = up ? r.top - m.height - 8 : r.bottom + 8;
+  if(!up && top + m.height > innerHeight - 8) top = r.top - m.height - 8;
+  menu.style.left = left+'px'; menu.style.top = Math.max(8, top)+'px';
+}
+function closeMenu(){ menu.classList.remove('open'); menuFor = null; if(pv){ state = JSON.parse(pv.base); pv = null; render(); } }
+// Live preview: hovering a Change / Arrange / Framework option shows it on the slide; leaving the menu puts it back.
+let pv = null, pvT;
+function applyChoice(st, d, s){
+  if(d.fn === 'type'){ const o = st.objs.find(x => x.id === s.o.id); Object.assign(o, {t: d.v, n: null, order: null, menu: null}); }
+  else if(d.fn === 'tablemenu') st.objs.find(x => x.id === s.o.id).menu = d.v;
+  else if(d.steps) st.steps = d.steps === 'auto' ? null : d.steps;
+  else if(d.ff){ st.ff = d.ff; st.trk = null; st.lay = null; }
+}
+menu.addEventListener('mouseover', e => {
+  const b = e.target.closest('button[data-fn="type"], button[data-fn="tablemenu"], button[data-steps], button[data-ff]'); if(!b || b.disabled) return;
+  clearTimeout(pvT); pvT = setTimeout(() => {
+    if(!menu.classList.contains('open')) return;
+    if(!pv) pv = {base: JSON.stringify(state), sel};
+    const st = JSON.parse(pv.base); applyChoice(st, b.dataset, pv.sel); state = st; render();
+  }, 220);
+});
+function addMenuHTML(){
+  let out = '', g = '';
+  for(const [key,t] of Object.entries(TYPES)){
+    if(t.group !== g){ out += (g?'<div class="m-sep"></div>':'') + `<div class="m-h">${t.group}</div>`; g = t.group; }
+    out += `<button class="m-i" data-add="${key}"><i class="ph ${t.icon}"></i>${t.name}</button>`;
+  }
+  return out;
+}
+function tryAdd(anchor, up, only){
+  if(!isFree(state) && state.objs.length >= MAX){ toast('Structured holds up to 4 objects. Switch to Freeform to add more.'); return; }
+  if(!only) return openMenu(anchor, `<div class="m-h">Slide</div><button class="m-i" data-slideop="below"><i class="ph ph-plus"></i>New slide</button><button class="m-i" data-ins="title" ${state.title.on !== false ? 'disabled' : ''}><i class="ph ph-text-t"></i>Title</button><button class="m-i" data-ins="fw" ${state.fw ? 'disabled' : ''}><i class="ph ph-list-numbers"></i>Framework</button><div class="m-sep"></div><div class="m-h">On this slide</div>` + addMenuHTML().replace(/<div class="m-h">/g, '<div class="m-h" style="padding-top:4px;font-weight:500">'), up);
+  openMenu(anchor, only ? `<div class="m-h">${only === 'chart' ? 'Chart' : 'Diagram'}</div>` + (only === 'chart' ? CHART_TYPES : DIAGRAM_TYPES).map(k => `<button class="m-i" data-add="${k}"><i class="ph ${TYPES[k].icon}"></i>${TYPES[k].name}</button>`).join('')
+    : `<div class="m-h">Slide</div><button class="m-i" data-ins="title" ${state.title.on !== false ? 'disabled' : ''}><i class="ph ph-text-t"></i>Title</button><button class="m-i" data-ins="fw" ${state.fw ? 'disabled' : ''}><i class="ph ph-list-numbers"></i>Framework</button><div class="m-sep"></div>` + addMenuHTML(), up);
+}
+function addObj(t){
+  if(!isFree(state) && state.objs.length >= MAX){ toast('Structured holds up to 4 objects. Switch to Freeform to add more.'); return; }
+  commit(() => { const id = 'o'+(uid++); state.objs.push({id, t, n:null}); if(isAbs(state)){ state.pos = state.pos || {}; state.pos[id] = defaultPos(state, state.objs.length - 1); } });
+}
+function insert(what){
+  if(what === 'title') return commit(() => { state.title.on = true; if(!state.title.text) state.title.text = 'Add a title'; });
+  if(what === 'fw') return commit(() => { state.fw = true; state.trk = null; if(isAbs(state)){ state.pos = state.pos || {}; state.pos.fw = {x:84, y:300, w:BODY_W, h:300}; } });
+  addObj(what);
+}
+$('.bbar').addEventListener('mousedown', e => e.preventDefault());
+$('.bbar').addEventListener('click', e => {
+  const b = e.target.closest('[data-ins]'); if(!b || b.disabled) return;
+  const w = b.dataset.ins;
+  if(w === 'insert') return tryAdd(b, true);
+  if(w === 'style') return openMenu(b, styleMenu(), true);
+  if(w === 'more') return openMenu(b, [['dup','ph-cards-three','Duplicate slide'],['below','ph-plus','Add slide below'],['up','ph-arrow-up','Move up', cur === 0],['down','ph-arrow-down','Move down', cur >= slides.length - 1]].map(([v,i,n,off]) => `<button class="m-i" data-slideop="${v}" ${off?'disabled':''}><i class="ph ${i}"></i>${n}</button>`).join('') + `<div class="m-sep"></div><button class="m-i" data-slideop="del" ${slides.length < 2 ? 'disabled' : ''} style="color:rgb(var(--bad))"><i class="ph ph-trash" style="color:rgb(var(--bad))"></i>Delete slide</button>`, true);
+  closeMenu(); toast('Edit with AI opens the command bar. Not part of this prototype.');
+});
+menu.addEventListener('mousedown', e => e.preventDefault());
+menu.addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b || b.disabled) return;
+  clearTimeout(pvT); if(pv){ state = JSON.parse(pv.base); pv = null; }   // apply for real from the pre-preview state
+  const d = b.dataset, s = sel;
+  closeMenu();
+  if(d.addat && addTarget){ insertAt(addTarget.tid, addTarget.zone, d.addat); addTarget = null; return; }
+  if(d.add){ addObj(d.add); return; }
+  if(d.ins){ insert(d.ins); return; }
+  if(d.slideop){ slideOp(d.slideop); return; }
+  if(d.li){ commit(() => { state.li[state.objs.length] = +d.li; }); return; }
+  if(d.steps){ commit(() => { state.steps = d.steps === 'auto' ? null : d.steps; }); return; }
+  if(d.theme){ setTheme(d.theme); return; }
+  if(d.free){
+    if(d.free === state.free) return;
+    const pos = d.free === 'Freeform' ? capturePos() : null, hpos = d.free === 'Freeform' ? captureHead() : null;
+    commit(() => { state.free = d.free; state.pos = pos; state.title.hpos = hpos; }); return;
+  }
+  if(d.ff){ commit(() => { state.ff = d.ff; state.trk = null; state.lay = null; }); return; }
+  if(d.rz){ resizeOn = !resizeOn; placeSel(); toast(resizeOn ? 'Resize on. Select an object and drag its edge handles.' : 'Resize off.'); return; }
+  if(d.sz){
+    if(d.sz === 'auto'){ if(hasSizes(state)) commit(() => { state.trk = null; state.title.w = null; state.title.hw = null; state.title.hh = null; state.title.gs = null; state.title.off = null; state.objs.forEach(o => delete o.sz); }); return; }
+    toast('Select an element, then drag the handles on its edges to resize it.'); return;
+  }
+  switch(d.fn){
+    case 'tstyle': commit(() => { state.title.cls = d.v; state.title.size = null; }); return;
+    case 'tpart': commit(() => { state.title[d.v] = state.title[d.v] != null ? null : TP_DEFAULT[d.v]; }); return;
+    case 'gfx': commit(() => { state.title.gfx = d.v; }); return;
+    case 'objalign': { const id = s.blk.dataset.blk, p = {...state.pos[id]}, L = 84, R = 1920 - 84, T = 64, Bm = 1080 - 72;
+      if(d.v === 'l') p.x = L; if(d.v === 'c') p.x = Math.round((1920 - p.w) / 2); if(d.v === 'r') p.x = R - p.w;
+      if(d.v === 't') p.y = T; if(d.v === 'm') p.y = Math.round((1080 - p.h) / 2); if(d.v === 'b') p.y = Bm - p.h;
+      commit(() => { state.pos = {...state.pos, [id]: p}; }); return; }
+    case 'distribute': { const ax = d.v, ids = Object.keys(state.pos).filter(id => id !== 'fw' && state.objs.some(o => o.id === id)); if(ids.length < 3) return toast('Distribute needs 3 or more objects.');
+      const P = ids.map(id => ({id, ...state.pos[id]})).sort((a, b) => a[ax] - b[ax]), dim = ax === 'x' ? 'w' : 'h';
+      const first = P[0][ax], last = P[P.length - 1][ax] + P[P.length - 1][dim], total = P.reduce((t, q) => t + q[dim], 0), gap = (last - first - total) / (P.length - 1);
+      let at = first; const np = {...state.pos}; P.forEach(q => { np[q.id] = {...state.pos[q.id], [ax]: Math.round(at)}; at += q[dim] + gap; });
+      commit(() => { state.pos = np; }); return; }
+    case 'layer': { const o = state.objs, i = o.findIndex(x => x.id === s.o.id); const [it] = o.slice(i, i + 1);
+      commit(() => { const a = state.objs; a.splice(i, 1); const j = d.v === 'front' ? a.length : d.v === 'bottom' ? 0 : d.v === 'fwd' ? i + 1 : i - 1; a.splice(Math.max(0, j), 0, it); }); return; }
+    case 'pick': { const blk = $(`#wrap [data-blk="${d.v}"]`); if(blk){ const info = blkInfo(blk); select({...info, blk, type: info.kind === 'image' ? 'image' : info.kind === 'chart' ? 'chart' : info.kind === 'table' ? 'table' : 'diagram', el: blk}); } return; }
+    case 'img': commit(() => { state.objs.find(x => x.id === s.o.id).src = d.v; }); return;
+    case 'imgfit': commit(() => { state.objs.find(x => x.id === s.o.id).fit = d.v; }); return;
+    case 'align':
+      if(s.type === 'title' || s.type === 'head') commit(() => { state.title.align = d.v; });
+      else { s.el.style.textAlign = d.v; drawFloater(); }
+      return;
+    case 'color':
+      if(s.type === 'title') commit(() => { state.title.color = d.v; });
+      else { s.el.style.color = d.v; drawFloater(); }
+      return;
+    case 'fill': s.el.style.background = d.v; s.el.querySelectorAll('.ci-text-content').forEach(t => t.style.color = '#fff'); drawFloater(); return;
+    case 'steps': commit(() => { state.steps = d.v; }); return;
+    case 'type': commit(() => { const o = state.objs.find(x => x.id === s.o.id); o.t = d.v; o.n = null; o.order = null; o.menu = null; }); return;
+    case 'tablemenu': commit(() => { state.objs.find(x => x.id === s.o.id).menu = d.v; }); return;
+    case 'count': changeCount(s, 0, +d.v); return;
+    case 'resize': commit(() => { state.objs.find(x => x.id === s.o.id).rs = +d.v; }); return;
+    case 'toggle': toast(`${d.v} is applied in the real editor. Not part of this prototype.`); return;
+    case 'toast': toast('Cell types are set in the real editor. Not part of this prototype.'); return;
+  }
+});
+document.addEventListener('mousedown', e => { if(menuFor && !menu.contains(e.target) && !menuFor.contains(e.target)) closeMenu(); });
+
+/* ---------- Toast ---------- */
+let tt; function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove('show'), 2400); }
+
+/* ---------- Theme (Style) ---------- */
+function setTheme(id){
+  theme = id;
+  $('#themeCss').href = R.CDN + 'themes/css/' + id + '.css';
+  for(let i = 0; i < thumbs.length; i++) if(i !== cur) thumbs[i] = thumbs[i]; // markup is theme-agnostic: classes pick up the new sheet
+  syncChrome();
+  setTimeout(() => { drawFloater(); check(); }, 300);
+}
+
+/* ---------- Events ---------- */
+$('#thumbs').onclick = e => { const r = e.target.closest('[data-slide]'); if(!r) return; slides[cur] = state; cur = +r.dataset.slide; state = slides[cur]; clearSel(); past.length = 0; future.length = 0; render(); };
+// Drill-in like the editor: the first click on an element selects all of it; once it is
+// selected, a click inside picks the part (text, point, node, cell). The title is text only.
+// Smart guides: when an edge or centre of the moving block lines up with another block or the slide
+// (within a few screen px), it clicks into line and a pink guide shows. Anywhere else it moves freely.
+// Smart guides and snapping (the Figma / Canva way): nothing is drawn until something lines up. When an edge or
+// centre of the moving item comes within 8 screen px of a target it snaps there and a pink line shows only
+// between the items that line up. Targets: other items' edges and centres, the slide centre, the margins and
+// the 12-column grid inside the margins.
+const MARG = {l: 84, r: 1920 - 84, t: 64, b: 1080 - 72};
+const COLS = Array.from({length: 13}, (_, i) => MARG.l + (MARG.r - MARG.l) / 12 * i);
+function rectIn(el, sl){ const r = el.getBoundingClientRect(), b = sl.getBoundingClientRect(); return {x: (r.left - b.left) / k, y: (r.top - b.top) / k, w: r.width / k, h: r.height / k}; }
+function snapTo(p, moving){
+  const sl = $('#wrap .pz-slide'); if(!sl) return p;
+  const T = 8 / k;
+  const items = [...sl.querySelectorAll('.pz-abs > .pz-blk, .pz-blk, .pz-head')].filter(el => el !== moving && !moving.contains(el) && !el.contains(moving) && el.offsetWidth).map(el => rectIn(el, sl));
+  // x / y targets with the span a guide line should cover
+  const X = [{v: 960, full: true}, {v: MARG.l, full: true}, {v: MARG.r, full: true}, ...COLS.slice(1, -1).map(v => ({v, col: true}))];
+  const Y = [{v: 540, full: true}, {v: MARG.t, full: true}, {v: MARG.b, full: true}];
+  items.forEach(o => { [o.x, o.x + o.w / 2, o.x + o.w].forEach(v => X.push({v, o})); [o.y, o.y + o.h / 2, o.y + o.h].forEach(v => Y.push({v, o})); });
+  const best = (mine, list) => { let m = null; mine.forEach(v => list.forEach(t => { const d = t.v - v; if(Math.abs(d) <= T && (!m || Math.abs(d) < Math.abs(m.d) - .01 || (Math.abs(Math.abs(d) - Math.abs(m.d)) < .01 && t.o && !m.t.o))) m = {d, t}; })); return m; };
+  const bx = best([p.x, p.x + p.w / 2, p.x + p.w], X), by = best([p.y, p.y + p.h / 2, p.y + p.h], Y);
+  if(bx) p.x = p.x + bx.d;
+  if(by) p.y = p.y + by.d;
+  p.x = Math.round(p.x); p.y = Math.round(p.y);
+  // Draw only the lines the item now sits on.
+  const sb = boxOf(sl), lines = [];
+  const near = (a, b) => Math.abs(a - b) < .6;
+  X.forEach(t => { if(![p.x, p.x + p.w / 2, p.x + p.w].some(v => near(v, t.v))) return;
+    const y1 = t.full || t.col ? (t.col ? MARG.t : 0) : Math.min(p.y, t.o.y), y2 = t.full || t.col ? (t.col ? MARG.b : 1080) : Math.max(p.y + p.h, t.o.y + t.o.h);
+    lines.push(`<div class="gl v${t.col ? ' soft' : ''}" style="left:${sb.x + t.v * k}px;top:${sb.y + y1 * k}px;height:${(y2 - y1) * k}px"></div>`); });
+  Y.forEach(t => { if(![p.y, p.y + p.h / 2, p.y + p.h].some(v => near(v, t.v))) return;
+    const x1 = t.full ? 0 : Math.min(p.x, t.o.x), x2 = t.full ? 1920 : Math.max(p.x + p.w, t.o.x + t.o.w);
+    lines.push(`<div class="gl h" style="top:${sb.y + t.v * k}px;left:${sb.x + x1 * k}px;width:${(x2 - x1) * k}px"></div>`); });
+  $('#guides').innerHTML = [...new Set(lines)].join('');
+  return p;
+}
+// Freeform blocks: positions are already in slide units.
+function guide(blk, p){ return snapTo(p, blk); }
+// Distance to the nearest neighbour beside the moving block (shown in the tip).
+function gapTo(blk, p){
+  let best = null;
+  [...blk.parentElement.children].filter(el => el !== blk).forEach(el => {
+    const o = {x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight};
+    const vOverlap = p.y < o.y + o.h && p.y + p.h > o.y, hOverlap = p.x < o.x + o.w && p.x + p.w > o.x;
+    const g = vOverlap ? (o.x >= p.x + p.w ? o.x - p.x - p.w : p.x >= o.x + o.w ? p.x - o.x - o.w : null) : hOverlap ? (o.y >= p.y + p.h ? o.y - p.y - p.h : p.y >= o.y + o.h ? p.y - o.y - o.h : null) : null;
+    if(g !== null && (best === null || g < best)) best = g;
+  });
+  return best === null ? '' : `  ·  Gap ${Math.round(best)}`;
+}
+// Freeform: drag a whole element to move it anywhere (no snap). A click without a drag still drills in.
+function armMove(e, blk, onClick){
+  const id = blk.dataset.blk, p0 = {...(state.pos[id] || capturePos()[id])}, x0 = e.clientX, y0 = e.clientY, tip = $('#rzTip');
+  let p = null;
+  const mm = ev => {
+    const dx = (ev.clientX - x0) / k, dy = (ev.clientY - y0) / k;
+    if(!p && Math.hypot(dx, dy) * k < 4) return;
+    if(!p){ stopEditing(); showGrid(true); }
+    document.body.classList.add('mv');
+    p = guide(blk, {...p0, x: Math.round(p0.x + dx), y: Math.round(p0.y + dy)});
+    Object.assign(blk.style, {left: p.x + 'px', top: p.y + 'px'}); placeSel();
+    tip.textContent = `X ${p.x}  Y ${p.y}` + gapTo(blk, p); tip.classList.add('show');
+    const sb = $('#selb'); tip.style.left = (parseFloat(sb.style.left) + parseFloat(sb.style.width) / 2) + 'px'; tip.style.top = (parseFloat(sb.style.top) + parseFloat(sb.style.height) + 10) + 'px';
+  };
+  const mu = () => {
+    removeEventListener('mousemove', mm); removeEventListener('mouseup', mu);
+    document.body.classList.remove('mv'); tip.classList.remove('show'); $('#guides').innerHTML = ''; showGrid(false);
+    if(p) commit(() => { state.pos = {...state.pos, [id]: p}; }); else if(onClick) onClick();
+  };
+  addEventListener('mousemove', mm); addEventListener('mouseup', mu);
+}
+// Structured: drag a block onto another block's slot to swap places. It snaps into that slot on drop.
+function armReorder(e, blk, onClick){
+  const x0 = e.clientX, y0 = e.clientY, mr = () => $('.main').getBoundingClientRect(), ghost = $('#ghost'), drop = $('#dropb');
+  const r0 = blk.getBoundingClientRect(), offX = x0 - r0.left, offY = y0 - r0.top;
+  let on = false, target = null, zone = null;
+  const mm = ev => {
+    if(!on && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 5) return;
+    if(!on){ on = true; blk.classList.add('dragging'); document.body.classList.add('mv'); clearSel(); showGrid(true);
+      const gw = Math.min(r0.width, 320), gh = Math.min(r0.height, 200), o = state.objs.find(x => x.id === blk.dataset.blk);
+      Object.assign(ghost.style, {width: gw + 'px', height: gh + 'px'}); ghost.textContent = o ? TYPES[o.t].name : ''; ghost.classList.add('show'); }
+    const m = mr(), gw = ghost.offsetWidth, gh = ghost.offsetHeight;
+    Object.assign(ghost.style, {left: (ev.clientX - m.left - Math.min(offX, gw / 2)) + 'px', top: (ev.clientY - m.top - Math.min(offY, gh / 2)) + 'px'});
+    const hit = document.elementsFromPoint(ev.clientX, ev.clientY).map(el => el.closest && el.closest('#wrap .pz-blk')).find(b => b && b !== blk && b.dataset.blk !== 'fw');
+    target = hit || null; zone = null;
+    if(!target){ drop.classList.remove('show'); return; }
+    // Where on the target: an edge band (outer 28%) drops beside / above / below it; the middle swaps.
+    const tr = target.getBoundingClientRect(), fx = (ev.clientX - tr.left) / tr.width, fy = (ev.clientY - tr.top) / tr.height;
+    const d = {w: fx, e: 1 - fx, n: fy, s: 1 - fy}, near = Object.keys(d).sort((p, q) => d[p] - d[q])[0];
+    zone = d[near] < .28 ? near : 'c';
+    ghost.textContent = (blkName(blk) + ' · ' + {c:'Swap', n:'Stack above', s:'Stack below', w:'New column left', e:'New column right'}[zone]);
+    const bx = boxOf(target), T = 6;
+    const z = {c: bx, n: {...bx, h: T, y: bx.y - T / 2}, s: {...bx, h: T, y: bx.y + bx.h - T / 2}, w: {...bx, w: T, x: bx.x - T / 2}, e: {...bx, w: T, x: bx.x + bx.w - T / 2}}[zone];
+    boxTo(drop, z, 0); drop.classList.toggle('bar', zone !== 'c');
+  };
+  const mu = () => {
+    removeEventListener('mousemove', mm); removeEventListener('mouseup', mu);
+    blk.classList.remove('dragging'); document.body.classList.remove('mv'); ghost.classList.remove('show'); drop.classList.remove('show'); showGrid(false);
+    if(!on){ if(onClick) onClick(); return; }
+    if(!target || !zone) return;
+    const id = blk.dataset.blk, tid = target.dataset.blk;
+    commit(() => {
+      let L = JSON.parse(JSON.stringify(normLay(state) || autoLay(state)));
+      if(zone === 'c'){
+        // Swap the two blocks (in the arrangement and in object order).
+        L = L.map(row => row.map(c => c.map(x => x === id ? tid : x === tid ? id : x)));
+        const o = state.objs, a = o.findIndex(x => x.id === id), b2 = o.findIndex(x => x.id === tid); [o[a], o[b2]] = [o[b2], o[a]];
+      } else {
+        L = cleanLay(L.map(row => row.map(c => c.filter(x => x !== id))));
+        L = placeIn(L, id, tid, zone);   // stack above / below, or a new column left / right
+      }
+      state.lay = L; state.trk = null;
+    });
+  };
+  addEventListener('mousemove', mm); addEventListener('mouseup', mu);
+}
+$('#wrap').addEventListener('mousedown', e => {
+  const s = classify(e.target);
+  if(!s){ clearSel(); return; }
+  if(s.type === 'head'){ e.preventDefault(); if(document.activeElement && document.activeElement.isContentEditable) document.activeElement.blur(); select(s); return; }
+  // One click into text (headings, body, chart titles): the caret goes straight in.
+  if(s.blk && TEXT_SEL.includes(s.type)){ select(s); if(isAbs(state) && state.pos) armMove(e, s.blk); return; }
+  if(!isAbs(state) && s.blk && s.blk.dataset.blk !== 'fw'){
+    const whole = s.kind === 'image' ? 'image' : s.kind === 'chart' ? 'chart' : s.kind === 'table' ? 'table' : 'diagram';
+    if(sel && sel.blk === s.blk && sel.el === sel.blk){
+      if(TEXT_SEL.includes(s.type)){ select(s); return; }
+      e.preventDefault(); armReorder(e, s.blk, () => select(s)); return;
+    }
+    if(!(sel && sel.blk === s.blk)){ e.preventDefault(); select({...s, type: whole, el: s.blk}); armReorder(e, s.blk); return; }
+  }
+  if(isAbs(state) && s.blk && state.pos && resizeOn){
+    const whole = s.kind === 'image' ? 'image' : s.kind === 'chart' ? 'chart' : s.kind === 'table' ? 'table' : 'diagram';
+    if(sel && sel.blk === s.blk && sel.el === sel.blk){
+      if(TEXT_SEL.includes(s.type)){ select(s); armMove(e, s.blk); return; }   // text: click edits, drag moves
+      e.preventDefault(); armMove(e, s.blk, () => select(s)); return;
+    }
+    if(!(sel && sel.blk === s.blk)){ e.preventDefault(); select({...s, type: whole, el: s.blk}); armMove(e, s.blk); return; }
+  }
+  if(s.type !== 'title' && s.blk && !(sel && sel.blk === s.blk)){
+    const whole = s.kind === 'image' ? 'image' : s.kind === 'chart' ? 'chart' : s.kind === 'table' ? 'table' : 'diagram';
+    if(s.type !== whole){ e.preventDefault(); select({...s, type: whole, el: s.blk}); return; }
+  }
+  select(s);
+  // Title block text: a click edits it; click and drag moves the whole group.
+  if(s.type === 'title' || s.part){ const hd = s.el.closest('.pz-head'); if(hd) armHead(e, hd); }
+});
+$('#wrap').addEventListener('mousemove', e => {
+  const s = classify(e.target), h = $('#hov');
+  h.classList.remove('show');
+  if(!s) return;
+  // Title block parts: light grey outline on hover, like parts of other objects.
+  if(s.type === 'title' || s.part){ if(s.el && !(sel && sel.el === s.el)){ const hd = s.el.closest('.pz-head'), g = hd ? boxOf(hd) : null; boxTo(h, g ? {...boxOf(s.el), x: g.x, w: g.w} : boxOf(s.el)); } return; }
+  // Hover outlines what a click would select: the whole element, or a part once its element is selected. Never text.
+  const inside = sel && sel.blk === s.blk;
+  let el = inside ? (TEXT_SEL.includes(s.type) ? null : s.el) : s.blk;
+  if(!el || (sel && el === sel.el)) return;
+  boxTo(h, boxOf(el));
+});
+$('#wrap').addEventListener('mouseleave', e => { $('#hov').classList.remove('show'); if(!(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.grab,.addb'))) hideAff(); });
+// Hover affordances on a block: drag handle (top-left, outside) and + on its right and bottom edges.
+let hb = null;
+function hideAff(){ hb = null; ['#grab','#addR','#addB'].forEach(q => $(q).classList.remove('show')); }
+const ADD_ON = false;   // + add buttons on hover: off for now (the drag handle stays on)
+function showAff(blk){
+  if(!blk || blk.dataset.blk === 'fw' || document.body.classList.contains('mv')){ hideAff(); return; }
+  const isHead = blk.classList.contains('pz-head');
+  hb = blk; const b = boxOf(blk);
+  Object.assign($('#grab').style, {left: (b.x - 28) + 'px', top: (b.y + 4) + 'px'});
+  Object.assign($('#addR').style, {left: (b.x + b.w + st0().gap * k / 2) + 'px', top: (b.y + b.h / 2) + 'px'});
+  Object.assign($('#addB').style, {left: (b.x + b.w / 2) + 'px', top: (b.y + b.h + st0().gap * k / 2) + 'px'});
+  ['#grab'].concat(ADD_ON && !isHead && !isAbs(state) ? ['#addR','#addB'] : []).forEach(q => $(q).classList.add('show'));
+}
+// The selected object (or title block) always shows its drag handle, like Gamma.
+function selAff(){ if(!sel) return; const t = sel.blk && sel.blk.dataset.blk !== 'fw' ? sel.blk : (sel.type === 'title' || sel.part) ? sel.el.closest('.pz-head') : null; if(t && document.contains(t)) showAff(t); }
+const st0 = () => state;
+$('#wrap').addEventListener('mousemove', e => { const b = e.target.closest && e.target.closest('#wrap .pz-blk'); if(b && b !== hb) showAff(b); else if(!b && sel) selAff(); });
+$('#grab').addEventListener('mousedown', e => {
+  if(!hb) return; e.preventDefault(); const blk = hb;
+  if(blk.classList.contains('pz-head')){ armHead(e, blk); return; }
+  const info = blkInfo(blk); select({...info, blk, type: info.kind === 'image' ? 'image' : info.kind === 'chart' ? 'chart' : info.kind === 'table' ? 'table' : 'diagram', el: blk});
+  if(isAbs(state) && state.pos) armMove(e, blk); else armReorder(e, blk);
+});
+// Title block: drag its handle to move the whole group anywhere on the slide.
+// Grid shown on the slide while something is being moved: fine lines every 40 slide units, the 12-column
+// grid inside the margins a little stronger, and the margins themselves as dashed lines.
+function showGrid(on){
+  // While moving, show only the slide's margins and centre lines, very light (like Canva). Detail appears as guides.
+  const g = $('#gridov'); if(!on){ g.classList.remove('show'); return; }
+  const sl = $('#wrap .pz-slide'); if(!sl) return;
+  const b = boxOf(sl);
+  Object.assign(g.style, {left: b.x + 'px', top: b.y + 'px', width: b.w + 'px', height: b.h + 'px', backgroundImage: 'none'});
+  g.innerHTML = `<div style="position:absolute;left:${MARG.l * k}px;top:${MARG.t * k}px;width:${(MARG.r - MARG.l) * k}px;height:${(MARG.b - MARG.t) * k}px;border:1px dashed rgb(20 20 31 / .16);border-radius:2px"></div>`
+    + `<div style="position:absolute;left:${960 * k}px;top:0;width:1px;height:100%;background:rgb(20 20 31 / .06)"></div><div style="position:absolute;top:${540 * k}px;left:0;height:1px;width:100%;background:rgb(20 20 31 / .06)"></div>`;
+  g.classList.add('show');
+}
+// A drag that started in text: leave text editing and drop any text selection.
+function stopEditing(){ const a = document.activeElement; if(a && a.isContentEditable) a.blur(); const g = getSelection(); if(g) g.removeAllRanges(); }
+function armHead(e, hd){
+  const x0 = e.clientX, y0 = e.clientY, o0 = {...(state.title.off || {x: 0, y: 0})}, tip = $('#rzTip');
+  let o = null, base = null;
+  const mm = ev => { if(!o && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 4) return; if(!o){ stopEditing(); showGrid(true); hd.style.transform = `translate(${o0.x}px,${o0.y}px)`; base = rectIn(hd, $('#wrap .pz-slide')); base.x -= o0.x; base.y -= o0.y; }
+    const want = {x: base.x + o0.x + (ev.clientX - x0) / k, y: base.y + o0.y + (ev.clientY - y0) / k, w: base.w, h: base.h}, sp = snapTo(want, hd);
+    o = {x: Math.round(sp.x - base.x), y: Math.round(sp.y - base.y)}; document.body.classList.add('mv');
+    hd.style.transform = `translate(${o.x}px,${o.y}px)`; placeSel(); showAff(hd); tip.textContent = `X ${o.x}  Y ${o.y}`; tip.classList.add('show');
+    const sb = $('#selb'); tip.style.left = (parseFloat(sb.style.left) + parseFloat(sb.style.width) / 2) + 'px'; tip.style.top = (parseFloat(sb.style.top) + parseFloat(sb.style.height) + 10) + 'px'; };
+  const mu = () => { removeEventListener('mousemove', mm); removeEventListener('mouseup', mu); document.body.classList.remove('mv'); tip.classList.remove('show'); showGrid(false); $('#guides').innerHTML = ''; if(o) commit(() => { state.title.off = o; }); };
+  addEventListener('mousemove', mm); addEventListener('mouseup', mu);
+}
+[['#addR','e'],['#addB','s']].forEach(([q, zone]) => $(q).addEventListener('click', e => { if(!hb) return; addTarget = {tid: hb.dataset.blk, zone}; openMenu(e.currentTarget, `<div class="m-h">Add ${zone === 'e' ? 'to the right' : 'below'}</div>` + addMenuHTML().replace(/data-add=/g, 'data-addat=')); }));
+let addTarget = null;
+$('#wrap').addEventListener('input', e => {
+  const p = e.target.closest('[data-part], [data-sel="title"]');
+  if(p) state.title[p.dataset.part || 'text'] = p.innerText.trim();
+  placeSel();
+});
+function goSlide(i){ slides[cur] = state; cur = i; state = slides[cur]; clearSel(); past.length = 0; future.length = 0; render(); }
+function slideOp(op){
+  slides[cur] = state;
+  const at = cur + 1;
+  if(op === 'below' || op === 'dup'){
+    const st = op === 'dup' ? JSON.parse(JSON.stringify(state)) : blank();
+    if(op === 'dup') st.objs.forEach(o => { const id = 'o' + (uid++); if(st.pos && st.pos[o.id]){ st.pos[id] = st.pos[o.id]; delete st.pos[o.id]; } o.id = id; });
+    slides.splice(at, 0, st); CONCEPTS.splice(at, 0, {name: op === 'dup' ? CONCEPTS[cur].name + ' copy' : 'New slide'}); thumbs.splice(at, 0, '');
+    return goSlide(at);
+  }
+  if(op === 'up' || op === 'down'){
+    const j = op === 'up' ? cur - 1 : cur + 1; if(j < 0 || j >= slides.length) return;
+    [slides, CONCEPTS, thumbs].forEach(a => { [a[cur], a[j]] = [a[j], a[cur]]; });
+    return goSlide(j);
+  }
+  if(op === 'del' && slides.length > 1){
+    [slides, CONCEPTS, thumbs].forEach(a => a.splice(cur, 1));
+    cur = Math.min(cur, slides.length - 1); state = slides[cur]; clearSel(); past.length = 0; future.length = 0; render();
+  }
+}
+$('#newSlide').onclick = () => {
+  slides[cur] = state; const st = blank(); slides.push(st); CONCEPTS.push({name:'New slide'}); thumbs.push('');
+  cur = slides.length - 1; state = st; clearSel(); past.length = 0; future.length = 0; render();
+  setTimeout(() => $('#thumbs').lastElementChild?.scrollIntoView({block:'nearest'}), 50);
+};
+$('#hUndo').onclick = $('#tbUndo').onclick = undo;
+$('#hPresent').onclick = $('#hShare').onclick = $('#hDownload').onclick = $('#hTheme').onclick = $('#hMore').onclick = () => toast('Not part of this prototype.');
+$('#sPrev').onclick = () => cur > 0 && goSlide(cur - 1);
+$('#sNext').onclick = () => cur < slides.length - 1 && goSlide(cur + 1);
+$('#hRedo').onclick = $('#tbRedo').onclick = redo;
+const styleMenu = up => `<div class="m-h">Theme colours</div>` + THEMES.map(t => `<button class="m-i" data-theme="${t.id}"><span class="swatch" style="background:${t.c}"></span>${t.name}${theme===t.id?'<i class="ph ph-check chk"></i>':''}</button>`).join('');
+function layoutMenu(){
+  if(isAbs(state)) return `<div class="m-h">Freeform</div><button class="m-i" data-free="Structured"><i class="ph ph-magic-wand"></i>Tidy up<span class="hint">Back to auto layout</span></button>`;
+  const n = state.objs.length, L = layout(state), cs = stepStyle(state, L);
+  const head = flow(state)
+    ? `<div class="m-h">Arrange ${n} object${n===1?'':'s'}</div>` + FF_ARRANGE.filter(a => state.fw || a.id === 'auto' || a.id === 'row').map(a => `<button class="m-i" data-ff="${a.id}" ${n?'':'disabled'}><i class="ph ${a.icon}"></i>${a.name}${a.id==='auto'&&n&&state.fw?`<span class="hint">${ffArrange(state)==='left'?'Left':'Top'}</span>`:''}${(state.ff||'auto')===a.id?'<i class="ph ph-check chk"></i>':''}</button>`).join('')
+      + `<div class="m-sep"></div><div class="m-h">Sizes</div>`
+      + `<button class="m-i" data-sz="auto" ${n?'':'disabled'}><i class="ph ph-arrows-in-simple"></i>Auto sizes${!hasSizes(state)?'<i class="ph ph-check chk"></i>':''}</button>`
+      + `<button class="m-i" data-sz="custom" ${n?'':'disabled'}><i class="ph ph-arrows-out-simple"></i>Custom sizes<span class="hint">Drag handles</span>${hasSizes(state)?'<i class="ph ph-check chk"></i>':''}</button>`
+    : `<div class="m-h">Change layout</div>` + LAYOUTS[n].map((x,i)=>`<button class="m-i" data-li="${i}"><i class="ph ph-layout"></i>${x.name}${i===(state.li[n]||0)?'<i class="ph ph-check chk"></i>':''}</button>`).join('');
+  if(!state.fw) return head;
+  return head +
+    `<div class="m-sep"></div><div class="m-h">Framework steps</div><button class="m-i" data-steps="auto"><i class="ph ph-magic-wand"></i>Auto${!state.steps?'<i class="ph ph-check chk"></i>':''}</button>` +
+    STEP_STYLES.map(st => { const ok = FITS[L.kind].includes(st.id); return `<button class="m-i" data-steps="${st.id}" ${ok?'':'disabled'}><i class="ph ${st.icon}"></i>${st.name}${!ok?'<span class="hint">Needs more room</span>':(state.steps&&cs===st.id?'<i class="ph ph-check chk"></i>':'')}</button>`; }).join('');
+}
+$('#tbLayouts').onclick = e => openMenu(e.currentTarget, layoutMenu());
+$('#tbFree').onclick = e => openMenu(e.currentTarget, `<div class="m-h">Slide mode</div>` + [['Structured','ph-grid-four','Auto layout, fits to space'],['Freeform','ph-stack','Move and resize freely']].map(([x,ic,h])=>`<button class="m-i" data-free="${x}"><i class="ph ${ic}"></i>${x}<span class="hint">${h}</span>${state.free===x?'<i class="ph ph-check chk"></i>':''}</button>`).join('')
+  + `<div class="m-sep"></div><div class="m-h">Sizing</div>`
+  + `<button class="m-i" data-rz="toggle"><i class="ph ph-arrows-out-simple"></i>Resize objects<span class="hint">Drag handles</span>${resizeOn?'<i class="ph ph-check chk"></i>':''}</button>`
+  + `<button class="m-i" data-sz="auto" ${hasSizes(state)?'':'disabled'}><i class="ph ph-arrows-in-simple"></i>Reset sizes</button>`);
+$('#gap').addEventListener('change', e => commit(() => { state.gap = +e.target.value; }));
+let nudgeT, nudgeBase = null;
+document.addEventListener('keydown', e => {
+  const editing = e.target.isContentEditable;
+  if(e.key === 'Escape'){
+    closeMenu(); if(editing) e.target.blur();
+    // Up one level: a part goes back to its whole element, a whole element clears.
+    if(sel && sel.blk && sel.el !== sel.blk && document.contains(sel.blk)){ const info = blkInfo(sel.blk); select({...info, blk: sel.blk, type: info.kind === 'image' ? 'image' : info.kind === 'chart' ? 'chart' : info.kind === 'table' ? 'table' : 'diagram', el: sel.blk}); }
+    else clearSel();
+    return;
+  }
+  // Cmd+D: duplicate the selected element next to itself.
+  if(!editing && (e.metaKey||e.ctrlKey) && e.key.toLowerCase() === 'd' && sel && sel.o){ e.preventDefault(); const {id, ...rest} = JSON.parse(JSON.stringify(sel.o)); insertAt(sel.o.id, 'e', rest.t, rest);
+    if(isAbs(state)) toast('Duplicated.'); return; }
+  // Arrow keys nudge in Freeform (Shift = 10px).
+  if(!editing && isAbs(state) && state.pos && sel && sel.blk && sel.el === sel.blk && e.key.startsWith('Arrow')){
+    e.preventDefault(); const id = sel.blk.dataset.blk, st = e.shiftKey ? 10 : 1, p = {...state.pos[id]};
+    if(e.key === 'ArrowLeft') p.x -= st; if(e.key === 'ArrowRight') p.x += st; if(e.key === 'ArrowUp') p.y -= st; if(e.key === 'ArrowDown') p.y += st;
+    if(!nudgeBase) nudgeBase = JSON.stringify(state);
+    state.pos = {...state.pos, [id]: p}; Object.assign(sel.blk.style, {left: p.x + 'px', top: p.y + 'px'}); placeSel();
+    clearTimeout(nudgeT); nudgeT = setTimeout(() => { past.push(nudgeBase); future.length = 0; nudgeBase = null; render(); }, 500); return;
+  }
+  if(!editing && (e.metaKey||e.ctrlKey) && e.key.toLowerCase() === 'z'){ e.preventDefault(); e.shiftKey ? redo() : undo(); }
+  if(!editing && (e.key === 'Delete' || e.key === 'Backspace') && sel){ e.preventDefault(); const d = $('#ctx [data-act="delete"]'); if(d) d.click(); }
+});
+
+let rz; addEventListener('resize', () => { fitSlide(); clearTimeout(rz); rz = setTimeout(() => render(), 400); });
+
+drawRail();
+await R.init();
+await document.fonts.ready;
+await render();
+buildThumbs();
+window.__ready = true;
+</script>
+<script type="module">
+  import React from 'react';
+  import { createRoot } from 'react-dom/client';
+  import { Agentation } from 'agentation';
+  const root = document.createElement('div'); root.id = 'agentation-root'; document.body.appendChild(root);
+  createRoot(root).render(React.createElement(Agentation));
+</script>
+</body>
+</html>
