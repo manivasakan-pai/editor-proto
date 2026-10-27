@@ -1679,6 +1679,8 @@ $('#wrap').addEventListener('mousemove', e => {
   if(!el || (sel && el === sel.el)) return;
   boxTo(h, boxOf(el));
 });
+// While text is in edit mode, a drag on it moves the element instead of the browser's own text drag-and-drop.
+$('#wrap').addEventListener('dragstart', e => e.preventDefault());
 $('#wrap').addEventListener('mouseleave', e => { $('#hov').classList.remove('show'); if(!(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.grab,.addb'))) hideAff(); });
 // Hover affordances on a block: drag handle (top-left, outside) and + on its right and bottom edges.
 let hb = null;
