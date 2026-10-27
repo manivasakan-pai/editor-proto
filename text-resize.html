@@ -1227,17 +1227,20 @@ function startResize(dir, e){
         w = Math.round(Math.max(160, Math.min(1840, w0 + (dir === 'e' ? dx : -dx) * (centred ? 2 : 1)))); el.style.maxWidth = w + 'px'; el.style.width = w + 'px'; pin();
         return `Width ${w}px`;
       }
-      // Exploration: top / bottom. Taller than the text = more room, text stays centred in the box.
-      // Shorter than the text = the text scales down so it always fits the box (never clipped).
+      // Exploration: top / bottom. The text fits the box: it grows or shrinks (title, label, subtitle, button, graphic
+      // together) until it fills the new height without spilling past the width. No empty band, never clipped.
       if(dir === 'n' || dir === 's'){
         const target = Math.max(40, h0 + (dir === 's' ? dy : -dy));
-        el.style.minHeight = ''; el.style.setProperty('--gs', g0); if(ti) ti.style.fontSize = f0 + 'px';
-        const natural = el.scrollHeight;
-        if(target >= natural){ hh = Math.round(target); g = null; f = null; el.style.minHeight = hh + 'px'; el.style.justifyContent = 'center'; pin(); return `Height ${hh}px`; }
-        const rt = Math.max(.25, target / natural);
-        g = Math.round(g0 * rt * 1000) / 1000; f = Math.round(Math.max(12, f0 * rt)); hh = null;
-        el.style.setProperty('--gs', g); if(ti) ti.style.fontSize = f + 'px'; el.style.justifyContent = '';
-        pin(); return `Height ${Math.round(el.offsetHeight)}px · text ${Math.round(rt * 100)}%`;
+        el.style.minHeight = ''; el.style.justifyContent = '';
+        const fitsAt = r => { el.style.setProperty('--gs', g0 * r); if(ti) ti.style.fontSize = Math.max(12, f0 * r) + 'px';
+          return el.scrollHeight <= target + 1 && [...el.children].every(c => c.scrollWidth <= c.clientWidth + 1 || c.clientWidth === 0) && el.scrollWidth <= el.clientWidth + 1; };
+        let lo = .2, hi = 4;
+        if(!fitsAt(lo)) hi = lo;
+        for(let i = 0; i < 12 && hi - lo > .005; i++){ const m = (lo + hi) / 2; if(fitsAt(m)) lo = m; else hi = m; }
+        const rt = lo; fitsAt(rt);
+        g = Math.round(g0 * rt * 1000) / 1000; f = Math.round(Math.max(12, f0 * rt)); hh = Math.round(target);
+        el.style.minHeight = hh + 'px'; el.style.justifyContent = 'center';
+        pin(); return `Height ${hh}px · text ${Math.round(rt * 100)}%`;
       }
       const sx = dir.includes('e') ? dx : -dx, sy = dir.includes('s') ? dy : -dy;
       // Project the cursor onto the box's diagonal, so the corner stays under the pointer.
