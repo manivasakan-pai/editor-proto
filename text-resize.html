@@ -280,10 +280,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .grab.show,.addb.show{display:flex}
 .gridov{position:absolute;z-index:22;display:none;pointer-events:none}
 .gridov.show{display:block}
-#guides .gl{position:absolute;z-index:26;background:rgb(255 45 117);pointer-events:none}
+#guides .gl{position:absolute;z-index:26;background:rgb(255 196 0);pointer-events:none}
 #guides .gl.v{width:1px}
 #guides .gl.h{height:1px}
-#guides .gl.soft{background:rgb(255 45 117 / .45)}
+#guides .gl.soft{background:rgb(255 196 0 / .45)}
 body.mv,body.mv *{cursor:move!important;user-select:none!important}
 .pz-blk{position:relative;min-width:0;min-height:0}
 .pz-objs{display:flex;flex-direction:column;gap:var(--gap);min-width:0;min-height:0}
@@ -1541,7 +1541,7 @@ $('#thumbs').onclick = e => { const r = e.target.closest('[data-slide]'); if(!r)
 // Drill-in like the editor: the first click on an element selects all of it; once it is
 // selected, a click inside picks the part (text, point, node, cell). The title is text only.
 // Smart guides: when an edge or centre of the moving block lines up with another block or the slide
-// (within a few screen px), it clicks into line and a pink guide shows. Anywhere else it moves freely.
+// (within a few screen px), it clicks into line and a yellow guide shows. Anywhere else it moves freely.
 // Smart guides and snapping (the Figma / Canva way): nothing is drawn until something lines up. When an edge or
 // centre of the moving item comes within 8 screen px of a target it snaps there and a pink line shows only
 // between the items that line up. Targets: other items' edges and centres, the slide centre, the margins and
