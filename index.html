@@ -29,21 +29,23 @@
   --sh-menu:0 1px 2px rgb(16 12 60 / .06),0 8px 24px -6px rgb(16 12 60 / .16);
   --sh-btn:0 1px 0 rgb(255 255 255 / .15) inset,0 1px 2px rgb(16 12 60 / .2);
   --ease:cubic-bezier(.2,0,0,1);
+  --ov:20 20 31;   /* ink for guides, outlines and handle borders drawn over the slide */
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
     --brand-50:30 27 75;--brand-100:45 40 110;--brand-600:99 88 255;--brand-700:82 70 240;--brand-fg:150 165 255;
-    --canvas:12 12 20;--surface:20 20 30;--sunken:27 27 40;--line:44 44 62;
-    --ink:240 240 247;--ink-2:190 190 205;--ink-3:150 150 168;--ink-off:95 95 112;
+    --canvas:25 25 29;--surface:41 41 47;--sunken:52 52 60;--line:66 66 77;
+    --ink:242 242 247;--ink-2:200 200 212;--ink-3:162 162 178;--ink-off:112 112 128;
     --good:74 222 128;--good-bg:15 45 28;--bad:248 113 113;--bad-bg:60 18 18;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
+  --ov:255 255 255;
   --brand-50:30 27 75;--brand-100:45 40 110;--brand-600:99 88 255;--brand-700:82 70 240;--brand-fg:150 165 255;
-  --canvas:12 12 20;--surface:20 20 30;--sunken:27 27 40;--line:44 44 62;
-  --ink:240 240 247;--ink-2:190 190 205;--ink-3:150 150 168;--ink-off:95 95 112;
+  --canvas:25 25 29;--surface:41 41 47;--sunken:52 52 60;--line:66 66 77;
+  --ink:242 242 247;--ink-2:200 200 212;--ink-3:162 162 178;--ink-off:112 112 128;
   --good:74 222 128;--good-bg:15 45 28;--bad:248 113 113;--bad-bg:60 18 18;
   color-scheme:dark;
 }
@@ -87,7 +89,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .thumb-row.on .thumb-cap{color:rgb(var(--ink))}
 .thumb .slide{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none}
 
-.main{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0}
+.main{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
 .stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:40px 40px 12px}
 .stage{padding-top:92px;padding-bottom:92px}
 .slide-wrap{position:relative;flex:none}
@@ -184,8 +186,16 @@ button{font:inherit;color:inherit;cursor:pointer}
 .selbox,.hovbox,.parbox{position:absolute;pointer-events:none;z-index:25;display:none;border-radius:3px}
 /* Focus is blue; everything around it is quiet light grey (Gamma-style). Text gets no box, only the caret. */
 .selbox{border:1.5px solid rgb(var(--brand-600));box-sizing:border-box}
-.parbox{border:1px dashed rgb(20 20 31 / .22);box-sizing:border-box}
-.hovbox{border:1px solid rgb(20 20 31 / .18);box-sizing:border-box}
+.parbox{border:1px dashed rgb(var(--ov) / .22);box-sizing:border-box}
+.hovbox{border:1px solid rgb(var(--ov) / .18);box-sizing:border-box}
+/* Dark slides: the theme's near-black is lifted to a charcoal that is easier on the eye */
+.pz-slide.th-dark{--th-slide-primary:38,42,40;--th-slide-alternate-primary:50,55,52;background-color:rgb(38,42,40)}
+:root[data-theme="dark"] .thumb{background:rgb(var(--sunken))}
+/* Dark: outlines and handle borders a step stronger so they read on dark slides */
+:root[data-theme="dark"] .parbox{border-color:rgb(255 255 255 / .4)}
+:root[data-theme="dark"] .hovbox{border-color:rgb(255 255 255 / .34)}
+:root[data-theme="dark"] .grab,:root[data-theme="dark"] .gt-hdl{border-color:rgb(255 255 255 / .26)}
+:root[data-theme="dark"] .grab:hover,:root[data-theme="dark"] .gt-hdl:hover{border-color:rgb(255 255 255 / .55)}
 .selbox.show,.hovbox.show,.parbox.show{display:block}
 .pz-slide [contenteditable="true"]{caret-color:rgb(52 39 255)}
 .pz-slide :focus,.pz-slide :focus-visible{outline:none!important}
@@ -272,9 +282,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 .pz-blk.dragging{opacity:.35}
 /* Hover affordances (Structured): drag handle and + to add beside / below */
 .grab,.addb{position:absolute;z-index:27;display:none;align-items:center;justify-content:center;border:1px solid rgb(var(--line));background:rgb(var(--surface));box-shadow:var(--sh-menu);color:rgb(var(--ink-2))}
-.grab{width:22px;height:30px;border-radius:6px;cursor:grab;font-size:16px;border:1.5px solid rgb(20 20 31 / .14);background:#fff;box-shadow:none;color:rgb(var(--ink-3));transition:border-color .12s,color .12s}
-.grab:hover{border-color:rgb(20 20 31 / .38);color:rgb(var(--ink))}
-.grab:active,body.mv .grab{cursor:grabbing;border-color:rgb(20 20 31 / .5);color:rgb(var(--ink))}
+.grab{width:22px;height:30px;border-radius:6px;cursor:grab;font-size:16px;border:1.5px solid rgb(var(--ov) / .14);background:rgb(var(--surface));box-shadow:none;color:rgb(var(--ink-3));transition:border-color .12s,color .12s}
+.grab:hover{border-color:rgb(var(--ov) / .38);color:rgb(var(--ink))}
+.grab:active,body.mv .grab{cursor:grabbing;border-color:rgb(var(--ov) / .5);color:rgb(var(--ink))}
 .addb{width:24px;height:24px;border-radius:9999px;font-size:13px;transform:translate(-50%,-50%)}
 .addb:hover{color:#fff;background:rgb(var(--brand-600));border-color:rgb(var(--brand-600))}
 .grab.show,.addb.show{display:flex}
@@ -294,10 +304,10 @@ body.mv,body.mv *{cursor:move!important;user-select:none!important}
 /* Corners: small white squares. Edges: invisible full-length drag zones; a short bar shows on hover. */
 .rh{position:absolute;z-index:27;display:none}
 .rh.show{display:block}
-.rh.c{width:12px;height:12px;margin:-6px 0 0 -6px;background:#fff;border:1px solid rgb(20 20 31 / .14);border-radius:50%;box-shadow:0 1px 3px rgb(16 12 60 / .28);z-index:28;transition:transform .12s,background .12s,border-color .12s}
+.rh.c{width:12px;height:12px;margin:-6px 0 0 -6px;background:#fff;border:1px solid rgb(var(--ov) / .14);border-radius:50%;box-shadow:0 1px 3px rgb(16 12 60 / .28);z-index:28;transition:transform .12s,background .12s,border-color .12s}
 .rh.c:hover,.rh.c.drag{transform:scale(1.2);background:rgb(var(--brand-600));border-color:rgb(var(--brand-600))}
 /* Edges: full-length drag zone, with a white pill at the middle that is always visible */
-.rh.ed::after{content:"";position:absolute;left:50%;top:50%;background:#fff;border:1px solid rgb(20 20 31 / .14);border-radius:9999px;box-shadow:0 1px 3px rgb(16 12 60 / .28);transform:translate(-50%,-50%);transition:background .12s,border-color .12s,width .12s,height .12s}
+.rh.ed::after{content:"";position:absolute;left:50%;top:50%;background:#fff;border:1px solid rgb(var(--ov) / .14);border-radius:9999px;box-shadow:0 1px 3px rgb(16 12 60 / .28);transform:translate(-50%,-50%);transition:background .12s,border-color .12s,width .12s,height .12s}
 .rh.ed:hover::after,.rh.ed.drag::after{background:rgb(var(--brand-600));border-color:rgb(var(--brand-600))}
 .rh[data-d="n"],.rh[data-d="s"]{height:12px;margin-top:-6px;cursor:row-resize}
 .rh[data-d="n"]::after,.rh[data-d="s"]::after{width:22px;height:7px}
@@ -366,7 +376,7 @@ body.mv,body.mv *{cursor:move!important;user-select:none!important}
 [data-hs="7"] .sel-tag{background:#14141f;border-radius:0}
 
 /* 8 Arrows: dark dots that show the direction you can drag */
-[data-hs="8"] .selbox{border:1.5px dashed rgb(20 20 31 / .55);border-radius:4px}
+[data-hs="8"] .selbox{border:1.5px dashed rgb(var(--ov) / .55);border-radius:4px}
 [data-hs="8"] .rh.c,[data-hs="8"] .rh.ed::after{display:flex;align-items:center;justify-content:center;background:#14141f;border:2px solid #fff;box-shadow:0 2px 6px rgb(16 12 60 / .35);color:#fff;font-size:11px;line-height:1;font-weight:700}
 [data-hs="8"] .rh.c{width:20px;height:20px;margin:-10px 0 0 -10px}
 [data-hs="8"] .rh.ed::after{width:20px!important;height:20px!important;border-radius:50%}
@@ -436,7 +446,7 @@ table.gtt{width:100%;table-layout:fixed;align-self:stretch;border-collapse:separ
 .gt.v-lines .gtt td.hc{border-bottom:3px solid rgb(var(--th-section-color1));color:rgb(var(--th-section-color1))}
 .gt.v-striped table.gtt{border-radius:14px;overflow:hidden}
 .gt.v-striped .gtt tr.alt td{background:rgba(var(--th-slide-contrast),.045)}
-.gt.v-striped .gtt td.hc{background:rgb(var(--th-slide-contrast));color:#fff}
+.gt.v-striped .gtt td.hc{background:rgb(var(--th-slide-contrast));color:rgb(var(--th-slide-primary))}
 .gt.v-grid .gtt td{border:1.5px solid rgba(var(--th-slide-contrast),.14)}
 .gt.v-grid .gtt td.hc{background:rgba(var(--th-section-color1),.1)}
 .gt.v-simple table.gtt{border-collapse:collapse}
@@ -444,6 +454,13 @@ table.gtt{width:100%;table-layout:fixed;align-self:stretch;border-collapse:separ
 .gt.v-simple .gtt td.hc{background:rgba(var(--th-slide-contrast),.04)}
 .gtt td.hc{font-weight:700;font-size:22px}
 .gtt td.rc{font-weight:700}
+/* Dark slides: the theme's accent is a deep green, so text and icon accents use its lighter shades */
+.th-dark .gt-pill{background:rgba(var(--th-section-color3),.16);color:rgb(var(--th-section-color4))}
+.th-dark .gt-ico{background:rgba(var(--th-section-color3),.16);color:rgb(var(--th-section-color4))}
+.th-dark .gt-arc{stroke:rgb(var(--th-section-color2))}
+.th-dark .gt.v-lines .gtt td.hc{color:rgb(var(--th-section-color3));border-bottom-color:rgb(var(--th-section-color2))}
+.th-dark .pz-gfx{background:rgba(var(--th-section-color3),.16)!important;color:rgb(var(--th-section-color4))!important}
+.th-dark .pz-label{border-color:rgba(var(--th-section-color3),.5)!important;color:rgb(var(--th-section-color4))!important}
 .gt.band .gtt tr.alt td:not(.hc){background:rgba(var(--th-section-color1),.07)}
 .gt.total .gtt tr.last td{font-weight:700;border-top:2px solid rgb(var(--th-section-color1))}
 .gtt td.hl{background:rgba(var(--th-section-color3),.18)!important}
@@ -452,12 +469,18 @@ table.gtt{width:100%;table-layout:fixed;align-self:stretch;border-collapse:separ
 .gt-bar.show{display:block}
 .gt-bar > *{pointer-events:auto}
 /* Canva-style handles: a ⋯ pill on the picked cell's column (top edge) and row (left edge). Click selects the column or row, drag moves it. */
-.gt-hdl{position:absolute;display:flex;align-items:center;justify-content:center;padding:0;transform:translate(-50%,-50%);border-radius:6px;cursor:grab;border:1.5px solid rgb(20 20 31 / .14);background:#fff;box-shadow:none;color:rgb(var(--ink-3));transition:border-color .12s,color .12s}
-.gt-hdl i{font-size:16px}
-.gt-hdl:hover{border-color:rgb(20 20 31 / .38);color:rgb(var(--ink))}
-.gt-hdl.on,.gt-hdl:active,body.gt-mv .gt-hdl{border-color:rgb(20 20 31 / .5);color:rgb(var(--ink))}
-#gtCols .gt-hdl{width:30px;height:22px}
-#gtRows .gt-hdl{width:22px;height:30px}
+.gt-hdl{position:absolute;display:flex;align-items:center;justify-content:center;padding:0;transform:translate(-50%,-50%);border-radius:6px;cursor:grab;border:1.5px solid rgb(var(--ov) / .14);background:rgb(var(--surface));box-shadow:none;color:rgb(var(--ink-3));transition:border-color .12s,color .12s}
+.gt-hdl i{font-size:13px}
+.gt-hdl:hover{border-color:rgb(var(--ov) / .38);color:rgb(var(--ink))}
+.gt-hdl.on,.gt-hdl:active,body.gt-mv .gt-hdl{border-color:rgb(var(--ov) / .5);color:rgb(var(--ink))}
+#gtCols .gt-hdl{width:22px;height:14px;border-radius:5px}
+#gtRows .gt-hdl{width:14px;height:22px;border-radius:5px}
+/* Picked diagram point: the same handle, drag to reorder */
+#ndHdl{display:none;z-index:28;border-radius:5px}
+#ndHdl.show{display:flex}
+#ndHdl.h{width:22px;height:14px}
+#ndHdl.v{width:14px;height:22px}
+.pz-node-drag{opacity:.35}
 /* Column borders: drag to resize, hover shows + to insert a column there */
 .gt-cz{position:absolute;width:11px;margin-left:-5.5px;cursor:col-resize;z-index:2}
 .gt-cz::after{content:"";position:absolute;left:4.5px;top:0;bottom:0;width:2px;border-radius:1px;background:transparent}
@@ -529,6 +552,7 @@ body.gt-mv,body.gt-mv *{cursor:grabbing!important;user-select:none}
     <div class="sel-tag" id="selTag"></div>
     <div class="selbox" id="selb"></div>
     <div class="gt-bar" id="gtCols"></div><div class="gt-bar" id="gtRows"></div><div class="gt-drop" id="gtDrop"></div>
+    <button class="gt-hdl" id="ndHdl" title="Drag to reorder"><i class="ph-bold ph-dots-three-vertical"></i></button>
     <button class="gt-add" id="gtAddC" title="Add column"><i class="ph-bold ph-plus"></i></button><button class="gt-add" id="gtAddR" title="Add row"><i class="ph-bold ph-plus"></i></button>
 
     <div class="proto" aria-label="Prototype controls">
@@ -558,7 +582,7 @@ body.gt-mv,body.gt-mv *{cursor:grabbing!important;user-select:none}
 import * as R from './lib/real.js';
 const $ = s => document.querySelector(s);
 const MAX = 4;
-const TH = 'th-light pastel PlusJakartaSans_IBMPlexSans commonLayout';
+let TH = 'th-light pastel PlusJakartaSans_IBMPlexSans commonLayout';   // th-dark in dark mode
 
 /* ---------- Content ---------- */
 const FW_ITEMS = [
@@ -1123,7 +1147,9 @@ function floaterHTML(s){
   const base = floaterBase(s);
   // Freeform: arrange tools for a whole element.
   if(isAbs(state) && s.blk && s.el === s.blk && state.pos){
-    const tools = B('objalign', ICON('ph-align-left'), 'Align', {dd:true}) + B('layers', ICON('ph-stack'), 'Layers', {dd:true});
+    // Partly off the slide: one click brings it back inside the margins.
+    const back = offSlide(state.pos[s.blk.dataset.blk]) ? B('bringback', ICON('ph-arrow-u-down-left'), 'Bring back', {tip:'Move it back inside the slide'}) + SEP : '';
+    const tools = back + B('objalign', ICON('ph-align-left'), 'Align', {dd:true}) + B('layers', ICON('ph-stack'), 'Layers', {dd:true});
     const at = base.search(/<button[^>]*data-act="(settings|delete)"/);
     return at < 0 ? base + SEP + tools : base.slice(0, at) + SEP + tools + SEP + base.slice(at);
   }
@@ -1155,8 +1181,9 @@ function floaterBase(s){
   }
   return '';
 }
-function clearSel(){ sel = null; hideAff(); $('#ctx').classList.remove('show'); $('#ctx').innerHTML = ''; $('#selb').classList.remove('show'); $('#parb').classList.remove('show'); $('#selTag').classList.remove('show'); document.querySelectorAll('.rh').forEach(h => h.classList.remove('show')); closeMenu(); gBars(); }
-function select(s){ sel = s; drawFloater(); }
+function clearSel(){ sel = null; hideAff(); $('#ctx').classList.remove('show'); $('#ctx').innerHTML = ''; $('#selb').classList.remove('show'); $('#parb').classList.remove('show'); $('#selTag').classList.remove('show'); document.querySelectorAll('.rh').forEach(h => h.classList.remove('show')); closeMenu(); gBars(); $('#ndHdl').classList.remove('show'); }
+// A whole element picked by clicking one of its cells is not a cell selection.
+function select(s){ if(s && s.gt && !['cell','tcol','trow','cimg'].includes(s.type)) s = {...s, gt:false}; sel = s; drawFloater(); }
 const TP_NAMES = {gfx:'Graphic', label:'Label', sub:'Subtitle', cta:'Button'};
 const SEL_NAMES = {head:'Title block', image:'Image', 'tp-gfx':'Graphic', 'tp-label':'Label', 'tp-sub':'Subtitle', 'tp-cta':'Button', title:'Title', chart:'Chart', 'chart-node':'Data point', 'chart-title':'Chart title', 'chart-text':'Chart text', diagram:'Diagram', node:'Node', 'diagram-heading':'Heading', 'diagram-body':'Body text', table:'Table', cell:'Cell', tcol:'Column', trow:'Row', cimg:'Image'};
 // The selection's options render in the top toolbar (no inline floater).
@@ -1164,6 +1191,11 @@ function drawFloater(){ if(!sel) return; $('#ctx').innerHTML = `<span class="ctx
 // After a re-render the old element is gone; pick the same block again.
 function reselect(){
   if(!sel) return;
+  // A picked point stays picked (at its new place after a reorder).
+  if(sel.type === 'node' && sel.blk){
+    const b = $('#wrap').querySelector(`[data-blk="${sel.blk.dataset.blk}"]`), np = b && b.querySelector(`[name="node-parent"][index="${sel.index}"]`);
+    if(np){ sel = {...sel, ...blkInfo(b), blk: b, el: np}; drawFloater(); return; }
+  }
   if(sel.gt){
     const b = $('#wrap').querySelector(`[data-blk="${sel.blk.dataset.blk}"]`);
     if(b && b.dataset.grid){ const g = gObj({blk:b}).grid, cl = (v, n) => Math.max(0, Math.min(n - 1, v)), s2 = {...sel};
@@ -1199,6 +1231,7 @@ function placeSel(){
   else if(!TEXT_SEL.includes(sel.type) || sel.blk) boxTo(sb, boxOf(sel.el));
   if(sel.blk && sel.el !== sel.blk && document.contains(sel.blk) && sel.type !== 'cimg') boxTo(pb, boxOf(sel.blk));
   placeHandles();
+  nodeHandle();
   selAff();
   const tg = $('#selTag'), sb2 = $('#selb');
   if(sb2.classList.contains('show')){ tg.textContent = sel.fw && sel.type === 'diagram' ? 'Framework' : SEL_NAMES[sel.type] || ''; tg.style.left = sb2.style.left; tg.style.top = sb2.style.top; tg.classList.add('show'); }
@@ -1336,6 +1369,9 @@ function startResize(dir, e){
     move = (dx, dy) => {
       if(dir === 'e' || dir === 'w'){
         w = Math.round(Math.max(160, Math.min(1840, w0 + (dir === 'e' ? dx : -dx) * (centred ? 2 : 1)))); el.style.maxWidth = w + 'px'; el.style.width = w + 'px'; pin();
+        // Snap the dragged edge to a guide (a centred block grows both ways, so it moves twice as much).
+        const sl = el.closest('.pz-slide'), r = rectIn(el, sl), q = snapResize(r, dir, el), d = dir === 'e' ? q.x + q.w - (r.x + r.w) : r.x - q.x;
+        if(Math.abs(d) > .5){ w = Math.round(w + d * (centred ? 2 : 1)); el.style.maxWidth = w + 'px'; el.style.width = w + 'px'; pin(); const r2 = rectIn(el, sl); drawGuides(r2, guideTargets(el), ...resizeEdges(r2, dir)); }
         return `Width ${w}px`;
       }
       const sx = dir.includes('e') ? dx : -dx, sy = dir.includes('s') ? dy : -dy;
@@ -1345,6 +1381,11 @@ function startResize(dir, e){
       w = Math.round(Math.min(1840, w0 * rt));
       el.style.setProperty('--gs', g); if(ti) ti.style.fontSize = f + 'px'; el.style.maxWidth = w + 'px'; el.style.width = w + 'px';
       pin();
+      // Snap the dragged side to a guide by nudging the scale (the shape is kept).
+      const sl = el.closest('.pz-slide'), r = rectIn(el, sl), hs = dir.includes('e') ? 'e' : 'w', q = snapResize(r, hs, el), dw = q.w - r.w;
+      if(Math.abs(dw) > .5 && r.w > 0){ const rt2 = rt * (r.w + dw * (centred ? 2 : 1)) / r.w;
+        g = Math.round(g0 * rt2 * 1000) / 1000; f = Math.round(Math.max(12, Math.min(240, f0 * rt2))); w = Math.round(Math.min(1840, w0 * rt2));
+        el.style.setProperty('--gs', g); if(ti) ti.style.fontSize = f + 'px'; el.style.maxWidth = w + 'px'; el.style.width = w + 'px'; pin(); const r2 = rectIn(el, sl); drawGuides(r2, guideTargets(el), ...resizeEdges(r2, hs)); }
       return `Scale ${Math.round(rt * 100)}%`;
     };
     done = () => commit(() => { if(w) state.title.hw = w; if(hh) state.title.hh = hh; if(g){ state.title.gs = g; state.title.size = f; } if(off && (off.x || off.y)) state.title.off = off; });
@@ -1370,6 +1411,7 @@ function startResize(dir, e){
       if(mods.shift && dir.length === 2){ const ar = p0.w / p0.h; p.h = Math.max(MIN, p.w / ar); if(dir.includes('n')) p.y = p0.y + p0.h - p.h; }
       if(mods.alt){ const cx = p0.x + p0.w / 2, cy = p0.y + p0.h / 2; if(/[ew]/.test(dir)){ p.w = Math.max(MIN, p0.w + 2 * (p.w - p0.w)); p.x = cx - p.w / 2; } if(/[ns]/.test(dir)){ p.h = Math.max(MIN, p0.h + 2 * (p.h - p0.h)); p.y = cy - p.h / 2; } }
       p = {x:Math.round(p.x), y:Math.round(p.y), w:Math.round(p.w), h:Math.round(p.h)};
+      if(!mods.alt && !mods.shift) p = snapResize(p, dir, t.el); else $('#guides').innerHTML = '';
       Object.assign(t.el.style, {left:p.x+'px', top:p.y+'px', width:p.w+'px', height:p.h+'px'});
       return `W ${p.w}  ×  H ${p.h}`;
     };
@@ -1383,6 +1425,7 @@ function startResize(dir, e){
   }
   let moved = false;
   const mm = ev => {
+    if(!moved && (isAbs(state) || t.head)) showGrid(true);
     moved = true; mods.shift = ev.shiftKey; mods.alt = ev.altKey;
     const lbl = move((ev.clientX - x0) / k, (ev.clientY - y0) / k); placeSel();
     tip.textContent = lbl; tip.classList.add('show');
@@ -1391,6 +1434,7 @@ function startResize(dir, e){
   const mu = () => {
     removeEventListener('mousemove', mm); removeEventListener('mouseup', mu);
     h.classList.remove('drag'); tip.classList.remove('show'); document.body.className = document.body.className.replace(/\brz-\w+/g, '').trim();
+    $('#guides').innerHTML = ''; showGrid(false);
     if(moved) done();
   };
   addEventListener('mousemove', mm); addEventListener('mouseup', mu);
@@ -1465,6 +1509,10 @@ $('#ctx').addEventListener('click', e => {
       return openMenu(b, `<div class="m-h">Order</div>` + [['front','ph-stack-plus','Bring to front', i === n - 1],['fwd','ph-arrow-up','Bring forward', i === n - 1],['back','ph-arrow-down','Send backward', i <= 0],['bottom','ph-stack-minus','Send to back', i <= 0]].map(([v,ic,nm,off]) => `<button class="m-i" data-fn="layer" data-v="${v}" ${off?'disabled':''}><i class="ph ${ic}"></i>${nm}</button>`).join('')
         + `<div class="m-sep"></div><div class="m-h">Layers (top first)</div>` + [...state.objs].reverse().map(o => `<button class="m-i" data-fn="pick" data-v="${o.id}"><i class="ph ${TYPES[o.t].icon}"></i>${TYPES[o.t].name}${o.id === s.o?.id ? '<i class="ph ph-check chk"></i>' : ''}</button>`).join('')); }
     case 'swapprev': case 'swapnext': return swapNode(s, a === 'swapnext' ? 1 : -1);
+    case 'bringback': { const id = s.blk.dataset.blk, p = {...state.pos[id]};
+      p.x = p.w > MARG.r - MARG.l ? MARG.l : Math.max(MARG.l, Math.min(MARG.r - p.w, p.x));
+      p.y = p.h > MARG.b - MARG.t ? MARG.t : Math.max(MARG.t, Math.min(MARG.b - p.h, p.y));
+      commit(() => { state.pos = {...state.pos, [id]: p}; }); toast('Back on the slide.'); return; }
     case 'resize': return openMenu(b, `<div class="m-h">Resize</div>` + ['Auto size','Fill Container','Fit Width','Fit Height'].map((n,i) => `<button class="m-i" data-fn="resize" data-v="${i}">${n}${(s.o.rs||0)===i?'<i class="ph ph-check chk"></i>':''}</button>`).join(''));
     case 'celltype': return openMenu(b, `<div class="m-h">Type</div>` + [['ph-text-t','Text'],['ph-hash','Number'],['ph-star','Icon'],['ph-image','Image']].map(([i,n]) => `<button class="m-i" data-fn="toast"><i class="ph ${i}"></i>${n}${n==='Text'?'<i class="ph ph-check chk"></i>':''}</button>`).join(''));
     case 'more': return openMenu(b, `<div class="m-h">More options</div>` + (s.kind === 'chart' ? ['Projection','Emphasize'] : ['Emphasize']).map(n => `<button class="m-i" data-fn="toggle" data-v="${n}"><i class="ph ph-square"></i>${n}</button>`).join(''));
@@ -1489,6 +1537,57 @@ function removePoint(s){
   order.splice(s.index, 1);
   commit(() => { const t = state.objs.find(x => x.id === o.id); t.order = order; t.n = order.length; });
 }
+/* ---------- Reorder diagram points by drag ---------- */
+// The points of a diagram, in display order, and whether they run across (row) or down (column).
+function nodesOf(blk){
+  const ns = [...blk.querySelectorAll('[name="node-parent"]')].sort((a, b) => +(a.getAttribute('index') || 0) - +(b.getAttribute('index') || 0));
+  let across = true;
+  if(ns.length > 1){ const a = ns[0].getBoundingClientRect(), b = ns[1].getBoundingClientRect(); across = Math.abs(b.left - a.left) >= Math.abs(b.top - a.top); }
+  return {ns, across};
+}
+function nodeHandle(){
+  const h = $('#ndHdl'); h.classList.remove('show');
+  if(!sel || sel.type !== 'node' || sel.fw || !sel.el || !document.contains(sel.el)) return;
+  const {ns, across} = nodesOf(sel.blk); if(ns.length < 2) return;
+  const b = boxOf(sel.el);
+  h.className = 'gt-hdl show ' + (across ? 'h' : 'v');
+  h.innerHTML = `<i class="ph-bold ${across ? 'ph-dots-three' : 'ph-dots-three-vertical'}"></i>`;
+  Object.assign(h.style, across ? {left: (b.x + b.w / 2) + 'px', top: (b.y - 10) + 'px'} : {left: (b.x - 10) + 'px', top: (b.y + b.h / 2) + 'px'});
+}
+// Drag a picked point (by its handle or the point itself) to a new place among its siblings. A bar shows where it lands.
+function armNode(e, onClick){
+  const s = sel; if(!s || s.type !== 'node') return;
+  if(s.fw){ if(onClick) onClick(); return toast('The framework steps keep their order.'); }
+  const x0 = e.clientX, y0 = e.clientY, drop = $('#dropb'), {ns, across} = nodesOf(s.blk), from = s.index;
+  let on = false, to = null;
+  const mm = ev => {
+    if(!on && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 5) return;
+    if(!on){ on = true; stopEditing(); document.body.classList.add('mv'); s.el.classList.add('pz-node-drag'); }
+    // Nearest slot along the run of points: before the first point whose middle is past the cursor.
+    const p = across ? ev.clientX : ev.clientY;
+    const mids = ns.map(n => { const r = n.getBoundingClientRect(); return across ? r.left + r.width / 2 : r.top + r.height / 2; });
+    let j = mids.findIndex(m => p < m); if(j < 0) j = ns.length;
+    to = j;
+    const ref = ns[Math.min(j, ns.length - 1)], bx = boxOf(ref), T = 4, after = j >= ns.length;
+    const z = across ? {...bx, w: T, x: (after ? bx.x + bx.w : bx.x) - T / 2 - 4} : {...bx, h: T, y: (after ? bx.y + bx.h : bx.y) - T / 2 - 4};
+    boxTo(drop, z, 0); drop.classList.add('bar');
+    const tip = $('#rzTip'); tip.textContent = `Move to ${Math.min(j > from ? j : j + 1, ns.length)} of ${ns.length}`; tip.classList.add('show');
+    const sb = $('#selb'); tip.style.left = (parseFloat(sb.style.left) + parseFloat(sb.style.width) / 2) + 'px'; tip.style.top = (parseFloat(sb.style.top) + parseFloat(sb.style.height) + 10) + 'px';
+  };
+  const mu = () => {
+    removeEventListener('mousemove', mm); removeEventListener('mouseup', mu);
+    document.body.classList.remove('mv'); s.el.classList.remove('pz-node-drag'); drop.classList.remove('show', 'bar'); $('#rzTip').classList.remove('show');
+    if(!on){ if(onClick) onClick(); return; }
+    if(to == null) return;
+    const dest = to > from ? to - 1 : to; if(dest === from) return;
+    const o = state.objs.find(x => x.id === s.o.id), n = itemsFor(o).length, base = o.data || DATA[o.t];
+    const full = (o.order || base.map((_, i) => i)).slice(0, Math.max(n, base.length)), head = full.slice(0, n), [it] = head.splice(from, 1);
+    head.splice(dest, 0, it);
+    commit(() => { state.objs.find(x => x.id === o.id).order = head.concat(full.slice(n)); sel = {...sel, index: dest}; });
+  };
+  addEventListener('mousemove', mm); addEventListener('mouseup', mu);
+}
+$('#ndHdl').addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); closeMenu(); armNode(e); });
 function swapNode(s, d){
   if(s.fw){ toast('The framework steps keep their order.'); return; }
   const o = state.objs.find(x => x.id === s.o.id), n = itemsFor(o).length;
@@ -1611,7 +1710,7 @@ function gInner(c){
     case 'logo': return `<span class="gt-row"><span class="gt-logo" style="background:${gHue(v)}">${esc(gIni(v))}</span>${tx('gt-th')}</span>`;
     case 'user:info': { const [n, ...role] = String(v).split(','); return `<span class="gt-row"><span class="gt-av" style="background:${gHue(n)}">${esc(gIni(n))}</span><span class="gt-uw">${tx('gt-th', 'name', n)}${tx('gt-role', 'role', role.join(',').trim())}</span></span>`; }
     case 'user:name': return `<span class="gt-row"><img class="gt-av" src="${c.src || gImg(c.img || '1494790108377-be9c29b29330')}" alt="" draggable="false" style="object-fit:${c.fit || 'cover'}">${tx('gt-th')}</span>`;
-    case 'pct:donut': { const L = 2 * Math.PI * 26; return `<span class="gt-row"><svg width="64" height="64" viewBox="0 0 64 64" style="flex:none"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(var(--th-slide-contrast),.08)" stroke-width="9"/><circle cx="32" cy="32" r="26" fill="none" stroke="rgb(var(--th-section-color1))" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(L * p / 100).toFixed(1)} ${L.toFixed(1)}" transform="rotate(-90 32 32)"/></svg>${hasN ? tx('gt-num', '', p + '%') : `<span class="gt-num">${p}%</span>`}${lab}</span>`; }
+    case 'pct:donut': { const L = 2 * Math.PI * 26; return `<span class="gt-row"><svg width="64" height="64" viewBox="0 0 64 64" style="flex:none"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(var(--th-slide-contrast),.08)" stroke-width="9"/><circle cx="32" cy="32" r="26" fill="none" class="gt-arc" stroke="rgb(var(--th-section-color1))" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(L * p / 100).toFixed(1)} ${L.toFixed(1)}" transform="rotate(-90 32 32)"/></svg>${hasN ? tx('gt-num', '', p + '%') : `<span class="gt-num">${p}%</span>`}${lab}</span>`; }
     case 'pct:bar': return `<span class="gt-bar2"><span class="gt-trk"><span class="gt-fil" style="width:${p}%"></span></span>${hasN ? tx('gt-num', '', p + '%') : `<span class="gt-num">${p}%</span>`}${lab}</span>`;
     case 'pct:star': { const n = Math.max(0, Math.min(5, Math.round(hasN ? gNum(v) : c.n ?? 4) || 0)); return `<span class="gt-row"><span class="gt-stars">${[1,2,3,4,5].map(i => `<i class="ph-fill ph-star ${i <= n ? 'on' : ''}" data-star="${i}"></i>`).join('')}</span>${lab}</span>`; }
     case 'num:labels': { const m = String(v).match(/^\s*(\S+)\s*([\s\S]*)$/) || ['', v, '']; return `<span class="gt-nl">${tx('gt-big', 'nl1', m[1])}${tx('gt-lab', 'nl2', m[2])}</span>`; }
@@ -1781,8 +1880,8 @@ function gBars(){
   // Handles only once a cell, column or row is picked (like Canva). Borders and + work at every level.
   let pc = '', pr = '';
   if(sel.gt){ const q = gRect(sel, G.g), cx = (G.colX[q.c0].l + G.colX[q.c1].r) / 2, ry = (G.rowY[q.r0].t + G.rowY[q.r1].b) / 2;
-    pc = `<button class="gt-hdl ${sel.type === 'tcol' ? 'on' : ''}" data-gpc title="Select column. Drag to move" style="left:${cx}px;top:${T.t - 14}px"><i class="ph-bold ph-dots-three"></i></button>`;
-    pr = `<button class="gt-hdl ${sel.type === 'trow' ? 'on' : ''}" data-gpr title="Select row. Drag to move" style="left:${T.l - 14}px;top:${ry}px"><i class="ph-bold ph-dots-three-vertical"></i></button>`; }
+    pc = `<button class="gt-hdl ${sel.type === 'tcol' ? 'on' : ''}" data-gpc title="Select column. Drag to move" style="left:${cx}px;top:${T.t - 10}px"><i class="ph-bold ph-dots-three"></i></button>`;
+    pr = `<button class="gt-hdl ${sel.type === 'trow' ? 'on' : ''}" data-gpr title="Select row. Drag to move" style="left:${T.l - 10}px;top:${ry}px"><i class="ph-bold ph-dots-three-vertical"></i></button>`; }
   cb.innerHTML = G.colX.slice(0, -1).map((x, c) => { const bx = (x.r + G.colX[c + 1].l) / 2;
     return `<div class="gt-cz" data-gcz="${c}" title="Drag to resize" style="left:${bx}px;top:${T.t}px;height:${T.b - T.t}px"></div><button class="gt-ins" data-ginsc="${c + 1}" title="Insert column" style="left:${bx}px;top:${T.t - 12}px"><i class="ph-bold ph-plus"></i></button>`; }).join('') + pc;
   rb.innerHTML = G.rowY.slice(0, -1).map((y, r) => { const by = (y.b + G.rowY[r + 1].t) / 2;
@@ -2275,31 +2374,58 @@ $('#thumbs').onclick = e => { const r = e.target.closest('[data-slide]'); if(!r)
 const MARG = {l: 84, r: 1920 - 84, t: 64, b: 1080 - 72};
 const COLS = Array.from({length: 13}, (_, i) => MARG.l + (MARG.r - MARG.l) / 12 * i);
 function rectIn(el, sl){ const r = el.getBoundingClientRect(), b = sl.getBoundingClientRect(); return {x: (r.left - b.left) / k, y: (r.top - b.top) / k, w: r.width / k, h: r.height / k}; }
-function snapTo(p, moving){
-  const sl = $('#wrap .pz-slide'); if(!sl) return p;
-  const T = 8 / k;
+// Snap targets (slide units): the slide centre, margins, 12 columns, and every other item's edges and centre.
+function guideTargets(moving){
+  const sl = $('#wrap .pz-slide'); if(!sl) return null;
   const items = [...sl.querySelectorAll('.pz-abs > .pz-blk, .pz-blk, .pz-head')].filter(el => el !== moving && !moving.contains(el) && !el.contains(moving) && el.offsetWidth).map(el => rectIn(el, sl));
   // x / y targets with the span a guide line should cover
   const X = [{v: 960, full: true}, {v: MARG.l, full: true}, {v: MARG.r, full: true}, ...COLS.slice(1, -1).map(v => ({v, col: true}))];
   const Y = [{v: 540, full: true}, {v: MARG.t, full: true}, {v: MARG.b, full: true}];
   items.forEach(o => { [o.x, o.x + o.w / 2, o.x + o.w].forEach(v => X.push({v, o})); [o.y, o.y + o.h / 2, o.y + o.h].forEach(v => Y.push({v, o})); });
-  const best = (mine, list) => { let m = null; mine.forEach(v => list.forEach(t => { const d = t.v - v; if(Math.abs(d) <= T && (!m || Math.abs(d) < Math.abs(m.d) - .01 || (Math.abs(Math.abs(d) - Math.abs(m.d)) < .01 && t.o && !m.t.o))) m = {d, t}; })); return m; };
-  const bx = best([p.x, p.x + p.w / 2, p.x + p.w], X), by = best([p.y, p.y + p.h / 2, p.y + p.h], Y);
-  if(bx) p.x = p.x + bx.d;
-  if(by) p.y = p.y + by.d;
-  p.x = Math.round(p.x); p.y = Math.round(p.y);
-  // Draw only the lines the item now sits on.
-  const sb = boxOf(sl), lines = [];
+  return {sl, X, Y};
+}
+// Draw only the lines the item now sits on.
+// xs / ys: the edges to check (all three by default; only the dragged edges while resizing).
+function drawGuides(p, G, xs = [p.x, p.x + p.w / 2, p.x + p.w], ys = [p.y, p.y + p.h / 2, p.y + p.h]){
+  const sb = boxOf(G.sl), lines = [];
   const near = (a, b) => Math.abs(a - b) < .6;
-  X.forEach(t => { if(![p.x, p.x + p.w / 2, p.x + p.w].some(v => near(v, t.v))) return;
+  G.X.forEach(t => { if(!xs.some(v => near(v, t.v))) return;
     const y1 = t.full || t.col ? (t.col ? MARG.t : 0) : Math.min(p.y, t.o.y), y2 = t.full || t.col ? (t.col ? MARG.b : 1080) : Math.max(p.y + p.h, t.o.y + t.o.h);
     lines.push(`<div class="gl v${t.col ? ' soft' : ''}" style="left:${sb.x + t.v * k}px;top:${sb.y + y1 * k}px;height:${(y2 - y1) * k}px"></div>`); });
-  Y.forEach(t => { if(![p.y, p.y + p.h / 2, p.y + p.h].some(v => near(v, t.v))) return;
+  G.Y.forEach(t => { if(!ys.some(v => near(v, t.v))) return;
     const x1 = t.full ? 0 : Math.min(p.x, t.o.x), x2 = t.full ? 1920 : Math.max(p.x + p.w, t.o.x + t.o.w);
     lines.push(`<div class="gl h" style="top:${sb.y + t.v * k}px;left:${sb.x + x1 * k}px;width:${(x2 - x1) * k}px"></div>`); });
   $('#guides').innerHTML = [...new Set(lines)].join('');
+}
+function snapTo(p, moving){
+  const G = guideTargets(moving); if(!G) return p;
+  const T = 8 / k;
+  const best = (mine, list) => { let m = null; mine.forEach(v => list.forEach(t => { const d = t.v - v; if(Math.abs(d) <= T && (!m || Math.abs(d) < Math.abs(m.d) - .01 || (Math.abs(Math.abs(d) - Math.abs(m.d)) < .01 && t.o && !m.t.o))) m = {d, t}; })); return m; };
+  const bx = best([p.x, p.x + p.w / 2, p.x + p.w], G.X), by = best([p.y, p.y + p.h / 2, p.y + p.h], G.Y);
+  if(bx) p.x = p.x + bx.d;
+  if(by) p.y = p.y + by.d;
+  p.x = Math.round(p.x); p.y = Math.round(p.y);
+  drawGuides(p, G);
   return p;
 }
+// Resizing: only the edges being dragged snap (within 8 screen px) to the same targets, and the same guides show.
+function snapResize(p, dir, moving){
+  const G = guideTargets(moving); if(!G) return p;
+  const T = 8 / k, q = {...p};
+  const near = (v, list) => { let m = null; list.forEach(t => { const d = t.v - v; if(Math.abs(d) <= T && (m === null || Math.abs(d) < Math.abs(m))) m = d; }); return m; };
+  if(dir.includes('e')){ const d = near(q.x + q.w, G.X); if(d !== null) q.w += d; }
+  if(dir.includes('w')){ const d = near(q.x, G.X); if(d !== null){ q.x += d; q.w -= d; } }
+  if(dir.includes('s')){ const d = near(q.y + q.h, G.Y); if(d !== null) q.h += d; }
+  if(dir.includes('n')){ const d = near(q.y, G.Y); if(d !== null){ q.y += d; q.h -= d; } }
+  q.x = Math.round(q.x); q.y = Math.round(q.y); q.w = Math.round(q.w); q.h = Math.round(q.h);
+  drawGuides(q, G, ...resizeEdges(q, dir));
+  return q;
+}
+const resizeEdges = (q, dir) => [[...(dir.includes('w') ? [q.x] : []), ...(dir.includes('e') ? [q.x + q.w] : [])], [...(dir.includes('n') ? [q.y] : []), ...(dir.includes('s') ? [q.y + q.h] : [])]];
+// Nothing gets lost: at least 80 slide units of an object stay on the slide while moving or nudging (like Canva).
+const KEEP = 80;
+const keepOn = p => ({...p, x: Math.round(Math.max(KEEP - p.w, Math.min(1920 - KEEP, p.x))), y: Math.round(Math.max(KEEP - p.h, Math.min(1080 - KEEP, p.y)))});
+const offSlide = p => !!p && (p.x < 0 || p.y < 0 || p.x + p.w > 1920 || p.y + p.h > 1080);
 // Freeform blocks: positions are already in slide units.
 function guide(blk, p){ return snapTo(p, blk); }
 // Distance to the nearest neighbour beside the moving block (shown in the tip).
@@ -2322,7 +2448,7 @@ function armMove(e, blk, onClick){
     if(!p && Math.hypot(dx, dy) * k < 4) return;
     if(!p){ stopEditing(); showGrid(true); }
     document.body.classList.add('mv');
-    p = guide(blk, {...p0, x: Math.round(p0.x + dx), y: Math.round(p0.y + dy)});
+    p = keepOn(guide(blk, {...p0, x: Math.round(p0.x + dx), y: Math.round(p0.y + dy)}));
     Object.assign(blk.style, {left: p.x + 'px', top: p.y + 'px'}); placeSel();
     tip.textContent = `X ${p.x}  Y ${p.y}` + gapTo(blk, p); tip.classList.add('show');
     const sb = $('#selb'); tip.style.left = (parseFloat(sb.style.left) + parseFloat(sb.style.width) / 2) + 'px'; tip.style.top = (parseFloat(sb.style.top) + parseFloat(sb.style.height) + 10) + 'px';
@@ -2409,6 +2535,8 @@ $('#wrap').addEventListener('mousedown', e => {
     if(s.type !== whole){ e.preventDefault(); select({...s, type: whole, el: s.blk}); return; }
   }
   if(s.gt && sel && sel.blk === s.blk && sel.el !== sel.blk){ gDown(e, s); return; }
+  // Picked point: drag it to reorder; a click keeps it picked.
+  if(s.type === 'node' && sel && sel.type === 'node' && sel.blk === s.blk && sel.el === s.el){ e.preventDefault(); armNode(e, () => select(s)); return; }
   select(s);
   // Title block text: a click edits it; click and drag moves the whole group.
   if((s.type === 'title' || s.part) && !editingThis){ const hd = s.el.closest('.pz-head'); if(hd) armHead(e, hd); }
@@ -2427,7 +2555,11 @@ $('#wrap').addEventListener('mousemove', e => {
 });
 // While text is in edit mode, a drag on it moves the element instead of the browser's own text drag-and-drop.
 $('#wrap').addEventListener('dragstart', e => e.preventDefault());
-$('#wrap').addEventListener('mouseleave', e => { $('#hov').classList.remove('show'); if(!(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.grab,.addb'))) hideAff(); });
+// Leaving the slide: the handle waits a moment so the cursor can reach it (it can sit outside the slide).
+let affT;
+const affLater = () => { clearTimeout(affT); affT = setTimeout(() => { if(sel) selAff(); else hideAff(); }, 700); };
+$('#wrap').addEventListener('mouseleave', e => { $('#hov').classList.remove('show'); if(!(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.grab,.addb'))) affLater(); });
+$('#wrap').addEventListener('mouseenter', () => clearTimeout(affT));
 // Hover affordances on a block: drag handle (top-left, outside) and + on its right and bottom edges.
 let hb = null;
 function hideAff(){ hb = null; ['#grab','#addR','#addB'].forEach(q => $(q).classList.remove('show')); }
@@ -2436,7 +2568,14 @@ function showAff(blk){
   if(!blk || blk.dataset.blk === 'fw' || document.body.classList.contains('mv')){ hideAff(); return; }
   const isHead = blk.classList.contains('pz-head');
   hb = blk; const b = boxOf(blk);
-  Object.assign($('#grab').style, {left: (b.x - 28) + 'px', top: (b.y + 4) + 'px'});
+  // The handle always stays where you can reach it: outside the top-left corner, else just inside it,
+  // else on the right side (when the left edge is under the slide list or off screen). Same rule as the resize handles.
+  const mr = $('.main').getBoundingClientRect(), M = 8, GW = 22, GH = 30;
+  let gx = b.x - 28, gy = b.y + 4;
+  if(gx < M) gx = b.x + 4 >= M ? b.x + 4 : (b.x + b.w + 6 + GW <= mr.width - M ? b.x + b.w + 6 : M);
+  gx = Math.min(gx, mr.width - M - GW);
+  gy = Math.max(M, Math.min(gy, Math.min(b.y + b.h, mr.height - M) - GH));
+  Object.assign($('#grab').style, {left: gx + 'px', top: gy + 'px'});
   Object.assign($('#addR').style, {left: (b.x + b.w + st0().gap * k / 2) + 'px', top: (b.y + b.h / 2) + 'px'});
   Object.assign($('#addB').style, {left: (b.x + b.w / 2) + 'px', top: (b.y + b.h + st0().gap * k / 2) + 'px'});
   ['#grab'].concat(ADD_ON && !isHead && !isAbs(state) ? ['#addR','#addB'] : []).forEach(q => $(q).classList.add('show'));
@@ -2445,6 +2584,8 @@ function showAff(blk){
 function selAff(){ if(!sel) return; const t = sel.blk && sel.blk.dataset.blk !== 'fw' ? sel.blk : (sel.type === 'title' || sel.part) ? sel.el.closest('.pz-head') : null; if(t && document.contains(t)) showAff(t); }
 const st0 = () => state;
 $('#wrap').addEventListener('mousemove', e => { const b = e.target.closest && e.target.closest('#wrap .pz-blk'); if(b && b !== hb) showAff(b); else if(!b && sel) selAff(); });
+$('#grab').addEventListener('mouseenter', () => clearTimeout(affT));
+$('#grab').addEventListener('mouseleave', e => { if(!(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('#wrap'))) affLater(); });
 $('#grab').addEventListener('mousedown', e => {
   if(!hb) return; e.preventDefault(); const blk = hb;
   if(blk.classList.contains('pz-head')){ armHead(e, blk); return; }
@@ -2460,8 +2601,10 @@ function showGrid(on){
   const sl = $('#wrap .pz-slide'); if(!sl) return;
   const b = boxOf(sl);
   Object.assign(g.style, {left: b.x + 'px', top: b.y + 'px', width: b.w + 'px', height: b.h + 'px', backgroundImage: 'none'});
-  g.innerHTML = `<div style="position:absolute;left:${MARG.l * k}px;top:${MARG.t * k}px;width:${(MARG.r - MARG.l) * k}px;height:${(MARG.b - MARG.t) * k}px;border:1px dashed rgb(20 20 31 / .16);border-radius:2px"></div>`
-    + `<div style="position:absolute;left:${960 * k}px;top:0;width:1px;height:100%;background:rgb(20 20 31 / .06)"></div><div style="position:absolute;top:${540 * k}px;left:0;height:1px;width:100%;background:rgb(20 20 31 / .06)"></div>`;
+  // Dark slides need stronger lines to read as well as they do on white.
+  const dk = document.documentElement.dataset.theme === 'dark', mA = dk ? .34 : .16, cA = dk ? .16 : .06;
+  g.innerHTML = `<div style="position:absolute;left:${MARG.l * k}px;top:${MARG.t * k}px;width:${(MARG.r - MARG.l) * k}px;height:${(MARG.b - MARG.t) * k}px;border:1px dashed rgb(var(--ov) / ${mA});border-radius:2px"></div>`
+    + `<div style="position:absolute;left:${960 * k}px;top:0;width:1px;height:100%;background:rgb(var(--ov) / ${cA})"></div><div style="position:absolute;top:${540 * k}px;left:0;height:1px;width:100%;background:rgb(var(--ov) / ${cA})"></div>`;
   g.classList.add('show');
 }
 // A drag that started in text: leave text editing and drop any text selection.
@@ -2470,7 +2613,7 @@ function armHead(e, hd){
   const x0 = e.clientX, y0 = e.clientY, o0 = {...(state.title.off || {x: 0, y: 0})}, tip = $('#rzTip');
   let o = null, base = null;
   const mm = ev => { if(!o && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 4) return; if(!o){ stopEditing(); showGrid(true); hd.style.transform = `translate(${o0.x}px,${o0.y}px)`; base = rectIn(hd, $('#wrap .pz-slide')); base.x -= o0.x; base.y -= o0.y; }
-    const want = {x: base.x + o0.x + (ev.clientX - x0) / k, y: base.y + o0.y + (ev.clientY - y0) / k, w: base.w, h: base.h}, sp = snapTo(want, hd);
+    const want = {x: base.x + o0.x + (ev.clientX - x0) / k, y: base.y + o0.y + (ev.clientY - y0) / k, w: base.w, h: base.h}, sp = keepOn(snapTo(want, hd));
     o = {x: Math.round(sp.x - base.x), y: Math.round(sp.y - base.y)}; document.body.classList.add('mv');
     hd.style.transform = `translate(${o.x}px,${o.y}px)`; placeSel(); showAff(hd); tip.textContent = `X ${o.x}  Y ${o.y}`; tip.classList.add('show');
     const sb = $('#selb'); tip.style.left = (parseFloat(sb.style.left) + parseFloat(sb.style.width) / 2) + 'px'; tip.style.top = (parseFloat(sb.style.top) + parseFloat(sb.style.height) + 10) + 'px'; };
@@ -2530,7 +2673,18 @@ $('#newSlide').onclick = () => {
   setTimeout(() => $('#thumbs').lastElementChild?.scrollIntoView({block:'nearest'}), 50);
 };
 $('#hUndo').onclick = $('#tbUndo').onclick = undo;
-$('#hPresent').onclick = $('#hShare').onclick = $('#hDownload').onclick = $('#hTheme').onclick = $('#hMore').onclick = () => toast('Not part of this prototype.');
+$('#hPresent').onclick = $('#hShare').onclick = $('#hDownload').onclick = $('#hMore').onclick = () => toast('Not part of this prototype.');
+// Light / dark: the editor and the slides switch together (slides use the theme's own dark colours).
+function setDark(on, quiet){
+  document.documentElement.dataset.theme = on ? 'dark' : 'light';
+  const swap = t => t.replace(/\bth-(light|dark)\b/g, on ? 'th-dark' : 'th-light');
+  TH = swap(TH); for(let i = 0; i < thumbs.length; i++) thumbs[i] = swap(thumbs[i] || '');
+  $('#hTheme').innerHTML = `<i class="ph ${on ? 'ph-moon' : 'ph-sun'}"></i>`; $('#hTheme').title = on ? 'Switch to light' : 'Switch to dark';
+  const u = new URL(location); if(on) u.searchParams.set('theme', 'dark'); else u.searchParams.delete('theme'); history.replaceState(null, '', u);
+  if(!quiet){ drawRail(); render(); }
+}
+$('#hTheme').onclick = () => setDark(document.documentElement.dataset.theme !== 'dark');
+setDark(new URLSearchParams(location.search).get('theme') === 'dark', true);
 $('#sPrev').onclick = () => cur > 0 && goSlide(cur - 1);
 $('#sNext').onclick = () => cur < slides.length - 1 && goSlide(cur + 1);
 $('#hRedo').onclick = $('#tbRedo').onclick = redo;
@@ -2574,6 +2728,7 @@ document.addEventListener('keydown', e => {
     e.preventDefault(); const id = sel.blk.dataset.blk, st = e.shiftKey ? 10 : 1, p = {...state.pos[id]};
     if(e.key === 'ArrowLeft') p.x -= st; if(e.key === 'ArrowRight') p.x += st; if(e.key === 'ArrowUp') p.y -= st; if(e.key === 'ArrowDown') p.y += st;
     if(!nudgeBase) nudgeBase = JSON.stringify(state);
+    Object.assign(p, keepOn(p));
     state.pos = {...state.pos, [id]: p}; Object.assign(sel.blk.style, {left: p.x + 'px', top: p.y + 'px'}); placeSel();
     clearTimeout(nudgeT); nudgeT = setTimeout(() => { past.push(nudgeBase); future.length = 0; nudgeBase = null; render(); }, 500); return;
   }
