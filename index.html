@@ -389,6 +389,91 @@ body.rz-ew,body.rz-ew *{cursor:col-resize!important}body.rz-ns,body.rz-ns *{curs
 .measuring,.measuring *{overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important}
 .pz-slide *{hyphens:none}
 .pz-blk.overflow{outline:3px dashed #dc2626;outline-offset:4px}
+/* ---------- Editable table (cells, rows, columns, merges) ---------- */
+.menu{max-height:calc(100vh - 16px);overflow:auto}
+.gt{width:100%;height:100%;display:flex;flex-direction:column}
+.gt-cap{font-size:24px;line-height:32px;font-weight:700;margin:0 0 40px;color:rgb(var(--th-slide-contrast))}
+.gt-src{font-size:18px;line-height:26px;margin:14px 0 0;color:rgba(var(--th-slide-contrast),.6)}
+.gt-tw{flex:1 1 auto;min-height:0;display:flex}
+table.gtt{width:100%;table-layout:fixed;align-self:stretch;border-collapse:separate;border-spacing:0}
+.gtt td{padding:12px 20px;font-size:24px;line-height:1.3;vertical-align:middle;color:rgb(var(--th-slide-contrast));overflow-wrap:break-word;position:relative;background-clip:padding-box}
+.gtt td.gt-numc{text-align:center;color:rgba(var(--th-slide-contrast),.55);font-weight:600;font-size:20px}
+.gtt td.va-top{vertical-align:top}.gtt td.va-bottom{vertical-align:bottom}
+.gt-ci{display:flex;align-items:center;gap:14px;min-width:0}
+.al-center .gt-ci{justify-content:center}.al-right .gt-ci{justify-content:flex-end}
+.gt-ci .gt-col{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.al-center .gt-ci .gt-col{align-items:center}.al-right .gt-ci .gt-col{align-items:flex-end}
+.gt-ci .gt-row{display:flex;align-items:center;gap:14px;min-width:0}
+.gt-tx{min-width:1ch;outline:none}
+.gt-th{font-weight:700}
+.gt-num{font-variant-numeric:tabular-nums;font-weight:600}
+.gt-pill{display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:9999px;background:rgba(var(--th-section-color1),.12);color:rgb(var(--th-section-color1));font-size:18px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.gt-ico{width:52px;height:52px;flex:none;border-radius:14px;background:rgba(var(--th-section-color1),.1);color:rgb(var(--th-section-color1));display:inline-flex;align-items:center;justify-content:center;font-size:30px}
+.gt-im{flex:none;border-radius:12px;object-fit:cover;display:block;background:#eee}
+.gt-im.big{width:100%;height:120px}.gt-im.sq{width:64px;height:64px}.gt-im.wide{width:100%;height:84px}
+.gt-logo{width:52px;height:52px;flex:none;border-radius:12px;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:20px}
+.gt-av{width:52px;height:52px;flex:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:19px;color:#fff;object-fit:cover}
+.gt-uw{display:flex;flex-direction:column;min-width:0}
+.gt-role{font-size:.78em;color:rgba(var(--th-slide-contrast),.6)}
+.gt-bar2{display:flex;align-items:center;gap:14px;width:100%}
+.gt-trk{flex:1;height:14px;border-radius:9999px;background:rgba(var(--th-slide-contrast),.08);overflow:hidden;min-width:60px}
+.gt-fil{display:block;height:100%;border-radius:9999px;background:rgb(var(--th-section-color2))}
+.gt-stars{display:inline-flex;gap:4px;font-size:30px;color:rgba(var(--th-slide-contrast),.14)}
+.gt-stars i{cursor:pointer}.gt-stars i.on{color:#ECB22E}
+.gt-nl{display:flex;flex-direction:column;line-height:1.1}
+.gt-nl .gt-big{font-size:1.6em;font-weight:800;font-variant-numeric:tabular-nums}
+.gt-nl .gt-lab{font-size:.75em;color:rgba(var(--th-slide-contrast),.6);margin-top:4px}
+.gt-tog{font-size:34px;cursor:pointer;flex:none}
+.gt-btn{display:inline-flex;align-items:center;height:48px;padding:0 22px;border-radius:9999px;background:rgb(var(--th-section-color1));color:#fff;font-weight:600;font-size:.85em;white-space:nowrap}
+/* Table styles (Change) */
+.gt.v-cards table.gtt{border-spacing:8px}
+.gt.v-cards .gtt td{background:rgba(var(--th-slide-contrast),.045);border-radius:12px}
+.gt.v-cards .gtt td.hc{background:rgb(var(--th-section-color1));color:#fff}
+.gt.v-cards .gtt td.rc{background:rgba(var(--th-section-color1),.12)}
+.gt.v-cards .gtt td.gt-numc{background:transparent}
+.gt.v-lines table.gtt,.gt.v-grid table.gtt{border-collapse:collapse}
+.gt.v-lines .gtt td{border-bottom:1.5px solid rgba(var(--th-slide-contrast),.12)}
+.gt.v-lines .gtt td.hc{border-bottom:3px solid rgb(var(--th-section-color1));color:rgb(var(--th-section-color1))}
+.gt.v-striped table.gtt{border-radius:14px;overflow:hidden}
+.gt.v-striped .gtt tr.alt td{background:rgba(var(--th-slide-contrast),.045)}
+.gt.v-striped .gtt td.hc{background:rgb(var(--th-slide-contrast));color:#fff}
+.gt.v-grid .gtt td{border:1.5px solid rgba(var(--th-slide-contrast),.14)}
+.gt.v-grid .gtt td.hc{background:rgba(var(--th-section-color1),.1)}
+.gt.v-simple table.gtt{border-collapse:collapse}
+.gt.v-simple .gtt td{border:1px solid rgba(var(--th-slide-contrast),.18);border-radius:0;padding:14px 20px}
+.gt.v-simple .gtt td.hc{background:rgba(var(--th-slide-contrast),.04)}
+.gtt td.hc{font-weight:700;font-size:22px}
+.gtt td.rc{font-weight:700}
+.gt.band .gtt tr.alt td:not(.hc){background:rgba(var(--th-section-color1),.07)}
+.gt.total .gtt tr.last td{font-weight:700;border-top:2px solid rgb(var(--th-section-color1))}
+.gtt td.hl{background:rgba(var(--th-section-color3),.18)!important}
+.gtt td.ign{background:transparent!important;border-color:transparent!important}
+.gt-bar{position:absolute;left:0;top:0;width:0;height:0;z-index:24;display:none;pointer-events:none}
+.gt-bar.show{display:block}
+.gt-bar > *{pointer-events:auto}
+/* Canva-style handles: a ⋯ pill on the picked cell's column (top edge) and row (left edge). Click selects the column or row, drag moves it. */
+.gt-hdl{position:absolute;display:flex;align-items:center;justify-content:center;padding:0;transform:translate(-50%,-50%);border-radius:6px;cursor:grab;border:1.5px solid rgb(20 20 31 / .14);background:#fff;box-shadow:none;color:rgb(var(--ink-3));transition:border-color .12s,color .12s}
+.gt-hdl i{font-size:16px}
+.gt-hdl:hover{border-color:rgb(20 20 31 / .38);color:rgb(var(--ink))}
+.gt-hdl.on,.gt-hdl:active,body.gt-mv .gt-hdl{border-color:rgb(20 20 31 / .5);color:rgb(var(--ink))}
+#gtCols .gt-hdl{width:30px;height:22px}
+#gtRows .gt-hdl{width:22px;height:30px}
+/* Column borders: drag to resize, hover shows + to insert a column there */
+.gt-cz{position:absolute;width:11px;margin-left:-5.5px;cursor:col-resize;z-index:2}
+.gt-cz::after{content:"";position:absolute;left:4.5px;top:0;bottom:0;width:2px;border-radius:1px;background:transparent}
+.gt-cz:hover::after,.gt-cz.drag::after{background:rgb(var(--ink-off))}
+.gt-rz{position:absolute;height:11px;margin-top:-5.5px;z-index:2}
+.gt-ins{position:absolute;z-index:3;width:18px;height:18px;border-radius:50%;border:1px solid rgb(var(--line));padding:0;background:rgb(var(--surface));color:rgb(var(--ink-2));display:none;align-items:center;justify-content:center;font-size:10px;transform:translate(-50%,-50%);box-shadow:var(--sh-hairline);cursor:pointer}
+.gt-ins:hover{color:rgb(var(--ink));border-color:rgb(var(--ink-off))}
+.gt-cz:hover + .gt-ins,.gt-rz:hover + .gt-ins,.gt-ins:hover{display:flex}
+.gt-add{position:absolute;z-index:24;width:20px;height:20px;border-radius:5px;border:1px solid rgb(var(--line));background:rgb(var(--surface));color:rgb(var(--ink-2));display:none;align-items:center;justify-content:center;padding:0;font-size:12px;box-shadow:var(--sh-hairline)}
+.gt-add.show{display:flex}
+.gt-add:hover{border-color:rgb(var(--ink-off));color:rgb(var(--ink))}
+#gtAnchor{position:fixed;width:1px;height:1px;pointer-events:none}
+.gt-drop{position:absolute;z-index:26;background:rgb(var(--brand-600));display:none;border-radius:2px;pointer-events:none}
+.gt-drop.show{display:block}
+body.gt-ew,body.gt-ew *{cursor:col-resize!important;user-select:none}
+body.gt-mv,body.gt-mv *{cursor:grabbing!important;user-select:none}
 </style>
 </head>
 <body>
@@ -443,6 +528,8 @@ body.rz-ew,body.rz-ew *{cursor:col-resize!important}body.rz-ns,body.rz-ns *{curs
     <div class="rz-tip" id="rzTip"></div>
     <div class="sel-tag" id="selTag"></div>
     <div class="selbox" id="selb"></div>
+    <div class="gt-bar" id="gtCols"></div><div class="gt-bar" id="gtRows"></div><div class="gt-drop" id="gtDrop"></div>
+    <button class="gt-add" id="gtAddC" title="Add column"><i class="ph-bold ph-plus"></i></button><button class="gt-add" id="gtAddR" title="Add row"><i class="ph-bold ph-plus"></i></button>
 
     <div class="proto" aria-label="Prototype controls">
       <span class="pill" id="floor"></span>
@@ -453,6 +540,7 @@ body.rz-ew,body.rz-ew *{cursor:col-resize!important}body.rz-ns,body.rz-ns *{curs
 </div>
 
 <div class="menu" id="menu"></div>
+<div id="gtAnchor"></div>
 <div class="toast" id="toast"></div>
 
 <script type="importmap">
@@ -561,6 +649,8 @@ const CONCEPTS = [
     objs:[{t:'kpi', menu:'cfg-data-driven-short-points-separator', data:[K('Apps','Marketplace integrations','2.6K+'), K('Custom','Custom apps built','550K+')]},
           {t:'table', data:[['Functional Stack','Key Integrations','Operational Value'],['Dev & Engineering','GitHub, Jira, Datadog','Instant incident alerts and PR reviews'],['Sales & Revenue','Salesforce, HubSpot, Gong','Deal desk alerts and pipeline notices'],['Support & Success','Zendesk, Intercom','Tier-3 swarming and CSAT alerts'],['Product & Ops','Figma, Asana, Notion','Design reviews and task triggers']]},
           {t:'process', menu:'cfg-numbered-list-vertical-heading-body', data:[K('Salesforce sync','Native two-way sync with CRM records'), K('Security scanning','Automated scans on external shared channels'), K('Audit logs','Central logs across all custom and third-party apps')]}]},
+  {name:'Table', title:'Slack workflows by team', sub:'Where automation pays back fastest across mid-market SaaS.', objs:[{t:'table', grid:GRID0()}]},
+  {name:'Simple table', title:'Where Slack connects each team', objs:[{t:'table', grid:GRID_BASIC()}]},
   {name:'Spotify', title:'Spotify boosted sales efficiency by 40% with Slack', sub:'The advertising sales team streamlined campaign operations and accelerated complex client delivery.',
     objs:[{t:'kpi', menu:'cfg-large-data-driven-heading-body', data:[K('Efficiency','Increase in efficiency across advertising teams.','40%'), K('Delivery rate','Campaign delivery, up from 97%.','99%')]},
           {t:'process', menu:'cfg-icon-heading-blocks', data:[K('Campaigns','AEs, ad ops, and creative align in client channels.'), K('Live Deals','CRM and booking updates pushed live.'), K('Partners','Slack Connect replaces slow external email.')]}]},
@@ -766,8 +856,9 @@ async function mountSlide(slideEl, st, scale){
   for(const o of st.objs){
     const blk = slideEl.querySelector(`[data-blk="${o.id}"]`), T = TYPES[o.t];
     autoN[o.id] = fitCount(o, blk.clientWidth, blk.clientHeight);
-    blk.dataset.kind = T.kind;
+    blk.dataset.kind = T.kind; if(o.grid) blk.dataset.grid = '1'; else delete blk.dataset.grid;
     draws.push([blk, T.multi, d => T.kind === 'image' ? new Promise(res => { d.className = 'pz-img'; d.innerHTML = `<img src="${photo(o.src || PHOTOS[0][1])}" alt="" style="object-fit:${o.fit || 'cover'}">`; const im = d.firstChild; im.onload = im.onerror = res; setTimeout(res, 3000); })
+      : o.grid ? Promise.resolve(void (d.innerHTML = gridHTML(o)))
       : T.kind === 'chart' ? R.renderChart(d, T.menu, {rows: rowsFor(o), title: o.ttl || DATA.title[o.t]}, scale)
       : T.kind === 'table' ? R.renderTable(d, (o.data || DATA.table).slice(0, (o.n || autoN[o.id] || (o.data || DATA.table).length - 1) + 1), scale, o.menu || T.menu)
       : R.renderDiagram(d, o.menu || T.menu, itemsFor(o), scale)]);
@@ -775,11 +866,12 @@ async function mountSlide(slideEl, st, scale){
   fitHead(slideEl, st);
   await Promise.all(draws.map(([blk, multi, draw]) => draw(mk(blk, multi))));
   await new Promise(r => setTimeout(r, 350));
+  slideEl.querySelectorAll('.pz-blk[data-grid]').forEach(b => gFitHeight(b, st));
   // Fit to space: no scaling. Each block keeps its real size and its text gets real font-size values:
   // bigger when there is room (up to 1.35x, never past 44px), smaller when it spills. Floor 8px. No data is dropped.
   const fitted = [];
   for(const [blk] of draws){
-    const d = blk.lastElementChild; if(!d || blk.dataset.kind === 'chart') continue;   // chart text is laid out by the chart itself
+    const d = blk.lastElementChild; if(!d || blk.dataset.kind === 'chart' || blk.dataset.grid) continue;   // chart text is laid out by the chart itself
     // Big numbers (data-driven text): one size for every number in the block, on one line, as big as the
     // narrowest card allows (design size at most, 16px at least). Then the rest of the text fits around them.
     const nums = [...d.querySelectorAll('[name="data-driventext"]')];
@@ -986,6 +1078,11 @@ function classify(target){
     if(pt && blk.contains(pt)) return {...base, type:'chart-node', el: pt};
     return {...base, type:'chart', el: blk};
   }
+  if(info.kind === 'table' && info.o && info.o.grid){
+    const td = target.closest('td[data-r]');
+    if(td && blk.contains(td)) return {...base, type:'cell', gt:true, r:+td.dataset.r, c:+td.dataset.c, fr:+td.dataset.r, fc:+td.dataset.c, el: td};
+    return {...base, type:'table', el: blk};
+  }
   if(info.kind === 'table'){
     const td = target.closest('td.ci-table-cell');
     if(td) return {...base, type:'cell', el: td};
@@ -1052,19 +1149,29 @@ function floaterBase(s){
     case 'diagram-body': return STEPPER(fontPx(el)) + COLOR(colorOf(el)) + ALIGN(alignOf(el)) + SEP + B('bold', ICON('ph-text-b'), '', {tip:'Bold', on:isB(el)}) + B('italic', ICON('ph-text-italic'), '', {tip:'Italic', on:isI(el)}) + SEP + B('list-num', ICON('ph-list-numbers'), '', {tip:'Decimal'}) + B('list-para', ICON('ph-paragraph'), '', {tip:'Paragraph', on:true}) + B('list-bul', ICON('ph-list-bullets'), '', {tip:'Bullet list'}) + B('list-chk', ICON('ph-list-checks'), '', {tip:'Check list'}) + SEP + GEAR_ADV;
     case 'image': return B('replace', ICON('ph-image'), 'Replace', {dd:true}) + B('imgfit', ICON('ph-crop'), (s.o.fit === 'contain' ? 'Fit' : 'Fill'), {tip:'Image fit', dd:true}) + SEP + TRASH('Delete image');
     case 'table': return CHANGE + B('resize', ICON('ph-arrows-out-simple'), '', {tip:'Resize', dd:true}) + GEAR_SET + TRASH();
-    case 'cell': return B('celltype', ICON('ph-text-t'), 'Text', {dd:true}) + B('cellalign', ICON('ph-text-align-' + (alignOf(el) || 'left')), '', {tip:'Alignment', dd:true}) + B('fill', `<span class="swatch" style="background:${getComputedStyle(el).backgroundColor}"></span>`, 'Fill', {tip:'Background Color'});
+    case 'tcol': case 'trow': return gLineBar(s);
+    case 'cimg': return gImgBar(s);
+    case 'cell': if(s.gt) return gCellBar(s); return B('celltype', ICON('ph-text-t'), 'Text', {dd:true}) + B('cellalign', ICON('ph-text-align-' + (alignOf(el) || 'left')), '', {tip:'Alignment', dd:true}) + B('fill', `<span class="swatch" style="background:${getComputedStyle(el).backgroundColor}"></span>`, 'Fill', {tip:'Background Color'});
   }
   return '';
 }
-function clearSel(){ sel = null; hideAff(); $('#ctx').classList.remove('show'); $('#ctx').innerHTML = ''; $('#selb').classList.remove('show'); $('#parb').classList.remove('show'); $('#selTag').classList.remove('show'); document.querySelectorAll('.rh').forEach(h => h.classList.remove('show')); closeMenu(); }
+function clearSel(){ sel = null; hideAff(); $('#ctx').classList.remove('show'); $('#ctx').innerHTML = ''; $('#selb').classList.remove('show'); $('#parb').classList.remove('show'); $('#selTag').classList.remove('show'); document.querySelectorAll('.rh').forEach(h => h.classList.remove('show')); closeMenu(); gBars(); }
 function select(s){ sel = s; drawFloater(); }
 const TP_NAMES = {gfx:'Graphic', label:'Label', sub:'Subtitle', cta:'Button'};
-const SEL_NAMES = {head:'Title block', image:'Image', 'tp-gfx':'Graphic', 'tp-label':'Label', 'tp-sub':'Subtitle', 'tp-cta':'Button', title:'Title', chart:'Chart', 'chart-node':'Data point', 'chart-title':'Chart title', 'chart-text':'Chart text', diagram:'Diagram', node:'Node', 'diagram-heading':'Heading', 'diagram-body':'Body text', table:'Table', cell:'Cell'};
+const SEL_NAMES = {head:'Title block', image:'Image', 'tp-gfx':'Graphic', 'tp-label':'Label', 'tp-sub':'Subtitle', 'tp-cta':'Button', title:'Title', chart:'Chart', 'chart-node':'Data point', 'chart-title':'Chart title', 'chart-text':'Chart text', diagram:'Diagram', node:'Node', 'diagram-heading':'Heading', 'diagram-body':'Body text', table:'Table', cell:'Cell', tcol:'Column', trow:'Row', cimg:'Image'};
 // The selection's options render in the top toolbar (no inline floater).
-function drawFloater(){ if(!sel) return; $('#ctx').innerHTML = `<span class="ctx-label">${sel.fw && sel.type === 'diagram' ? 'Framework' : SEL_NAMES[sel.type] || ''}</span>` + floaterHTML(sel); $('#ctx').classList.add('show'); placeSel(); }
+function drawFloater(){ if(!sel) return; $('#ctx').innerHTML = `<span class="ctx-label">${sel.fw && sel.type === 'diagram' ? 'Framework' : sel.gt && sel.type === 'cell' && gAnchors(gObj(sel).grid, gRect(sel)).length > 1 ? 'Cells' : SEL_NAMES[sel.type] || ''}</span>` + floaterHTML(sel); $('#ctx').classList.add('show'); placeSel(); }
 // After a re-render the old element is gone; pick the same block again.
 function reselect(){
   if(!sel) return;
+  if(sel.gt){
+    const b = $('#wrap').querySelector(`[data-blk="${sel.blk.dataset.blk}"]`);
+    if(b && b.dataset.grid){ const g = gObj({blk:b}).grid, cl = (v, n) => Math.max(0, Math.min(n - 1, v)), s2 = {...sel};
+      if(s2.type === 'cell'){ s2.r = cl(s2.r, gR(g)); s2.c = cl(s2.c, gC(g)); s2.fr = cl(s2.fr, gR(g)); s2.fc = cl(s2.fc, gC(g)); const a = gSpanAt(g, s2.r, s2.c); s2.r = a.r; s2.c = a.c; }
+      else { const n = s2.type === 'tcol' ? gC(g) : gR(g); s2.a = cl(s2.a, n); s2.f = cl(s2.f, n); }
+      sel = gSel(b, s2.type, s2); if(!sel.el && s2.type === 'cimg') sel = gSel(b, 'cell', s2); if(sel.el){ drawFloater(); return; } }
+    clearSel(); return;
+  }
   const blk = sel.blk && $('#wrap').querySelector(`[data-blk="${sel.blk.dataset.blk}"]`);
   if(sel.type === 'head'){ sel.el = $('#wrap .pz-head'); if(!sel.el){ clearSel(); return; } drawFloater(); return; }
   if(sel.type === 'title' || sel.part){ sel.el = $('#wrap ' + (sel.part ? `[data-part="${sel.part}"]` : '[data-sel="title"]')); if(!sel.el){ clearSel(); return; } drawFloater(); return; }
@@ -1083,11 +1190,14 @@ function boxTo(node, b, p = PAD){ const g = grow(b, p); Object.assign(node.style
 function placeSel(){
   const sb = $('#selb'), pb = $('#parb');
   sb.classList.remove('show'); pb.classList.remove('show'); $('#selTag').classList.remove('show');
+  gBars();
   if(!sel || !sel.el || !document.contains(sel.el)) return;
   // Text: caret only. A part (bar, node, cell): blue on the part, light grey on its element.
   // Text inside an object (heading, body, chart title, cell) gets the blue box too, like the title and subtitle.
-  if(!TEXT_SEL.includes(sel.type) || sel.blk) boxTo(sb, boxOf(sel.el));
-  if(sel.blk && sel.el !== sel.blk && document.contains(sel.blk)) boxTo(pb, boxOf(sel.blk));
+  if(sel.gt && sel.type === 'cimg'){ boxTo(sb, boxOf(sel.el)); const td = gTd(sel.blk, sel.r, sel.c); if(td) boxTo(pb, boxOf(td)); }
+  else if(sel.gt){ const bx = gBox(sel); if(bx) boxTo(sb, bx); }
+  else if(!TEXT_SEL.includes(sel.type) || sel.blk) boxTo(sb, boxOf(sel.el));
+  if(sel.blk && sel.el !== sel.blk && document.contains(sel.blk) && sel.type !== 'cimg') boxTo(pb, boxOf(sel.blk));
   placeHandles();
   selAff();
   const tg = $('#selTag'), sb2 = $('#selb');
@@ -1263,7 +1373,7 @@ function startResize(dir, e){
       Object.assign(t.el.style, {left:p.x+'px', top:p.y+'px', width:p.w+'px', height:p.h+'px'});
       return `W ${p.w}  ×  H ${p.h}`;
     };
-    done = () => commit(() => { state.pos = {...state.pos, [id]: p}; });
+    done = () => commit(() => { state.pos = {...state.pos, [id]: p}; const ob = state.objs.find(x => x.id === id); if(ob && ob.grid && /[ns]/.test(dir)) ob.rs = 4; });
   } else {
     const ctls = dir.split('').map(sd => ({sd, c: edgeCtl(t.el, sd) || selfCtl(t.el, sd)})).filter(x => x.c);
     move = (dx, dy) => { ctls.forEach(({sd, c}) => c.move(sd === 'e' || sd === 'w' ? dx : dy));
@@ -1312,6 +1422,7 @@ $('#ctx').addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if(!b || b.disabled || !sel) return;
   const a = b.dataset.act, s = sel, el = s.el;
   const live = ['chart-title','chart-text','diagram-heading','diagram-body','cell','chart-node','node'].includes(s.type);
+  if((s.gt || (s.type === 'table' && s.o && s.o.grid)) && gAct(a, b, s)) return;
   switch(a){
     case 'size+': case 'size-': {
       const nv = step(el, a === 'size+' ? 1 : -1);
@@ -1387,6 +1498,634 @@ function swapNode(s, d){
   commit(() => { state.objs.find(x => x.id === o.id).order = order; });
 }
 
+/* =====================================================================
+   EDITABLE TABLE: cells, rows, columns and merges. Same model as the other objects: the first click picks
+   the table, the next click a cell, Esc goes back up. Options show in the top toolbar. A picked cell shows
+   a ⋯ handle on its column and row (click to select it, drag to move), like Canva.
+   ===================================================================== */
+const GT_TYPES = [
+  {g:'Text', items:[['text:body','Body'],['text:heading','Heading'],['text:label','Label'],['text:number','Number'],['text:currency','Currency'],['text:date','Date']]},
+  {g:'Icon', items:[['icon:icon','Icon'],['icon:adj','Icon Adjacent Label'],['icon:above','Icon Above Label']]},
+  {g:'Image', items:[['image:image','Image'],['image:adj','Image Adjacent Label'],['image:above','Image Above Label']]},
+  {g:'Logo', items:[['logo','Logo']]},
+  {g:'User Info', items:[['user:info','User Info'],['user:name','User Image & Name']]},
+  {g:'Percentage Chart', items:[['pct:donut','Donut Chart'],['pct:bar','Progress Bar'],['pct:star','Star Rating']]},
+  {g:'Number', items:[['num:labels','Number with Labels']]},
+  {g:'Checklist', items:[['check:check','Checklist'],['check:tick','Tick / Wrong'],['check:thumb','Thumbs Up / Down'],['check:plus','Plus / Minus'],['check:happy','Happy / Sad']]},
+  {g:'Button', items:[['button','Button']]}
+];
+const GT_NAME = Object.fromEntries(GT_TYPES.flatMap(g => g.items));
+const GT_TOG = {
+  'check:check': [['ph-fill ph-check-square','#2EB67D'],['ph ph-square','#B9B3B9']],
+  'check:tick':  [['ph-fill ph-check-circle','#2EB67D'],['ph-fill ph-x-circle','#E01E5A']],
+  'check:thumb': [['ph-fill ph-thumbs-up','#2EB67D'],['ph-fill ph-thumbs-down','#E01E5A']],
+  'check:plus':  [['ph-fill ph-plus-circle','#2EB67D'],['ph-fill ph-minus-circle','#E01E5A']],
+  'check:happy': [['ph-fill ph-smiley','#ECB22E'],['ph-fill ph-smiley-sad','#8A8A8A']]
+};
+const GT_VARS = [['simple','Simple','ph-table'],['cards','Cards','ph-squares-four'],['lines','Lines','ph-rows'],['striped','Striped','ph-list'],['grid','Grid','ph-grid-nine']];
+const GT_OPTS = [['colHead','Column header'],['rowHead','Row header'],['gtitle','Graphic title'],['gsrc','Graphic source'],['num','Numbering'],['ignore','Ignore first cell'],['band','Banded rows', 1],['total','Total row', 1]];
+function GC(v, type = 'text:body', o = {}){ return {v, type, ...o}; }
+function gGrid(rows, spans, colW){ return {rows, spans, colW, rowSt: rows.map(() => ({})), colSt: rows[0].map(() => ({})),
+  opt: {colHead:true, rowHead:false, gtitle:false, gsrc:false, num:false, ignore:false, band:false, total:false}, variant:'cards', rowEq:false,
+  cap:'Table 1. Workflow adoption and value, FY25', srcT:'Source: Slack customer ROI study, Forrester TEI 2025'}; }
+function GRID0(){
+  const hd = ['Workflow','Tool','Adoption','Annual value','Live','Owner'].map(v => GC(v, 'text:heading')), e = () => GC('');
+  return gGrid([
+    hd,
+    [GC('Engineering','text:label'), e(), e(), e(), e(), e()],
+    [GC('Incident alerts','icon:adj',{ic:'siren'}), GC('Datadog','logo'), GC('82','pct:donut'), GC('1200000','text:currency'), GC('Shipped','check:tick',{on:true}), GC('Priya Nair, SRE lead','user:info')],
+    [GC('PR reviews','icon:adj',{ic:'git-pull-request'}), GC('GitHub','logo'), GC('74','pct:bar'), GC('640000','text:currency'), GC('In pilot','check:tick',{on:false}), GC('Marcus Lee','user:name',{img:'1507003211169-0a1dd7228f2d'})],
+    [GC('Revenue','text:label'), e(), e(), e(), e(), e()],
+    [GC('Deal desk','image:adj',{img:'1600880292203-757bb62b4baf'}), GC('Salesforce','logo'), GC('4','pct:star'), GC('2100000','text:currency'), GC('Loved','check:thumb',{on:true}), GC('Ana Ruiz, RevOps','user:info')],
+    [GC('Pipeline alerts'), GC('Gong','logo'), GC('58% weekly active','num:labels'), e(), GC('Rolling out','check:plus',{on:true}), GC('Open channel','button')]
+  ], [{r:1,c:0,rs:1,cs:6},{r:4,c:0,rs:1,cs:6},{r:5,c:3,rs:2,cs:1}], [1.45,1.1,1.1,1,1,1.45]);
+}
+// A plain table: text only, no merges.
+function GRID_BASIC(){
+  const g = gGrid([
+    ['Functional stack','Key integrations','Operational value','Owner'].map(v => GC(v, 'text:heading')),
+    ...[['Dev & Engineering','GitHub, Jira, Datadog','Instant incident alerts and PR reviews','Priya Nair'],
+        ['Sales & Revenue','Salesforce, HubSpot, Gong','Deal desk alerts and pipeline notices','Ana Ruiz'],
+        ['Support & Success','Zendesk, Intercom','Tier-3 swarming and CSAT alerts','Marcus Lee'],
+        ['Product & Ops','Figma, Asana, Notion','Design reviews and task triggers','Jo Kim']].map(r => r.map(v => GC(v)))
+  ], [], [1, 1.1, 1.5, .8]);
+  g.variant = 'simple'; return g;
+}
+const gridNew = () => gGrid([['Column 1','Column 2','Column 3'].map(v => GC(v, 'text:heading')), ...[1,2,3].map(() => [GC(''), GC(''), GC('')])], [], [1,1,1]);
+
+/* ---------- Grid helpers ---------- */
+const gObj = s => state.objs.find(x => x.id === (s.blk ? s.blk.dataset.blk : s.id));
+const gR = g => g.rows.length, gC = g => g.rows[0].length;
+const gSpanAt = (g, r, c) => g.spans.find(s => r >= s.r && r < s.r + s.rs && c >= s.c && c < s.c + s.cs) || {r, c, rs:1, cs:1};
+const gCov = (g, r, c) => { const s = gSpanAt(g, r, c); return s.r !== r || s.c !== c; };
+function gExpand(g, q){
+  let {r0, c0, r1, c1} = q, again = true;
+  while(again){ again = false;
+    for(const s of g.spans){ const sr = s.r + s.rs - 1, sc = s.c + s.cs - 1;
+      if(s.r > r1 || sr < r0 || s.c > c1 || sc < c0) continue;
+      if(s.r < r0){ r0 = s.r; again = true; } if(sr > r1){ r1 = sr; again = true; }
+      if(s.c < c0){ c0 = s.c; again = true; } if(sc > c1){ c1 = sc; again = true; } }
+  }
+  return {r0, c0, r1, c1};
+}
+function gAnchors(g, q){ const out = []; for(let r = q.r0; r <= q.r1; r++) for(let c = q.c0; c <= q.c1; c++) if(!gCov(g, r, c)) out.push([r, c]); return out; }
+function gRect(s, g = gObj(s).grid){
+  const cl = (v, n) => Math.max(0, Math.min(n - 1, v));
+  if(s.type === 'tcol') return {r0:0, r1:gR(g) - 1, c0:cl(Math.min(s.a, s.f), gC(g)), c1:cl(Math.max(s.a, s.f), gC(g))};
+  if(s.type === 'trow') return {c0:0, c1:gC(g) - 1, r0:cl(Math.min(s.a, s.f), gR(g)), r1:cl(Math.max(s.a, s.f), gR(g))};
+  return gExpand(g, {r0:cl(Math.min(s.r, s.fr), gR(g)), c0:cl(Math.min(s.c, s.fc), gC(g)), r1:cl(Math.max(s.r, s.fr), gR(g)), c1:cl(Math.max(s.c, s.fc), gC(g))});
+}
+const gCells = s => { const g = gObj(s).grid; return gAnchors(g, gRect(s, g)).map(([r, c]) => g.rows[r][c]); };
+const gNum = v => { const m = String(v ?? '').replace(/,/g, '').match(/-?\d+(\.\d+)?/); return m ? +m[0] : NaN; };
+function gFmt(c){
+  const v = c.v ?? '';
+  if(c.type === 'text:currency'){ const n = gNum(v); return isNaN(n) || /[a-z]/i.test(v) ? v : n.toLocaleString('en-US', {style:'currency', currency:'USD', maximumFractionDigits:0}); }
+  if(c.type === 'text:number'){ const n = gNum(v); return isNaN(n) || /[a-z]/i.test(v) ? v : n.toLocaleString('en-US'); }
+  if(c.type === 'text:date'){ const d = new Date(v); return v && !isNaN(d) ? d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : v; }
+  return v;
+}
+const gHue = s => { let h = 0; for(const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) % 360; return ['#4A154B','#2EB67D','#E01E5A','#1264A3','#ECB22E','#36C5F0','#611F69'][h % 7]; };
+const gIni = s => String(s).split(/[\s,]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
+const gInk = c => { const m = String(c).match(/\d+(\.\d+)?/g); if(!m) return null; const [r, g, b] = m.map(Number); return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < .6 ? '#fff' : null; };
+const gImg = id => `https://images.unsplash.com/photo-${id}?w=320&h=320&fit=crop&auto=format&q=70`;
+
+/* ---------- Cell HTML ---------- */
+function gInner(c){
+  const t = c.type || 'text:body', v = c.v ?? '', ed = 'contenteditable="true" spellcheck="false"';
+  const tx = (cls = '', k = '', s = gFmt(c)) => `<span class="gt-tx ${cls}" ${ed} ${k ? `data-k="${k}"` : ''}>${esc(s)}</span>`;
+  const ico = `<span class="gt-ico"><i class="ph-fill ph-${c.ic || 'star'}"></i></span>`;
+  const img = cls => `<img class="gt-im ${cls}" src="${c.src || gImg(c.img || '1600880292203-757bb62b4baf')}" alt="" draggable="false" style="object-fit:${c.fit || 'cover'}">`;
+  // Charts never drop the cell's words: a number drives the chart, any other text stays as its label.
+  const hasN = !isNaN(gNum(v)), lab = hasN ? '' : tx();
+  const p = Math.max(0, Math.min(100, Math.round(hasN ? gNum(v) : c.n ?? 70) || 0));
+  switch(t){
+    case 'text:heading': return tx('gt-th');
+    case 'text:label': return `<span class="gt-pill">${tx()}</span>`;
+    case 'text:number': case 'text:currency': return tx('gt-num');
+    case 'icon:icon': return ico;
+    case 'icon:adj': return `<span class="gt-row">${ico}${tx()}</span>`;
+    case 'icon:above': return `<span class="gt-col">${ico}${tx()}</span>`;
+    case 'image:image': return img('big');
+    case 'image:adj': return `<span class="gt-row">${img('sq')}${tx()}</span>`;
+    case 'image:above': return `<span class="gt-col">${img('wide')}${tx()}</span>`;
+    case 'logo': return `<span class="gt-row"><span class="gt-logo" style="background:${gHue(v)}">${esc(gIni(v))}</span>${tx('gt-th')}</span>`;
+    case 'user:info': { const [n, ...role] = String(v).split(','); return `<span class="gt-row"><span class="gt-av" style="background:${gHue(n)}">${esc(gIni(n))}</span><span class="gt-uw">${tx('gt-th', 'name', n)}${tx('gt-role', 'role', role.join(',').trim())}</span></span>`; }
+    case 'user:name': return `<span class="gt-row"><img class="gt-av" src="${c.src || gImg(c.img || '1494790108377-be9c29b29330')}" alt="" draggable="false" style="object-fit:${c.fit || 'cover'}">${tx('gt-th')}</span>`;
+    case 'pct:donut': { const L = 2 * Math.PI * 26; return `<span class="gt-row"><svg width="64" height="64" viewBox="0 0 64 64" style="flex:none"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(var(--th-slide-contrast),.08)" stroke-width="9"/><circle cx="32" cy="32" r="26" fill="none" stroke="rgb(var(--th-section-color1))" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(L * p / 100).toFixed(1)} ${L.toFixed(1)}" transform="rotate(-90 32 32)"/></svg>${hasN ? tx('gt-num', '', p + '%') : `<span class="gt-num">${p}%</span>`}${lab}</span>`; }
+    case 'pct:bar': return `<span class="gt-bar2"><span class="gt-trk"><span class="gt-fil" style="width:${p}%"></span></span>${hasN ? tx('gt-num', '', p + '%') : `<span class="gt-num">${p}%</span>`}${lab}</span>`;
+    case 'pct:star': { const n = Math.max(0, Math.min(5, Math.round(hasN ? gNum(v) : c.n ?? 4) || 0)); return `<span class="gt-row"><span class="gt-stars">${[1,2,3,4,5].map(i => `<i class="ph-fill ph-star ${i <= n ? 'on' : ''}" data-star="${i}"></i>`).join('')}</span>${lab}</span>`; }
+    case 'num:labels': { const m = String(v).match(/^\s*(\S+)\s*([\s\S]*)$/) || ['', v, '']; return `<span class="gt-nl">${tx('gt-big', 'nl1', m[1])}${tx('gt-lab', 'nl2', m[2])}</span>`; }
+    case 'button': return `<span class="gt-btn">${tx()}</span>`;
+  }
+  if(GT_TOG[t]){ const [cls, col] = GT_TOG[t][c.on ? 0 : 1]; return `<span class="gt-row"><i class="gt-tog ${cls}" data-tog style="color:${col}"></i>${tx()}</span>`; }
+  return tx();
+}
+function gCellStyle(c){
+  const st = [];
+  if(c.fill){ st.push(`background:${c.fill}`); const ink = gInk(c.fill); if(ink && !c.color) st.push(`color:${ink}`); }
+  if(c.color) st.push(`color:${c.color}`);
+  if(c.b) st.push('font-weight:700'); if(c.i) st.push('font-style:italic');
+  if(c.fs) st.push(`font-size:${c.fs}px`);
+  if(c.op != null) st.push(`opacity:${c.op}`);
+  if(c.lh) st.push(`line-height:${c.lh}`);
+  if(c.cs) st.push(`text-transform:${c.cs}`);
+  return st.join(';');
+}
+function gridHTML(o, variant){
+  const g = o.grid, op = g.opt, sum = g.colW.reduce((a, b) => a + b, 0), last = gR(g) - 1;
+  const at = (r, c) => g.spans.find(s => s.r === r && s.c === c);
+  let n = 0, h = `<table class="gtt"><colgroup>${op.num ? '<col style="width:64px">' : ''}${g.colW.map(w => `<col style="width:${(w / sum * 100).toFixed(3)}%">`).join('')}</colgroup><tbody>`;
+  g.rows.forEach((row, r) => {
+    const head = op.colHead && r === 0, hdr = head || g.rowSt[r]?.hdr;
+    if(!head) n++;
+    h += `<tr data-gr="${r}" class="${n % 2 === 0 && !head ? 'alt' : ''}${r === last && op.total ? ' last' : ''}" ${g.rowEq ? `style="height:${(100 / gR(g)).toFixed(3)}%"` : ''}>`;
+    if(op.num) h += `<td class="gt-numc ${head ? 'hc' : ''}">${head ? '#' : n}</td>`;
+    row.forEach((c, ci) => {
+      if(gCov(g, r, ci)) return;
+      const sp = at(r, ci), cls = ['al-' + (c.al || 'left')];
+      if(c.va) cls.push('va-' + c.va);
+      if(hdr || g.colSt[ci]?.hdr) cls.push('hc'); else if(op.rowHead && ci === 0) cls.push('rc');
+      if(g.rowSt[r]?.hl || g.colSt[ci]?.hl) cls.push('hl');
+      const ign = op.ignore && r === 0 && ci === 0; if(ign) cls.push('ign');
+      h += `<td data-r="${r}" data-c="${ci}" data-cs="${sp ? sp.cs : 1}" ${sp ? `colspan="${sp.cs}" rowspan="${sp.rs}"` : ''} class="${cls.join(' ')}" style="${gCellStyle(c)}"><div class="gt-ci">${ign ? '' : gInner(c)}</div></td>`;
+    });
+    h += '</tr>';
+  });
+  const ed = 'contenteditable="true" spellcheck="false"';
+  return `<div class="gt v-${variant || g.variant}${op.band ? ' band' : ''}${op.total ? ' total' : ''}">${op.gtitle ? `<div class="gt-cap" ${ed} data-gf="cap">${esc(g.cap)}</div>` : ''}<div class="gt-tw">${h}</tbody></table></div>${op.gsrc ? `<div class="gt-src" ${ed} data-gf="srcT">${esc(g.srcT)}</div>` : ''}</div>`;
+}
+// Auto size: the table's box follows its rows. Other sizes keep the box, and grow it if rows need more room (no clipping).
+function gFitHeight(blk, st){
+  const o = st.objs.find(x => x.id === blk.dataset.blk); if(!o || !st.pos || !st.pos[o.id]) return;
+  const gt = blk.querySelector('.gt'); if(!gt) return;
+  gt.style.height = 'auto'; const nat = Math.ceil(gt.offsetHeight); gt.style.height = '';
+  const h = !o.rs || o.rs === 2 ? nat : Math.max(st.pos[o.id].h, nat);
+  if(Math.abs(h - st.pos[o.id].h) > 1){ st.pos[o.id] = {...st.pos[o.id], h}; blk.style.height = h + 'px'; }
+}
+
+/* ---------- Operations (all inside commit) ---------- */
+const gBlank = like => ({v:'', type: like && /^(text|pct|check|num)/.test(like.type) && like.type !== 'text:label' ? like.type : 'text:body', ...(like && /^check/.test(like.type) ? {on:false} : {})});
+function gInsRow(g, at){
+  const like = g.rows[Math.max(1, Math.min(at, gR(g) - 1))] || g.rows[gR(g) - 1];
+  g.rows.splice(at, 0, like.map(gBlank)); g.rowSt.splice(at, 0, {});
+  g.spans.forEach(s => { if(s.r >= at) s.r++; else if(at < s.r + s.rs) s.rs++; });
+}
+function gInsCol(g, at){
+  g.rows.forEach(row => row.splice(at, 0, gBlank(row[Math.min(at, row.length - 1)])));
+  g.rows[0][at] = GC('New column', g.rows[0][Math.max(0, at - 1)]?.type || 'text:heading');
+  g.colW.splice(at, 0, g.colW.reduce((a, b) => a + b, 0) / g.colW.length); g.colSt.splice(at, 0, {});
+  g.spans.forEach(s => { if(s.c >= at) s.c++; else if(at < s.c + s.cs) s.cs++; });
+}
+const gTidy = g => { g.spans = g.spans.filter(s => s.rs > 0 && s.cs > 0 && s.rs * s.cs > 1); };
+function gDelRows(g, r0, r1){
+  for(let r = r1; r >= r0; r--){
+    if(gR(g) === 1){ toast('A table needs at least one row.'); break; }
+    g.spans.forEach(s => { if(s.r === r && s.rs > 1) g.rows[r + 1][s.c] = g.rows[r][s.c]; });
+    g.rows.splice(r, 1); g.rowSt.splice(r, 1);
+    g.spans.forEach(s => { if(s.r > r) s.r--; else if(r < s.r + s.rs) s.rs--; });
+  }
+  gTidy(g);
+}
+function gDelCols(g, c0, c1){
+  for(let c = c1; c >= c0; c--){
+    if(gC(g) === 1){ toast('A table needs at least one column.'); break; }
+    g.spans.forEach(s => { if(s.c === c && s.cs > 1) g.rows[s.r][c + 1] = g.rows[s.r][c]; });
+    g.rows.forEach(row => row.splice(c, 1)); g.colW.splice(c, 1); g.colSt.splice(c, 1);
+    g.spans.forEach(s => { if(s.c > c) s.c--; else if(c < s.c + s.cs) s.cs--; });
+  }
+  gTidy(g);
+}
+const gCopy = v => JSON.parse(JSON.stringify(v));
+function gDupRows(g, r0, r1){
+  const n = r1 - r0 + 1, inner = g.spans.filter(s => s.r >= r0 && s.r + s.rs - 1 <= r1).map(s => ({...s, r:s.r + n}));
+  g.spans.forEach(s => { if(s.r > r1) s.r += n; else if(s.r + s.rs - 1 > r1) s.rs += n; });
+  g.rows.splice(r1 + 1, 0, ...gCopy(g.rows.slice(r0, r1 + 1))); g.rowSt.splice(r1 + 1, 0, ...gCopy(g.rowSt.slice(r0, r1 + 1))); g.spans.push(...inner);
+}
+function gDupCols(g, c0, c1){
+  const n = c1 - c0 + 1, inner = g.spans.filter(s => s.c >= c0 && s.c + s.cs - 1 <= c1).map(s => ({...s, c:s.c + n}));
+  g.spans.forEach(s => { if(s.c > c1) s.c += n; else if(s.c + s.cs - 1 > c1) s.cs += n; });
+  g.rows.forEach(row => row.splice(c1 + 1, 0, ...gCopy(row.slice(c0, c1 + 1))));
+  g.colW.splice(c1 + 1, 0, ...g.colW.slice(c0, c1 + 1)); g.colSt.splice(c1 + 1, 0, ...gCopy(g.colSt.slice(c0, c1 + 1))); g.spans.push(...inner);
+}
+// Merge keeps the words: text from the other cells is added to the first cell (charts, logos and people keep the first cell).
+let gNote = '';
+function gMerge(g, q0){
+  const q = gExpand(g, q0), keep = g.rows[q.r0][q.c0];
+  const extra = gAnchors(g, q).filter(([r, c]) => r !== q.r0 || c !== q.c0).map(([r, c]) => g.rows[r][c]).filter(c => String(c.v || '').trim());
+  const joins = /^(text|icon:adj|icon:above|image:adj|image:above|button)/.test(keep.type);
+  if(extra.length && joins) keep.v = [keep.v, ...extra.map(gFmt)].filter(Boolean).join(' ');
+  gNote = !extra.length ? 'Cells merged.' : joins ? 'Cells merged. Text from every cell kept.' : 'Cells merged. Kept the first cell, press Cmd+Z to get the rest back.';
+  g.spans = g.spans.filter(s => !(s.r >= q.r0 && s.r <= q.r1 && s.c >= q.c0 && s.c <= q.c1));
+  for(let r = q.r0; r <= q.r1; r++) for(let c = q.c0; c <= q.c1; c++) if(r !== q.r0 || c !== q.c0) g.rows[r][c] = GC('');
+  if(q.r1 > q.r0 || q.c1 > q.c0) g.spans.push({r:q.r0, c:q.c0, rs:q.r1 - q.r0 + 1, cs:q.c1 - q.c0 + 1});
+  return q;
+}
+// Moves rows (or columns) a..b so they start at index `to` (index in the list without them). Merges inside move along.
+function gMove(g, axis, a, b, to){
+  const n = b - a + 1, len = axis === 'r' ? gR(g) : gC(g);
+  const order = [...Array(len).keys()], seg = order.splice(a, n); order.splice(to, 0, ...seg);
+  if(order.every((v, i) => v === i)) return false;
+  const where = order.map((_, i) => order.indexOf(i));   // old index -> new index
+  if(axis === 'r'){ g.rows = order.map(i => g.rows[i]); g.rowSt = order.map(i => g.rowSt[i]); }
+  else { g.rows = g.rows.map(row => order.map(i => row[i])); g.colW = order.map(i => g.colW[i]); g.colSt = order.map(i => g.colSt[i]); }
+  // Merges that cross the moved block's edge can no longer stay merged.
+  // A merge that holds the whole move (a full-width label row, say) stays as it is.
+  const ext = s => { const lo = axis === 'r' ? s.r : s.c; return [lo, lo + (axis === 'r' ? s.rs : s.cs) - 1]; };
+  const holds = s => { const [lo, hi] = ext(s); return lo <= a && hi >= b && to >= lo && to + n - 1 <= hi; };
+  const keep = g.spans.filter(holds);
+  g.spans = g.spans.filter(s => !holds(s)).filter(s => { const [lo, hi] = ext(s); return (hi < a || lo > b) ? true : (lo >= a && hi <= b); })
+    .map(s => { const k = axis === 'r' ? 'r' : 'c', span = axis === 'r' ? s.rs : s.cs, ids = [...Array(span).keys()].map(i => where[s[k] + i]); return Math.max(...ids) - Math.min(...ids) === span - 1 ? {...s, [k]: Math.min(...ids)} : null; }).filter(Boolean).concat(keep);
+  // Kept merges: their text moved with its column (or row); put it back in the merge's first cell.
+  keep.forEach(s => { const [lo] = ext(s), w = where[lo]; if(w === lo) return;
+    if(axis === 'c'){ const row = g.rows[s.r]; [row[lo], row[w]] = [row[w], row[lo]]; }
+    else { [g.rows[lo][s.c], g.rows[w][s.c]] = [g.rows[w][s.c], g.rows[lo][s.c]]; } });
+  return true;
+}
+function gSort(g, c, dir){
+  const from = g.opt.colHead ? 1 : 0;
+  if(g.spans.some(s => s.r + s.rs - 1 >= from && (s.rs > 1 || s.cs > 1))){ toast('Unmerge cells before sorting.'); return false; }
+  const body = g.rows.slice(from).map((row, i) => ({row, st: g.rowSt[from + i]}));
+  const key = x => { const v = x.row[c].v ?? '', n = gNum(v); return isNaN(n) ? String(v).toLowerCase() : n; };
+  body.sort((x, y) => { const a = key(x), b = key(y); return (typeof a === typeof b ? (a > b) - (a < b) : typeof a === 'number' ? -1 : 1) * dir; });
+  g.rows.splice(from, body.length, ...body.map(x => x.row)); g.rowSt.splice(from, body.length, ...body.map(x => x.st));
+  return true;
+}
+
+/* ---------- Selection chrome: column / row handles, borders, + ---------- */
+const gIsGrid = blk => !!(blk && blk.dataset && blk.dataset.grid && document.contains(blk));
+function gGeo(blk){
+  const o = gObj({blk}), g = o.grid, m = $('.main').getBoundingClientRect(), rel = r => ({l:r.left - m.left, t:r.top - m.top, r:r.right - m.left, b:r.bottom - m.top});
+  const tb = blk.querySelector('table.gtt'); if(!tb) return null;
+  const table = rel(tb.getBoundingClientRect());
+  const rowY = [...tb.querySelectorAll('tr[data-gr]')].map(tr => rel(tr.getBoundingClientRect()));
+  const colX = [];
+  for(let c = 0; c < gC(g); c++){ const td = tb.querySelector(`td[data-c="${c}"][data-cs="1"]`); if(td) colX[c] = rel(td.getBoundingClientRect()); }
+  for(let c = 0; c < gC(g); c++) if(!colX[c]){
+    const td = [...tb.querySelectorAll('td[data-c]')].find(t => +t.dataset.c <= c && +t.dataset.c + +t.dataset.cs > c); if(!td) continue;
+    const q = rel(td.getBoundingClientRect()), c0 = +td.dataset.c, n = +td.dataset.cs, ws = g.colW.slice(c0, c0 + n), tot = ws.reduce((a, b) => a + b, 0); let x = q.l;
+    for(let i = 0; i < n; i++){ const w = (q.r - q.l) * ws[i] / tot; if(!colX[c0 + i]) colX[c0 + i] = {l:x, r:x + w}; x += w; }
+  }
+  return {g, table, rowY, colX};
+}
+function gBox(s){
+  const G = gGeo(s.blk); if(!G) return null; const q = gRect(s, G.g);
+  const l = G.colX[q.c0].l, r = G.colX[q.c1].r, t = G.rowY[q.r0].t, b = G.rowY[q.r1].b;
+  return {x:l, y:t, w:r - l, h:b - t, mw:$('.main').getBoundingClientRect().width};
+}
+function gBars(){
+  const on = sel && gIsGrid(sel.blk), cb = $('#gtCols'), rb = $('#gtRows');
+  [cb, rb, $('#gtAddC'), $('#gtAddR')].forEach(x => x.classList.toggle('show', !!on));
+  if(!on) return;
+  const G = gGeo(sel.blk); if(!G) return;
+  const nC = gC(G.g), nR = gR(G.g), T = G.table;
+  // Handles only once a cell, column or row is picked (like Canva). Borders and + work at every level.
+  let pc = '', pr = '';
+  if(sel.gt){ const q = gRect(sel, G.g), cx = (G.colX[q.c0].l + G.colX[q.c1].r) / 2, ry = (G.rowY[q.r0].t + G.rowY[q.r1].b) / 2;
+    pc = `<button class="gt-hdl ${sel.type === 'tcol' ? 'on' : ''}" data-gpc title="Select column. Drag to move" style="left:${cx}px;top:${T.t - 14}px"><i class="ph-bold ph-dots-three"></i></button>`;
+    pr = `<button class="gt-hdl ${sel.type === 'trow' ? 'on' : ''}" data-gpr title="Select row. Drag to move" style="left:${T.l - 14}px;top:${ry}px"><i class="ph-bold ph-dots-three-vertical"></i></button>`; }
+  cb.innerHTML = G.colX.slice(0, -1).map((x, c) => { const bx = (x.r + G.colX[c + 1].l) / 2;
+    return `<div class="gt-cz" data-gcz="${c}" title="Drag to resize" style="left:${bx}px;top:${T.t}px;height:${T.b - T.t}px"></div><button class="gt-ins" data-ginsc="${c + 1}" title="Insert column" style="left:${bx}px;top:${T.t - 12}px"><i class="ph-bold ph-plus"></i></button>`; }).join('') + pc;
+  rb.innerHTML = G.rowY.slice(0, -1).map((y, r) => { const by = (y.b + G.rowY[r + 1].t) / 2;
+    return `<div class="gt-rz" style="top:${by}px;left:${T.l - 24}px;width:24px"></div><button class="gt-ins" data-ginsr="${r + 1}" title="Insert row" style="left:${T.l - 12}px;top:${by}px"><i class="ph-bold ph-plus"></i></button>`; }).join('') + pr;
+  Object.assign($('#gtAddC').style, {left: (T.r + 8) + 'px', top: ((T.t + T.b) / 2 - 10) + 'px'});
+  Object.assign($('#gtAddR').style, {left: ((T.l + T.r) / 2 - 10) + 'px', top: (T.b + 8) + 'px'});
+}
+// A td for any (row, col): the cell itself, or the merged cell that covers it.
+function gTd(blk, r, c){ const g = gObj({blk}).grid, s = gSpanAt(g, Math.min(r, gR(g) - 1), Math.min(c, gC(g) - 1)); return blk.querySelector(`td[data-r="${s.r}"][data-c="${s.c}"]`); }
+function gSel(blk, type, extra){ const info = blkInfo(blk); const s = {...extra, ...info, blk, gt:true, type}; s.el = type === 'cimg' ? gTd(blk, s.r, s.c)?.querySelector('.gt-im, img.gt-av') : type === 'cell' ? gTd(blk, s.r, s.c) : type === 'tcol' ? gTd(blk, 0, s.a) : gTd(blk, s.a, 0); return s; }
+
+/* ---------- Toolbars ---------- */
+function gFirst(s){ return gCells(s)[0] || {}; }
+// Content controls for the picked cell, by type (like the image object's Replace).
+const GT_ICONS = ['siren','git-pull-request','star','rocket-launch','lightning','chat-circle','users','shield-check','chart-line-up','handshake','bell','calendar-check'];
+const GT_PEOPLE = [['Priya','1438761681033-6461ffad8d80'],['Marcus','1507003211169-0a1dd7228f2d'],['Ana','1494790108377-be9c29b29330'],['Jo','1500648767791-00dcc994a43e'],['Sam','1472099645785-5658abf4ff4e'],['Lee','1544005313-94ddf0286df2']];
+const GT_LOGOS = ['Slack','Datadog','GitHub','Salesforce','Gong','Zendesk','Figma','Notion','Jira','HubSpot'];
+function gContentBtns(c){
+  const t = c.type || 'text:body';
+  if(/^image/.test(t)) return B('gimg', ICON('ph-image'), 'Replace', {tip:'Replace image', dd:true});
+  if(t === 'user:name') return B('gperson', ICON('ph-user-circle'), 'Replace', {tip:'Replace photo', dd:true});
+  if(/^icon/.test(t)) return B('gico', ICON('ph-' + (c.ic || 'star')), 'Icon', {tip:'Change icon', dd:true});
+  if(t === 'logo') return B('glogo', ICON('ph-buildings'), 'Logo', {tip:'Change logo', dd:true});
+  if(t === 'pct:star') return B('grate', ICON('ph-star'), 'Rating', {tip:'Star rating', dd:true});
+  if(/^pct/.test(t)){ const v = isNaN(gNum(c.v)) ? (c.n ?? 70) : gNum(c.v); return `<div class="stepper"><button data-act="gpct-" title="Decrease"><i class="ph ph-minus"></i></button><span>${Math.round(v)}%</span><button data-act="gpct+" title="Increase"><i class="ph ph-plus"></i></button></div>`; }
+  if(GT_TOG[t]) return B('gtog', `<i class="${GT_TOG[t][c.on ? 0 : 1][0]}" style="color:${GT_TOG[t][c.on ? 0 : 1][1]}"></i>`, c.on ? 'On' : 'Off', {tip:'Switch state'});
+  if(t === 'button') return B('link', ICON('ph-link'), '', {tip:'Add a link to a website or a slide'});
+  return '';
+}
+// Image inside a cell, picked on its own (like a node): its own toolbar, then the cell's options.
+function gImgBar(s){
+  const c = gFirst(s), person = c.type === 'user:name';
+  return B('gupload', ICON('ph-cloud-arrow-up'), 'Upload', {tip:'Upload an image'}) + B(person ? 'gperson' : 'gimg', ICON('ph-arrows-clockwise'), 'Replace', {dd:true}) + B('gcrop', ICON('ph-crop'), 'Crop', {tip:'Fill or fit', dd:true}) + SEP
+    + B('gtype', ICON('ph-text-t'), 'Type', {tip:'Cell type', dd:true}) + B('cellalign', ICON('ph-text-align-' + (c.al || 'left')), '', {tip:'Alignment', dd:true})
+    + B('fill', `<span class="swatch" style="background:${c.fill || 'transparent'}"></span>`, 'Fill', {tip:'Background Color'}) + SEP + TRASH('Remove image');
+}
+// Image with a label becomes the label alone; a lone image or photo becomes plain text.
+const gNoImg = c => { c.type = c.type === 'user:name' ? 'text:heading' : 'text:body'; delete c.img; delete c.src; delete c.fit; };
+function gCellBar(s){
+  const g = gObj(s).grid, q = gRect(s, g), c = g.rows[q.r0][q.c0], multi = gAnchors(g, q).length > 1;
+  const merged = g.spans.some(x => x.r >= q.r0 && x.r <= q.r1 && x.c >= q.c0 && x.c <= q.c1), content = gContentBtns(c);
+  return B('gtype', ICON('ph-text-t'), 'Type', {tip:'Cell type', dd:true}) + (content ? SEP + content + SEP : '') + B('cellalign', ICON('ph-text-align-' + (c.al || 'left')), '', {tip:'Alignment', dd:true})
+    + (multi || merged ? SEP : '') + (multi ? B('gmerge', ICON('ph-arrows-in-line-horizontal'), 'Merge cells', {tip:'Merge the selected cells'}) : '')
+    + (merged ? B('gunmerge', ICON('ph-arrows-out-line-horizontal'), 'Unmerge') : '') + SEP
+    + B('fill', `<span class="swatch" style="background:${c.fill || 'transparent'}"></span>`, 'Fill', {tip:'Background Color'});
+}
+function gLineBar(s){
+  const c = gFirst(s), td = s.el, fs = c.fs || (td ? fontPx(td) : 24);
+  return STEPPER(fs) + COLOR(c.color || (td ? colorOf(td) : '#000')) + SEP + B('bold', ICON('ph-text-b'), '', {tip:'Bold', on:!!c.b}) + B('italic', ICON('ph-text-italic'), '', {tip:'Italic', on:!!c.i}) + SEP
+    + B('gtext', ICON('ph-gear'), '', {tip:'Text properties'}) + B('gtype', ICON('ph-text-t'), 'Type', {tip:'Cell type', dd:true})
+    + B('gopts', ICON(s.type === 'tcol' ? 'ph-columns' : 'ph-rows'), s.type === 'tcol' ? 'Column options' : 'Row options', {dd:true})
+    + B('cellalign', ICON('ph-text-align-' + (c.al || 'left')), '', {tip:'Alignment', dd:true}) + B('fill', `<span class="swatch" style="background:${c.fill || 'transparent'}"></span>`, 'Fill', {tip:'Background Color'});
+}
+const MI = (fn, v, icon, name, extra = '') => `<button class="m-i" data-fn="${fn}" data-v="${v}">${icon ? `<i class="ph ${icon}"></i>` : ''}${name}${extra}</button>`;
+const CHK = on => on ? '<i class="ph ph-check chk"></i>' : '';
+function gOptsMenu(s){
+  const g = gObj(s).grid, q = gRect(s, g), col = s.type === 'tcol', i0 = col ? q.c0 : q.r0, i1 = col ? q.c1 : q.r1, many = i1 > i0;
+  const st = col ? g.colSt[i0] : g.rowSt[i0], W = col ? 'column' : 'row', Wc = col ? 'Column' : 'Row';
+  return `<div class="m-h">${Wc} options</div>`
+    + `<button class="m-i" data-fn="gop" data-v="del" style="color:rgb(var(--bad))"><i class="ph ph-trash" style="color:rgb(var(--bad))"></i>Delete ${W}${many ? 's' : ''}</button>`
+    + MI('gop', 'insB', col ? 'ph-arrow-line-left' : 'ph-arrow-line-up', `Insert ${W} before`) + MI('gop', 'insA', col ? 'ph-arrow-line-right' : 'ph-arrow-line-down', `Insert ${W} after`)
+    + MI('gop', 'dup', 'ph-copy', `Duplicate ${W}`) + MI('gop', 'hl', 'ph-highlighter', 'Highlight', CHK(st?.hl)) + MI('gop', 'hdr', 'ph-text-h', 'Add header style', CHK(st?.hdr))
+    + MI('gop', 'mergeLine', col ? 'ph-arrows-in-line-vertical' : 'ph-arrows-in-line-horizontal', `Merge ${Wc}`)
+    + `<div class="m-sep"></div>` + (col ? MI('gop', 'sortA', 'ph-sort-ascending', 'Sort A to Z') + MI('gop', 'sortZ', 'ph-sort-descending', 'Sort Z to A') : '')
+    + MI('gop', col ? 'evenC' : 'evenR', col ? 'ph-columns' : 'ph-rows', col ? 'Distribute columns evenly' : 'Distribute rows evenly', CHK(!col && g.rowEq)) + MI('gop', 'clear', 'ph-eraser', 'Clear contents', '<span class="hint">Del</span>');
+}
+function gCtxMenu(s){
+  const g = gObj(s).grid, q = gRect(s, g), multi = gAnchors(g, q).length > 1, merged = g.spans.some(x => x.r >= q.r0 && x.r <= q.r1 && x.c >= q.c0 && x.c <= q.c1);
+  return MI('gop', 'rowAbove', 'ph-arrow-line-up', 'Insert row above') + MI('gop', 'rowBelow', 'ph-arrow-line-down', 'Insert row below') + MI('gop', 'colLeft', 'ph-arrow-line-left', 'Insert column left') + MI('gop', 'colRight', 'ph-arrow-line-right', 'Insert column right')
+    + '<div class="m-sep"></div>' + `<button class="m-i" data-fn="gop" data-v="merge" ${multi ? '' : 'disabled'}><i class="ph ph-arrows-in-line-horizontal"></i>Merge cells</button><button class="m-i" data-fn="gop" data-v="unmerge" ${merged ? '' : 'disabled'}><i class="ph ph-arrows-out-line-horizontal"></i>Unmerge</button>`
+    + '<div class="m-sep"></div>' + MI('gop', 'copy', 'ph-copy', 'Copy', '<span class="hint">Cmd+C</span>') + MI('gop', 'clear', 'ph-eraser', 'Clear contents', '<span class="hint">Del</span>')
+    + `<button class="m-i" data-fn="gop" data-v="delRow" style="color:rgb(var(--bad))"><i class="ph ph-trash" style="color:rgb(var(--bad))"></i>Delete ${q.r1 > q.r0 ? 'rows' : 'row'}</button><button class="m-i" data-fn="gop" data-v="delCol" style="color:rgb(var(--bad))"><i class="ph ph-trash" style="color:rgb(var(--bad))"></i>Delete ${q.c1 > q.c0 ? 'columns' : 'column'}</button>`;
+}
+// Toolbar buttons. Returns true when handled.
+function gAct(a, b, s){
+  const o = gObj(s); if(!o || !o.grid) return false;
+  const g = o.grid;
+  if(s.type === 'table'){
+    if(a === 'change') return openMenu(b, `<div class="m-h">Change table</div>` + GT_VARS.map(([v, n, ic]) => `<button class="m-i" data-fn="gvar" data-v="${v}"><i class="ph ${ic}"></i>${n}${CHK(g.variant === v)}</button>`).join('')), true;
+    if(a === 'settings') return openMenu(b, `<div class="m-h">Advanced settings</div>` + GT_OPTS.map(([k2, n, nw]) => `<button class="m-i" data-fn="gopt" data-v="${k2}"><i class="ph ${g.opt[k2] ? 'ph-toggle-right' : 'ph-toggle-left'}" style="${g.opt[k2] ? 'color:rgb(var(--brand-fg))' : ''}"></i>${n}${nw ? '<span class="hint">New</span>' : ''}</button>`).join('')), true;
+    return false;
+  }
+  const set = fn => commit(() => gCells(s).forEach(fn));
+  switch(a){
+    case 'gtype': { const cur = gFirst(s).type || 'text:body';
+      openMenu(b, GT_TYPES.map((grp, i) => `${i ? '<div class="m-sep"></div>' : ''}<div class="m-h">${grp.g}</div>` + grp.items.map(([v, n]) => MI('gtype', v, '', n, CHK(cur === v))).join('')).join('')); return true; }
+    case 'cellalign': { const c = gFirst(s);
+      openMenu(b, `<div class="m-h">Horizontal</div>` + ['left','center','right'].map(v => MI('galign', v, 'ph-text-align-' + v, v[0].toUpperCase() + v.slice(1), CHK((c.al || 'left') === v))).join('')
+        + `<div class="m-sep"></div><div class="m-h">Vertical</div>` + [['top','ph-align-top','Top'],['middle','ph-align-center-vertical','Middle'],['bottom','ph-align-bottom','Bottom']].map(([v, ic, n]) => MI('gvalign', v, ic, n, CHK((c.va || 'middle') === v))).join('')); return true; }
+    case 'gmergedir': { const q = gRect(s, g), anchored = g.spans.some(x => x.r === q.r0 && x.c === q.c0);
+      openMenu(b, `<div class="m-h">Merge</div>` + [['left','ph-arrow-line-left','Merge Left'],['up','ph-arrow-line-up','Merge Up'],['right','ph-arrow-line-right','Merge Right'],['down','ph-arrow-line-down','Merge Down']].map(([v, ic, n]) => MI('gmd', v, ic, n)).join('') + (anchored ? '<div class="m-sep"></div>' + MI('gop', 'unmerge', 'ph-arrows-out-line-horizontal', 'Unmerge') : '')); return true; }
+    case 'gmerge': gDoOp('merge', s); return true;
+    case 'gimg': { const cur = gFirst(s).img || '1600880292203-757bb62b4baf';
+      openMenu(b, `<div class="m-h">Replace image</div>` + PHOTOS.map(([n, id]) => `<button class="m-i" data-fn="gimg" data-v="${id}"><img src="${photo(id).replace('w=1600','w=80')}" alt="" style="width:28px;height:20px;object-fit:cover;border-radius:3px">${n}${CHK(cur === id)}</button>`).join('')); return true; }
+    case 'gperson': { const cur = gFirst(s).img || '1494790108377-be9c29b29330';
+      openMenu(b, `<div class="m-h">Replace photo</div>` + GT_PEOPLE.map(([n, id]) => `<button class="m-i" data-fn="gimg" data-v="${id}"><img src="${gImg(id)}" alt="" style="width:24px;height:24px;object-fit:cover;border-radius:50%">${n}${CHK(cur === id)}</button>`).join('')); return true; }
+    case 'gico': { const cur = gFirst(s).ic || 'star';
+      openMenu(b, `<div class="m-h">Icon</div>` + GT_ICONS.map(i => MI('gico', i, 'ph-' + i, i.replace(/-/g, ' '), CHK(cur === i))).join('')); return true; }
+    case 'glogo': { const cur = gFirst(s).v;
+      openMenu(b, `<div class="m-h">Logo</div>` + GT_LOGOS.map(n => `<button class="m-i" data-fn="glogo" data-v="${n}"><span class="swatch" style="background:${gHue(n)};border-radius:4px"></span>${n}${CHK(cur === n)}</button>`).join('')); return true; }
+    case 'grate': { const c = gFirst(s), cur = Math.round(isNaN(gNum(c.v)) ? c.n ?? 4 : gNum(c.v));
+      openMenu(b, `<div class="m-h">Rating</div>` + [5,4,3,2,1,0].map(n => MI('grate', n, '', `${'★'.repeat(n)}${'☆'.repeat(5 - n)}`, CHK(cur === n))).join('')); return true; }
+    case 'gpct+': case 'gpct-': { const d = a === 'gpct+' ? 5 : -5;
+      set(c => { const v = isNaN(gNum(c.v)) ? (c.n ?? 70) : gNum(c.v), nv = Math.max(0, Math.min(100, Math.round((v + d) / 5) * 5)); if(isNaN(gNum(c.v))) c.n = nv; else c.v = String(nv); }); return true; }
+    case 'gtog': { const v = !gFirst(s).on; set(c => { c.on = v; }); return true; }
+    case 'gupload': { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+      inp.onchange = () => { const f = inp.files[0]; if(!f) return; const rd = new FileReader(); rd.onload = () => set(c => { c.src = rd.result; }); rd.readAsDataURL(f); }; inp.click(); return true; }
+    case 'gcrop': { const cur = gFirst(s).fit || 'cover';
+      openMenu(b, `<div class="m-h">Crop</div>` + [['cover','Fill','Crops to fill the space'],['contain','Fit','Shows the whole image']].map(([v, n, h]) => MI('gfit', v, v === 'cover' ? 'ph-frame-corners' : 'ph-arrows-in-simple', n, `<span class="hint">${h}</span>${CHK(cur === v)}`)).join('')); return true; }
+    case 'delete': if(s.type !== 'cimg') return false; { const r = s.r, c0 = s.c; commit(() => { gNoImg(gObj(s).grid.rows[r][c0]); sel = {...sel, type:'cell'}; }); toast('Image removed. The text stays.'); return true; }
+    case 'gunmerge': gDoOp('unmerge', s); return true;
+    case 'gopts': openMenu(b, gOptsMenu(s)); return true;
+    case 'gtext': { const c = gFirst(s);
+      openMenu(b, `<div class="m-h">Case</div>` + [['','As typed'],['uppercase','UPPERCASE'],['capitalize','Title Case'],['lowercase','lowercase']].map(([v, n]) => MI('gcase', v, '', n, CHK((c.cs || '') === v))).join('')
+        + `<div class="m-sep"></div><div class="m-h">Line spacing</div>` + [1, 1.15, 1.3, 1.5].map(v => MI('glh', v, '', v.toFixed(2), CHK((c.lh || 1.3) === v))).join('')
+        + `<div class="m-sep"></div><div class="m-h">Opacity</div>` + [1, .8, .6, .4].map(v => MI('gopac', v, '', Math.round(v * 100) + '%', CHK((c.op ?? 1) === v))).join('')); return true; }
+    case 'size+': case 'size-': { const d = a === 'size+' ? 1 : -1; set(c => { const v = c.fs || 24; c.fs = d > 0 ? (SIZES.find(x => x > v) || v) : ([...SIZES].reverse().find(x => x < v) || v); }); return true; }
+    case 'bold': { const v = !gFirst(s).b; set(c => { c.b = v; }); return true; }
+    case 'italic': { const v = !gFirst(s).i; set(c => { c.i = v; }); return true; }
+    case 'color': case 'fill': openMenu(b, `<div class="m-h">${a === 'fill' ? 'Background Color' : 'Font Color'}</div>` + COLORS().map(([n, c]) => `<button class="m-i" data-fn="g${a}" data-v="${c}"><span class="swatch" style="background:${c}"></span>${n}</button>`).join('') + `<div class="m-sep"></div><button class="m-i" data-fn="g${a}" data-v=""><i class="ph ph-arrow-counter-clockwise"></i>Reset to default</button>`); return true;
+  }
+  return false;
+}
+// Menu picks for tables. Returns true when handled.
+function gMenu(d, s){
+  if(!s || !s.blk) return false;
+  const o = gObj(s); if(!o || !o.grid) return false;
+  const set = fn => commit(() => gCells(s).forEach(fn));
+  switch(d.fn){
+    case 'gvar': commit(() => { gObj(s).grid.variant = d.v; }); return true;
+    case 'gopt': commit(() => { const g = gObj(s).grid; g.opt[d.v] = !g.opt[d.v]; }); return true;
+    case 'gtype': set(c => { c.type = d.v;
+      if(/^pct/.test(d.v) && isNaN(gNum(c.v)) && !String(c.v || '').trim()) c.v = d.v === 'pct:star' ? '4' : '70';
+      if(d.v === 'pct:star' && gNum(c.v) > 5) c.v = String(Math.round(gNum(c.v) / 20));
+      if(/^check/.test(d.v) && c.on == null) c.on = true;
+      if(d.v === 'button' && !c.v) c.v = 'Learn more'; }); return true;
+    case 'galign': set(c => { c.al = d.v; }); return true;
+    case 'gvalign': set(c => { c.va = d.v === 'middle' ? null : d.v; }); return true;
+    case 'gfill': set(c => { c.fill = d.v || null; }); return true;
+    case 'gcolor': set(c => { c.color = d.v || null; }); return true;
+    case 'gcase': set(c => { c.cs = d.v || null; }); return true;
+    case 'glh': set(c => { c.lh = +d.v; }); return true;
+    case 'gopac': set(c => { c.op = +d.v === 1 ? null : +d.v; }); return true;
+    case 'gmd': gMergeDir(s, d.v); return true;
+    case 'gimg': set(c => { c.img = d.v; delete c.src; }); return true;
+    case 'gfit': set(c => { c.fit = d.v === 'cover' ? null : d.v; }); return true;
+    case 'gico': set(c => { c.ic = d.v; }); return true;
+    case 'glogo': set(c => { c.v = d.v; }); return true;
+    case 'grate': set(c => { if(isNaN(gNum(c.v))) c.n = +d.v; else c.v = d.v; }); return true;
+    case 'gop': gDoOp(d.v, s); return true;
+    case 'resize': { const id = o.id, v = +d.v, hd = $('#wrap .pz-head'), sl = $('#wrap .pz-slide');
+      const top = hd && sl ? Math.round(rectIn(hd, sl).y + rectIn(hd, sl).h + 40) : 260;
+      commit(() => { const ob = gObj(s); ob.rs = v; if(!state.pos) return; const p = {...state.pos[id]};
+        if(v === 1){ Object.assign(p, {x:MARG.l, y:top, w:MARG.r - MARG.l, h:MARG.b - top}); }
+        if(v === 2){ Object.assign(p, {x:MARG.l, w:MARG.r - MARG.l}); }
+        if(v === 3){ Object.assign(p, {y:top, h:MARG.b - top}); }
+        state.pos = {...state.pos, [id]: p}; }); return true; }
+  }
+  return false;
+}
+function gMergeDir(s, dir){
+  const g = gObj(s).grid, a = gSpanAt(g, s.r, s.c);
+  const nb = dir === 'left' ? [a.r, a.c - 1] : dir === 'right' ? [a.r, a.c + a.cs] : dir === 'up' ? [a.r - 1, a.c] : [a.r + a.rs, a.c];
+  if(nb[0] < 0 || nb[1] < 0 || nb[0] >= gR(g) || nb[1] >= gC(g)) return toast(`There is no cell to merge ${dir}.`);
+  const b2 = gSpanAt(g, nb[0], nb[1]);
+  let q; commit(() => { q = gMerge(gObj(s).grid, {r0:Math.min(a.r, b2.r), c0:Math.min(a.c, b2.c), r1:Math.max(a.r + a.rs, b2.r + b2.rs) - 1, c1:Math.max(a.c + a.cs, b2.c + b2.cs) - 1}); Object.assign(sel, {type:'cell', r:q.r0, c:q.c0, fr:q.r0, fc:q.c0}); });
+  toast(gNote);
+}
+function gDoOp(op, s){
+  const g0 = gObj(s).grid, q = gRect(s, g0), col = s.type === 'tcol';
+  const pick = (type, extra) => { sel = {...sel, type, ...extra}; };
+  const C = fn => commit(() => fn(gObj(s).grid));
+  switch(op){
+    case 'merge': C(g => { const m = gMerge(g, q); pick('cell', {r:m.r0, c:m.c0, fr:m.r0, fc:m.c0}); }); return toast(gNote);
+    case 'unmerge': C(g => { g.spans = g.spans.filter(x => !(x.r >= q.r0 && x.r <= q.r1 && x.c >= q.c0 && x.c <= q.c1)); }); return toast('Cells unmerged.');
+    case 'clear': return C(g => gAnchors(g, q).forEach(([r, c]) => { g.rows[r][c].v = ''; }));
+    case 'copy': return gCopyRange(s);
+    case 'rowAbove': return C(g => { gInsRow(g, q.r0); pick('cell', {r:q.r0, c:q.c0, fr:q.r0, fc:q.c0}); });
+    case 'rowBelow': return C(g => { gInsRow(g, q.r1 + 1); pick('cell', {r:q.r1 + 1, c:q.c0, fr:q.r1 + 1, fc:q.c0}); });
+    case 'colLeft': return C(g => { gInsCol(g, q.c0); pick('cell', {r:q.r0, c:q.c0, fr:q.r0, fc:q.c0}); });
+    case 'colRight': return C(g => { gInsCol(g, q.c1 + 1); pick('cell', {r:q.r0, c:q.c1 + 1, fr:q.r0, fc:q.c1 + 1}); });
+    case 'delRow': return C(g => { gDelRows(g, q.r0, q.r1); pick('cell', {r:Math.min(q.r0, gR(g) - 1), c:q.c0, fr:Math.min(q.r0, gR(g) - 1), fc:q.c0}); });
+    case 'delCol': return C(g => { gDelCols(g, q.c0, q.c1); pick('cell', {r:q.r0, c:Math.min(q.c0, gC(g) - 1), fr:q.r0, fc:Math.min(q.c0, gC(g) - 1)}); });
+  }
+  // Column / row options
+  const i0 = col ? q.c0 : q.r0, i1 = col ? q.c1 : q.r1, T = s.type;
+  switch(op){
+    case 'del': return C(g => { col ? gDelCols(g, i0, i1) : gDelRows(g, i0, i1); const n = col ? gC(g) : gR(g); pick(T, {a:Math.min(i0, n - 1), f:Math.min(i0, n - 1)}); });
+    case 'insB': return C(g => { col ? gInsCol(g, i0) : gInsRow(g, i0); pick(T, {a:i0, f:i0}); });
+    case 'insA': return C(g => { col ? gInsCol(g, i1 + 1) : gInsRow(g, i1 + 1); pick(T, {a:i1 + 1, f:i1 + 1}); });
+    case 'dup': return C(g => { col ? gDupCols(g, i0, i1) : gDupRows(g, i0, i1); });
+    case 'hl': { const v = !(col ? g0.colSt : g0.rowSt)[i0]?.hl; return C(g => { for(let i = i0; i <= i1; i++) (col ? g.colSt : g.rowSt)[i].hl = v; }); }
+    case 'hdr': { const v = !(col ? g0.colSt : g0.rowSt)[i0]?.hdr; return C(g => { for(let i = i0; i <= i1; i++) (col ? g.colSt : g.rowSt)[i].hdr = v; }); }
+    case 'mergeLine': C(g => { for(let i = i0; i <= i1; i++) col ? gMerge(g, {r0: g.opt.colHead && gR(g) > 1 ? 1 : 0, r1: gR(g) - 1, c0:i, c1:i}) : gMerge(g, {r0:i, r1:i, c0:0, c1:gC(g) - 1}); }); return toast(col && g0.opt.colHead ? gNote.replace('.', '. Header row kept apart.') : gNote);
+    case 'sortA': case 'sortZ': { let ok; commit(() => { ok = gSort(gObj(s).grid, i0, op === 'sortA' ? 1 : -1); }); return; }
+    case 'evenC': return C(g => { g.colW = g.colW.map(() => 1); });
+    case 'evenR': return C(g => { g.rowEq = !g.rowEq; });
+  }
+}
+
+/* ---------- Pointer ---------- */
+// A click on a cell picks it; a click on the picked cell's text edits it. Drag across cells for a range, Shift+click extends.
+function gDown(e, s){
+  const tog = e.target.closest('[data-tog]'), star = e.target.closest('[data-star]');
+  if(tog || star){ e.preventDefault(); select(s); commit(() => { const c = gObj(s).grid.rows[s.r][s.c]; if(tog) c.on = !c.on; else if(isNaN(gNum(c.v))) c.n = +star.dataset.star; else c.v = star.dataset.star; }); return; }
+  if(e.shiftKey && sel.type === 'cell'){ e.preventDefault(); stopEditing(); select({...sel, fr:s.r, fc:s.c}); return; }
+  const same = sel.type === 'cell' && sel.r === s.r && sel.c === s.c && sel.fr === s.r && sel.fc === s.c;
+  // Picked cell: a click on its image picks the image (its own toolbar, like a node). Icon or logo opens its picker.
+  const im = e.target.closest('.gt-im, img.gt-av');
+  if(im && (same || (sel.type === 'cimg' && sel.r === s.r && sel.c === s.c))){ e.preventDefault(); stopEditing(); select(gSel(s.blk, 'cimg', {r:s.r, c:s.c, fr:s.r, fc:s.c})); return; }
+  const pic = same && e.target.closest('.gt-ico, .gt-logo');
+  if(pic){ e.preventDefault(); const btn = $('#ctx [data-act="gico"], #ctx [data-act="glogo"]'); if(btn) setTimeout(() => btn.click()); return; }   // after this mousedown, so the menu is not closed by it
+  if(!(same && e.target.closest('.gt-tx'))){ e.preventDefault(); stopEditing(); }
+  select(s);
+  const mm = ev => {
+    const td = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('td[data-r]'); if(!td || !sel || !sel.blk.contains(td)) return;
+    const r = +td.dataset.r, c = +td.dataset.c; if(r === sel.fr && c === sel.fc) return;
+    stopEditing(); sel.fr = r; sel.fc = c; drawFloater();
+  };
+  const mu = () => { removeEventListener('mousemove', mm); removeEventListener('mouseup', mu); };
+  addEventListener('mousemove', mm); addEventListener('mouseup', mu);
+}
+// Column / row handle (⋯): click opens the options menu, drag moves the column or row. Borders resize, + inserts.
+function gBarDown(e, axis){
+  e.preventDefault(); e.stopPropagation(); closeMenu(); stopEditing();
+  if(!sel || !gIsGrid(sel.blk)) return;
+  const blk = sel.blk, T = axis === 'c' ? 'tcol' : 'trow';
+  const ins = e.target.closest(axis === 'c' ? '[data-ginsc]' : '[data-ginsr]');
+  if(ins){ const at = +ins.dataset[axis === 'c' ? 'ginsc' : 'ginsr'];
+    commit(() => { const g = gObj({blk}).grid; axis === 'c' ? gInsCol(g, at) : gInsRow(g, at); sel = gSel(blk, T, {a:at, f:at}); }); return; }
+  const cz = e.target.closest('[data-gcz]'); if(cz) return gColResize(e, blk, +cz.dataset.gcz);
+  if(!e.target.closest(axis === 'c' ? '[data-gpc]' : '[data-gpr]') || !sel.gt) return;
+  const q = gRect(sel), a0 = axis === 'c' ? q.c0 : q.r0, a1 = axis === 'c' ? q.c1 : q.r1;
+  const x0 = e.clientX, y0 = e.clientY, drop = $('#gtDrop'); let moving = false, to = null;
+  const mm = ev => {
+    if(!moving && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 5) return;
+    if(!moving){ moving = true; document.body.classList.add('gt-mv'); if(sel.type !== T) select(gSel(blk, T, {a:a0, f:a1})); }
+    const G = gGeo(blk); if(!G) return;
+    const m = $('.main').getBoundingClientRect(), p = axis === 'c' ? ev.clientX - m.left : ev.clientY - m.top;
+    const slots = axis === 'c' ? G.colX.map(x => [x.l, x.r]) : G.rowY.map(y => [y.t, y.b]);
+    let k2 = slots.findIndex(([lo, hi]) => p < (lo + hi) / 2); if(k2 < 0) k2 = slots.length;
+    to = k2;
+    const edge = k2 >= slots.length ? slots[slots.length - 1][1] : slots[k2][0];
+    if(axis === 'c') Object.assign(drop.style, {left:(edge - 2) + 'px', top:G.table.t + 'px', width:'4px', height:(G.table.b - G.table.t) + 'px'});
+    else Object.assign(drop.style, {top:(edge - 2) + 'px', left:G.table.l + 'px', height:'4px', width:(G.table.r - G.table.l) + 'px'});
+    drop.classList.add('show');
+  };
+  const mu = () => {
+    removeEventListener('mousemove', mm); removeEventListener('mouseup', mu); drop.classList.remove('show'); document.body.classList.remove('gt-mv');
+    if(!moving){ select(gSel(blk, T, {a:a0, f:a1})); return; }   // click selects the column / row; its options are in the toolbar
+    if(to == null) return;
+    const n = a1 - a0 + 1, dest = to > a1 ? to - n : to > a0 ? a0 : to;
+    if(dest === a0) return;
+    commit(() => { if(gMove(gObj({blk}).grid, axis === 'c' ? 'c' : 'r', a0, a1, dest)) sel = gSel(blk, T, {a:dest, f:dest + n - 1}); });
+  };
+  addEventListener('mousemove', mm); addEventListener('mouseup', mu);
+}
+// Drag a column border: one column widens, its neighbour narrows.
+function gColResize(e, blk, c){
+  const G = gGeo(blk), g = gObj({blk}).grid, x0 = e.clientX, pair = g.colW[c] + g.colW[c + 1];
+  const px2 = (G.colX[c].r - G.colX[c].l) + (G.colX[c + 1].r - G.colX[c + 1].l), w0 = G.colX[c].r - G.colX[c].l;
+  const cols = blk.querySelectorAll('table.gtt col'), off = g.opt.num ? 1 : 0, sum = g.colW.reduce((a, b) => a + b, 0), tip = $('#rzTip');
+  let w = null; document.body.classList.add('gt-ew'); e.target.classList.add('drag');
+  const mm = ev => {
+    w = Math.max(48 * k, Math.min(px2 - 48 * k, w0 + ev.clientX - x0));
+    const a = pair * w / px2; cols[c + off].style.width = (a / sum * 100) + '%'; cols[c + 1 + off].style.width = ((pair - a) / sum * 100) + '%';
+    gBars(); placeSel();
+    const m = $('.main').getBoundingClientRect(); tip.textContent = `Width ${Math.round(w / k)}`; Object.assign(tip.style, {left:(ev.clientX - m.left) + 'px', top:(ev.clientY - m.top + 18) + 'px'}); tip.classList.add('show');
+  };
+  const mu = () => { removeEventListener('mousemove', mm); removeEventListener('mouseup', mu); document.body.classList.remove('gt-ew'); tip.classList.remove('show');
+    if(w != null) commit(() => { const g2 = gObj({blk}).grid; g2.colW[c] = pair * w / px2; g2.colW[c + 1] = pair - g2.colW[c]; }); };
+  addEventListener('mousemove', mm); addEventListener('mouseup', mu);
+}
+
+/* ---------- Typing, keys, copy / paste ---------- */
+let gSnap = null;
+function gInput(td){
+  const blk = td.closest('.pz-blk'), o = gObj({blk}); if(!o || !o.grid) return;
+  if(gSnap){ past.push(gSnap); future.length = 0; gSnap = null; }
+  const r = +td.dataset.r, c = +td.dataset.c, cell = o.grid.rows[r][c], k2 = n => td.querySelector(`[data-k="${n}"]`)?.innerText.trim() ?? '';
+  if(td.querySelector('[data-k="name"]')) cell.v = k2('role') ? `${k2('name')}, ${k2('role')}` : k2('name');
+  else if(td.querySelector('[data-k="nl1"]')) cell.v = [k2('nl1'), k2('nl2')].filter(Boolean).join(' ');
+  else { const t = td.querySelector('.gt-tx'); if(t) cell.v = t.innerText.replace(/\n$/, ''); }
+  gBars();
+}
+function gEditCell(replace){
+  const td = sel.el, t = td && td.querySelector('.gt-tx'); if(!t) return false;
+  t.focus(); if(replace != null){ t.textContent = replace; gSnap = gSnap || JSON.stringify(state); gInput(td); }
+  const rg = document.createRange(); rg.selectNodeContents(t); if(replace != null) rg.collapse(false); const g = getSelection(); g.removeAllRanges(); g.addRange(rg);
+  return true;
+}
+function gStep(dr, dc, extend){
+  const g = gObj(sel).grid, fr = sel.type === 'cell' ? sel.fr : 0, fc = sel.type === 'cell' ? sel.fc : 0, a = gSpanAt(g, fr, fc);
+  const r = Math.max(0, Math.min(gR(g) - 1, dr > 0 ? a.r + a.rs : dr < 0 ? a.r - 1 : fr)), c = Math.max(0, Math.min(gC(g) - 1, dc > 0 ? a.c + a.cs : dc < 0 ? a.c - 1 : fc));
+  if(extend) select({...sel, fr:r, fc:c});
+  else { const s2 = gSpanAt(g, r, c); select(gSel(sel.blk, 'cell', {r:s2.r, c:s2.c, fr:s2.r, fc:s2.c})); }
+}
+// Tab walks cell by cell; on the last cell it adds a row (Google Slides, Keynote, Notion).
+function gTab(back){
+  const g = gObj(sel).grid, list = gAnchors(g, {r0:0, c0:0, r1:gR(g) - 1, c1:gC(g) - 1}), i = list.findIndex(([r, c]) => r === sel.r && c === sel.c) + (back ? -1 : 1);
+  if(i >= list.length){ const blk = sel.blk, rr = gR(g); commit(() => { gInsRow(gObj({blk}).grid, rr); sel = gSel(blk, 'cell', {r:rr, c:0, fr:rr, fc:0}); }); return; }
+  const [r, c] = list[Math.max(0, i)]; select(gSel(sel.blk, 'cell', {r, c, fr:r, fc:c}));
+}
+function gKey(e){
+  if(!sel || !sel.gt || !gIsGrid(sel.blk)) return false;
+  const mod = e.metaKey || e.ctrlKey, inCell = e.target.isContentEditable && e.target.closest('td[data-r]');
+  if(inCell){
+    if(e.key === 'Escape'){ e.preventDefault(); e.target.blur(); drawFloater(); return true; }
+    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); e.target.blur(); gStep(1, 0); return true; }
+    if(e.key === 'Tab'){ e.preventDefault(); e.target.blur(); gTab(e.shiftKey); return true; }
+    return false;
+  }
+  if(e.target.isContentEditable) return false;
+  if(sel.type === 'cimg'){
+    if(e.key === 'Escape'){ e.preventDefault(); select(gSel(sel.blk, 'cell', sel)); return true; }
+    if(e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); gAct('delete', null, sel); return true; }
+    return false;
+  }
+  const arrows = {ArrowUp:[-1, 0], ArrowDown:[1, 0], ArrowLeft:[0, -1], ArrowRight:[0, 1]};
+  if(arrows[e.key] && sel.type === 'cell'){ e.preventDefault(); gStep(...arrows[e.key], e.shiftKey); return true; }
+  if(e.key === 'Tab' && sel.type === 'cell'){ e.preventDefault(); gTab(e.shiftKey); return true; }
+  if((e.key === 'Enter' || e.key === 'F2') && sel.type === 'cell'){ e.preventDefault(); gEditCell(); return true; }
+  if(e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); gDoOp('clear', sel); return true; }
+  if(mod && (e.key === 'b' || e.key === 'i')){ e.preventDefault(); gAct(e.key === 'b' ? 'bold' : 'italic', null, sel); return true; }
+  if(sel.type === 'cell' && e.key.length === 1 && !mod && !e.altKey){ e.preventDefault(); gEditCell(e.key); return true; }
+  return false;
+}
+function gTSV(s){ const g = gObj(s).grid, q = gRect(s, g); const out = []; for(let r = q.r0; r <= q.r1; r++){ const line = []; for(let c = q.c0; c <= q.c1; c++) line.push(gCov(g, r, c) ? '' : String(gFmt(g.rows[r][c])).replace(/[\t\n]/g, ' ')); out.push(line.join('\t')); } return out.join('\n'); }
+function gCopyRange(s){ const t = gTSV(s); navigator.clipboard?.writeText(t).then(() => toast('Copied. Paste into Sheets, Excel or another table.'), () => {}); }
+document.addEventListener('copy', e => { if(!sel || !sel.gt || e.target.isContentEditable && getSelection().toString()) return; e.clipboardData.setData('text/plain', gTSV(sel)); e.preventDefault(); toast('Copied.'); });
+// Paste from Sheets, Excel or Numbers: values fill cells from the picked cell, adding rows and columns as needed.
+document.addEventListener('paste', e => {
+  if(!sel || !sel.gt || sel.type !== 'cell' || (e.target.isContentEditable && document.activeElement === e.target)) return;
+  const txt = e.clipboardData.getData('text/plain'); if(!txt) return; e.preventDefault();
+  const grid = txt.replace(/\r/g, '').replace(/\n$/, '').split('\n').map(l => l.split('\t')), blk = sel.blk, q = gRect(sel);
+  commit(() => { const g = gObj({blk}).grid;
+    while(gR(g) < q.r0 + grid.length) gInsRow(g, gR(g));
+    while(gC(g) < q.c0 + Math.max(...grid.map(l => l.length))) gInsCol(g, gC(g));
+    grid.forEach((line, i) => line.forEach((v, j) => { const r = q.r0 + i, c = q.c0 + j; if(!gCov(g, r, c)) g.rows[r][c].v = v; }));
+    sel = gSel(blk, 'cell', {r:q.r0, c:q.c0, fr:q.r0 + grid.length - 1, fc:q.c0 + Math.max(...grid.map(l => l.length)) - 1}); });
+  toast(`Pasted ${grid.length} × ${Math.max(...grid.map(l => l.length))} cells.`);
+});
+
 /* ---------- Menus ---------- */
 const menu = $('#menu'); let menuFor = null;
 function openMenu(anchor, html, up){
@@ -1404,11 +2143,12 @@ let pv = null, pvT;
 function applyChoice(st, d, s){
   if(d.fn === 'type'){ const o = st.objs.find(x => x.id === s.o.id); Object.assign(o, {t: d.v, n: null, order: null, menu: null}); }
   else if(d.fn === 'tablemenu') st.objs.find(x => x.id === s.o.id).menu = d.v;
+  else if(d.fn === 'gvar') st.objs.find(x => x.id === s.o.id).grid.variant = d.v;
   else if(d.steps) st.steps = d.steps === 'auto' ? null : d.steps;
   else if(d.ff){ st.ff = d.ff; st.trk = null; st.lay = null; }
 }
 menu.addEventListener('mouseover', e => {
-  const b = e.target.closest('button[data-fn="type"], button[data-fn="tablemenu"], button[data-steps], button[data-ff]'); if(!b || b.disabled) return;
+  const b = e.target.closest('button[data-fn="type"], button[data-fn="tablemenu"], button[data-fn="gvar"], button[data-steps], button[data-ff]'); if(!b || b.disabled) return;
   clearTimeout(pvT); pvT = setTimeout(() => {
     if(!menu.classList.contains('open')) return;
     if(!pv) pv = {base: JSON.stringify(state), sel};
@@ -1431,7 +2171,7 @@ function tryAdd(anchor, up, only){
 }
 function addObj(t){
   if(!isFree(state) && state.objs.length >= MAX){ toast('Structured holds up to 4 objects. Switch to Freeform to add more.'); return; }
-  commit(() => { const id = 'o'+(uid++); state.objs.push({id, t, n:null}); if(isAbs(state)){ state.pos = state.pos || {}; state.pos[id] = defaultPos(state, state.objs.length - 1); } });
+  commit(() => { const id = 'o'+(uid++); state.objs.push({id, t, n:null, ...(t === 'table' ? {grid: gridNew()} : {})}); if(isAbs(state)){ state.pos = state.pos || {}; state.pos[id] = defaultPos(state, state.objs.length - 1); } });
 }
 function insert(what){
   if(what === 'title') return commit(() => { state.title.on = true; if(!state.title.text) state.title.text = 'Add a title'; });
@@ -1467,6 +2207,7 @@ menu.addEventListener('click', e => {
   }
   if(d.ff){ commit(() => { state.ff = d.ff; state.trk = null; state.lay = null; }); return; }
   if(d.rz){ resizeOn = !resizeOn; placeSel(); toast(resizeOn ? 'Resize on. Select an object and drag its edge handles.' : 'Resize off.'); return; }
+  if(gMenu(d, s)) return;
   if(d.sz){
     if(d.sz === 'auto'){ if(hasSizes(state)) commit(() => { state.trk = null; state.title.w = null; state.title.hw = null; state.title.hh = null; state.title.gs = null; state.title.off = null; state.objs.forEach(o => delete o.sz); }); return; }
     toast('Select an element, then drag the handles on its edges to resize it.'); return;
@@ -1639,6 +2380,7 @@ function armReorder(e, blk, onClick){
   addEventListener('mousemove', mm); addEventListener('mouseup', mu);
 }
 $('#wrap').addEventListener('mousedown', e => {
+  if(e.button === 2 && classify(e.target)?.gt) return;   // right-click on a cell: the context menu picks it
   const s = classify(e.target);
   // Text already in edit mode: a drag selects text (no move). The first click + drag on text still moves the element.
   const ae = document.activeElement, editingThis = !!(s && s.el && ae && ae.isContentEditable && (ae === s.el || ae.contains(s.el) || s.el.contains(ae)));
@@ -1666,6 +2408,7 @@ $('#wrap').addEventListener('mousedown', e => {
     const whole = s.kind === 'image' ? 'image' : s.kind === 'chart' ? 'chart' : s.kind === 'table' ? 'table' : 'diagram';
     if(s.type !== whole){ e.preventDefault(); select({...s, type: whole, el: s.blk}); return; }
   }
+  if(s.gt && sel && sel.blk === s.blk && sel.el !== sel.blk){ gDown(e, s); return; }
   select(s);
   // Title block text: a click edits it; click and drag moves the whole group.
   if((s.type === 'title' || s.part) && !editingThis){ const hd = s.el.closest('.pz-head'); if(hd) armHead(e, hd); }
@@ -1737,10 +2480,30 @@ function armHead(e, hd){
 [['#addR','e'],['#addB','s']].forEach(([q, zone]) => $(q).addEventListener('click', e => { if(!hb) return; addTarget = {tid: hb.dataset.blk, zone}; openMenu(e.currentTarget, `<div class="m-h">Add ${zone === 'e' ? 'to the right' : 'below'}</div>` + addMenuHTML().replace(/data-add=/g, 'data-addat=')); }));
 let addTarget = null;
 $('#wrap').addEventListener('input', e => {
+  const gtd = e.target.closest('.pz-blk[data-grid] td[data-r]');
+  if(gtd){ gInput(gtd); placeSel(); return; }
+  const gf = e.target.closest('[data-gf]');
+  if(gf){ const o = gObj({blk: gf.closest('.pz-blk')}); if(o){ if(gSnap){ past.push(gSnap); future.length = 0; gSnap = null; } o.grid[gf.dataset.gf] = gf.innerText.trim(); } placeSel(); return; }
   const p = e.target.closest('[data-part], [data-sel="title"]');
   if(p) state.title[p.dataset.part || 'text'] = p.innerText.trim();
   placeSel();
 });
+// Table text: one undo step per edit; leaving the cell redraws it (number and date formats).
+$('#wrap').addEventListener('focusin', e => { if(e.target.closest('.pz-blk[data-grid]')) gSnap = JSON.stringify(state); });
+$('#wrap').addEventListener('focusout', e => { if(e.target.closest('.pz-blk[data-grid]') && !gSnap) render(); gSnap = null; });
+// Right-click a cell: row, column and merge actions (Google Slides, PowerPoint, Keynote).
+$('#wrap').addEventListener('contextmenu', e => {
+  const s = classify(e.target); if(!s || !s.gt) return;
+  e.preventDefault(); stopEditing(); closeMenu();
+  const inRange = sel && sel.gt && sel.type === 'cell' && sel.blk === s.blk && (() => { const q = gRect(sel); return s.r >= q.r0 && s.r <= q.r1 && s.c >= q.c0 && s.c <= q.c1; })();
+  if(!inRange) select(s);
+  const an = $('#gtAnchor'); Object.assign(an.style, {left: e.clientX + 'px', top: e.clientY + 'px'}); openMenu(an, gCtxMenu(sel));
+});
+$('#gtCols').addEventListener('mousedown', e => gBarDown(e, 'c'));
+$('#gtRows').addEventListener('mousedown', e => gBarDown(e, 'r'));
+[['#gtAddC','c'],['#gtAddR','r']].forEach(([q, ax]) => { $(q).addEventListener('mousedown', e => e.preventDefault()); $(q).addEventListener('click', () => {
+  if(!sel || !gIsGrid(sel.blk)) return; const blk = sel.blk;
+  commit(() => { const g = gObj({blk}).grid, at = ax === 'c' ? gC(g) : gR(g); ax === 'c' ? gInsCol(g, at) : gInsRow(g, at); sel = gSel(blk, ax === 'c' ? 'tcol' : 'trow', {a:at, f:at}); }); }); });
 function goSlide(i){ slides[cur] = state; cur = i; state = slides[cur]; clearSel(); past.length = 0; future.length = 0; render(); }
 function slideOp(op){
   slides[cur] = state;
@@ -1794,6 +2557,7 @@ $('#tbFree').onclick = e => openMenu(e.currentTarget, `<div class="m-h">Slide mo
 $('#gap').addEventListener('change', e => commit(() => { state.gap = +e.target.value; }));
 let nudgeT, nudgeBase = null;
 document.addEventListener('keydown', e => {
+  if(gKey(e)) return;
   const editing = e.target.isContentEditable;
   if(e.key === 'Escape'){
     closeMenu(); if(editing) e.target.blur();
@@ -1825,6 +2589,7 @@ await document.fonts.ready;
 await render();
 buildThumbs();
 window.__ready = true;
+window.__st = () => state; window.__sel = () => sel;   // read-only hooks for headless checks
 </script>
 <script type="module">
   import React from 'react';
