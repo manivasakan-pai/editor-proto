@@ -467,7 +467,8 @@ table.gtt{width:100%;table-layout:fixed;align-self:stretch;border-collapse:separ
 .gt.total .gtt tr.last td{font-weight:700;border-top:2px solid rgb(var(--th-section-color1))}
 .gtt td.hl{background:rgba(var(--th-section-color3),.18)!important}
 .gtt td.ign{background:transparent!important;border-color:transparent!important}
-.gt-bar{position:absolute;left:0;top:0;width:0;height:0;z-index:24;display:none;pointer-events:none}
+/* ⋯ / ⋮ handles always on the top layer: above selection boxes, outlines and resize handles */
+.gt-bar{position:absolute;left:0;top:0;width:0;height:0;z-index:33;display:none;pointer-events:none}
 .gt-bar.show{display:block}
 .gt-bar > *{pointer-events:auto}
 /* Canva-style handles: a ⋯ pill on the picked cell's column (top edge) and row (left edge). Click selects the column or row, drag moves it. */
@@ -478,7 +479,7 @@ table.gtt{width:100%;table-layout:fixed;align-self:stretch;border-collapse:separ
 #gtCols .gt-hdl{width:22px;height:14px;border-radius:5px}
 #gtRows .gt-hdl{width:14px;height:22px;border-radius:5px}
 /* Picked diagram point: the same handle, drag to reorder */
-#ndHdl{display:none;z-index:28;border-radius:5px}
+#ndHdl{display:none;z-index:33;border-radius:5px}
 #ndHdl.show{display:flex}
 #ndHdl.h{width:22px;height:14px}
 #ndHdl.v{width:14px;height:22px}
