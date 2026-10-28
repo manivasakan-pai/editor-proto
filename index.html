@@ -30,6 +30,9 @@
   --sh-btn:0 1px 0 rgb(255 255 255 / .15) inset,0 1px 2px rgb(16 12 60 / .2);
   --ease:cubic-bezier(.2,0,0,1);
   --ov:20 20 31;   /* ink for guides, outlines and handle borders drawn over the slide */
+  /* Guides: snap guide = --pai-guide, a new token (Keynote / Apple system yellow: light #FFCC00, dark #FFD60A).
+     Grid and outlines = design-system --pai-border-strong (pai.tailwind.config.js). */
+  --pai-guide:255 204 0;--pai-border-strong:20 20 31;--pai-border-strong-a:.2;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
@@ -43,6 +46,7 @@
 }
 :root[data-theme="dark"]{
   --ov:255 255 255;
+  --pai-guide:255 214 10;--pai-border-strong:70 70 92;--pai-border-strong-a:1;
   --brand-50:30 27 75;--brand-100:45 40 110;--brand-600:99 88 255;--brand-700:82 70 240;--brand-fg:150 165 255;
   --canvas:25 25 29;--surface:41 41 47;--sunken:52 52 60;--line:66 66 77;
   --ink:242 242 247;--ink-2:200 200 212;--ink-3:162 162 178;--ink-off:112 112 128;
@@ -186,14 +190,12 @@ button{font:inherit;color:inherit;cursor:pointer}
 .selbox,.hovbox,.parbox{position:absolute;pointer-events:none;z-index:25;display:none;border-radius:3px}
 /* Focus is blue; everything around it is quiet light grey (Gamma-style). Text gets no box, only the caret. */
 .selbox{border:1.5px solid rgb(var(--brand-600));box-sizing:border-box}
-.parbox{border:1px dashed rgb(var(--ov) / .22);box-sizing:border-box}
-.hovbox{border:1px solid rgb(var(--ov) / .18);box-sizing:border-box}
+.parbox{border:1px dashed rgb(var(--pai-border-strong) / var(--pai-border-strong-a));box-sizing:border-box}
+.hovbox{border:1px solid rgb(var(--pai-border-strong) / var(--pai-border-strong-a));box-sizing:border-box}
 /* Dark slides: the theme's near-black is lifted to a charcoal that is easier on the eye */
 .pz-slide.th-dark{--th-slide-primary:38,42,40;--th-slide-alternate-primary:50,55,52;background-color:rgb(38,42,40)}
 :root[data-theme="dark"] .thumb{background:rgb(var(--sunken))}
 /* Dark: outlines and handle borders a step stronger so they read on dark slides */
-:root[data-theme="dark"] .parbox{border-color:rgb(255 255 255 / .4)}
-:root[data-theme="dark"] .hovbox{border-color:rgb(255 255 255 / .34)}
 :root[data-theme="dark"] .grab,:root[data-theme="dark"] .gt-hdl{border-color:rgb(255 255 255 / .26)}
 :root[data-theme="dark"] .grab:hover,:root[data-theme="dark"] .gt-hdl:hover{border-color:rgb(255 255 255 / .55)}
 .selbox.show,.hovbox.show,.parbox.show{display:block}
@@ -290,10 +292,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .grab.show,.addb.show{display:flex}
 .gridov{position:absolute;z-index:22;display:none;pointer-events:none}
 .gridov.show{display:block}
-#guides .gl{position:absolute;z-index:26;background:rgb(255 196 0);pointer-events:none}
+#guides .gl{position:absolute;z-index:26;background:rgb(var(--pai-guide));pointer-events:none}
 #guides .gl.v{width:1px}
 #guides .gl.h{height:1px}
-#guides .gl.soft{background:rgb(255 196 0 / .45)}
+#guides .gl.soft{background:rgb(var(--pai-guide) / .45)}
 body.mv,body.mv *{cursor:move!important;user-select:none!important}
 .pz-blk{position:relative;min-width:0;min-height:0}
 .pz-objs{display:flex;flex-direction:column;gap:var(--gap);min-width:0;min-height:0}
@@ -469,10 +471,10 @@ table.gtt{width:100%;table-layout:fixed;align-self:stretch;border-collapse:separ
 .gt-bar.show{display:block}
 .gt-bar > *{pointer-events:auto}
 /* Canva-style handles: a ⋯ pill on the picked cell's column (top edge) and row (left edge). Click selects the column or row, drag moves it. */
-.gt-hdl{position:absolute;display:flex;align-items:center;justify-content:center;padding:0;transform:translate(-50%,-50%);border-radius:6px;cursor:grab;border:1.5px solid rgb(var(--ov) / .14);background:rgb(var(--surface));box-shadow:none;color:rgb(var(--ink-3));transition:border-color .12s,color .12s}
+.gt-hdl{position:absolute;display:flex;align-items:center;justify-content:center;padding:0;transform:translate(-50%,-50%);border-radius:6px;cursor:grab;border:1.5px solid rgb(var(--ov) / .14);background:rgb(var(--surface));box-shadow:0 1px 3px rgb(16 12 60 / .16);color:rgb(var(--ink-3));transition:border-color .12s,color .12s,background .12s}
 .gt-hdl i{font-size:13px}
-.gt-hdl:hover{border-color:rgb(var(--ov) / .38);color:rgb(var(--ink))}
-.gt-hdl.on,.gt-hdl:active,body.gt-mv .gt-hdl{border-color:rgb(var(--ov) / .5);color:rgb(var(--ink))}
+.gt-hdl:hover{border-color:rgb(var(--ov) / .38);background:rgb(var(--sunken));color:rgb(var(--ink))}
+.gt-hdl.on,.gt-hdl:active,body.gt-mv .gt-hdl{border-color:rgb(var(--ov) / .5);background:rgb(var(--sunken));color:rgb(var(--ink))}
 #gtCols .gt-hdl{width:22px;height:14px;border-radius:5px}
 #gtRows .gt-hdl{width:14px;height:22px;border-radius:5px}
 /* Picked diagram point: the same handle, drag to reorder */
@@ -1550,9 +1552,9 @@ function nodeHandle(){
   if(!sel || sel.type !== 'node' || sel.fw || !sel.el || !document.contains(sel.el)) return;
   const {ns, across} = nodesOf(sel.blk); if(ns.length < 2) return;
   const b = boxOf(sel.el);
-  h.className = 'gt-hdl show ' + (across ? 'h' : 'v');
-  h.innerHTML = `<i class="ph-bold ${across ? 'ph-dots-three' : 'ph-dots-three-vertical'}"></i>`;
-  Object.assign(h.style, across ? {left: (b.x + b.w / 2) + 'px', top: (b.y - 10) + 'px'} : {left: (b.x - 10) + 'px', top: (b.y + b.h / 2) + 'px'});
+  h.className = 'gt-hdl show h';
+  h.innerHTML = '<i class="ph-bold ph-dots-three"></i>';
+  Object.assign(h.style, {left: (b.x + b.w / 2) + 'px', top: b.y + 'px'});   // centred on the point's top edge
 }
 // Drag a picked point (by its handle or the point itself) to a new place among its siblings. A bar shows where it lands.
 function armNode(e, onClick){
@@ -1871,24 +1873,57 @@ function gBox(s){
   const l = G.colX[q.c0].l, r = G.colX[q.c1].r, t = G.rowY[q.r0].t, b = G.rowY[q.r1].b;
   return {x:l, y:t, w:r - l, h:b - t, mw:$('.main').getBoundingClientRect().width};
 }
+// Handles show for the picked cell's column / row, and for whichever column / row the cursor is over
+// (even before the table is picked, like Notion). Borders, + and add buttons only while the table is picked.
+let gHov = null, gHovT, gBarBlk = null;
 function gBars(){
-  const on = sel && gIsGrid(sel.blk), cb = $('#gtCols'), rb = $('#gtRows');
-  [cb, rb, $('#gtAddC'), $('#gtAddR')].forEach(x => x.classList.toggle('show', !!on));
-  if(!on) return;
-  const G = gGeo(sel.blk); if(!G) return;
+  const cb = $('#gtCols'), rb = $('#gtRows');
+  const selBlk = sel && gIsGrid(sel.blk) ? sel.blk : null;
+  const hovBlk = gHov && gIsGrid(gHov.blk) && !document.body.classList.contains('mv') ? gHov.blk : null;
+  const blk = selBlk || hovBlk;
+  gBarBlk = blk;
+  [cb, rb].forEach(x => x.classList.toggle('show', !!blk));
+  [$('#gtAddC'), $('#gtAddR')].forEach(x => x.classList.toggle('show', !!selBlk));
+  if(!blk) return;
+  const G = gGeo(blk); if(!G) return;
   const nC = gC(G.g), nR = gR(G.g), T = G.table;
-  // Handles only once a cell, column or row is picked (like Canva). Borders and + work at every level.
+  const hdl = (axis, a, f, on) => axis === 'c'
+    ? `<button class="gt-hdl ${on ? 'on' : ''}" data-gpc data-a="${a}" data-f="${f}" title="Select column. Drag to move" style="left:${(G.colX[a].l + G.colX[f].r) / 2}px;top:${T.t}px"><i class="ph-bold ph-dots-three"></i></button>`
+    : `<button class="gt-hdl ${on ? 'on' : ''}" data-gpr data-a="${a}" data-f="${f}" title="Select row. Drag to move" style="left:${T.l}px;top:${(G.rowY[a].t + G.rowY[f].b) / 2}px"><i class="ph-bold ph-dots-three-vertical"></i></button>`;
   let pc = '', pr = '';
-  if(sel.gt){ const q = gRect(sel, G.g), cx = (G.colX[q.c0].l + G.colX[q.c1].r) / 2, ry = (G.rowY[q.r0].t + G.rowY[q.r1].b) / 2;
-    pc = `<button class="gt-hdl ${sel.type === 'tcol' ? 'on' : ''}" data-gpc title="Select column. Drag to move" style="left:${cx}px;top:${T.t - 10}px"><i class="ph-bold ph-dots-three"></i></button>`;
-    pr = `<button class="gt-hdl ${sel.type === 'trow' ? 'on' : ''}" data-gpr title="Select row. Drag to move" style="left:${T.l - 10}px;top:${ry}px"><i class="ph-bold ph-dots-three-vertical"></i></button>`; }
-  cb.innerHTML = G.colX.slice(0, -1).map((x, c) => { const bx = (x.r + G.colX[c + 1].l) / 2;
-    return `<div class="gt-cz" data-gcz="${c}" title="Drag to resize" style="left:${bx}px;top:${T.t}px;height:${T.b - T.t}px"></div><button class="gt-ins" data-ginsc="${c + 1}" title="Insert column" style="left:${bx}px;top:${T.t - 12}px"><i class="ph-bold ph-plus"></i></button>`; }).join('') + pc;
-  rb.innerHTML = G.rowY.slice(0, -1).map((y, r) => { const by = (y.b + G.rowY[r + 1].t) / 2;
-    return `<div class="gt-rz" style="top:${by}px;left:${T.l - 24}px;width:24px"></div><button class="gt-ins" data-ginsr="${r + 1}" title="Insert row" style="left:${T.l - 12}px;top:${by}px"><i class="ph-bold ph-plus"></i></button>`; }).join('') + pr;
-  Object.assign($('#gtAddC').style, {left: (T.r + 8) + 'px', top: ((T.t + T.b) / 2 - 10) + 'px'});
-  Object.assign($('#gtAddR').style, {left: ((T.l + T.r) / 2 - 10) + 'px', top: (T.b + 8) + 'px'});
+  const sq = selBlk === blk && sel.gt ? gRect(sel, G.g) : null;
+  // A picked column has no row handle of its own (and a picked row no column handle).
+  const sc = sq && sel.type !== 'trow', sr = sq && sel.type !== 'tcol';
+  if(sc) pc += hdl('c', sq.c0, sq.c1, sel.type === 'tcol');
+  if(sr) pr += hdl('r', sq.r0, sq.r1, sel.type === 'trow');
+  if(hovBlk === blk && gHov.c < nC && gHov.r < nR){ const {r, c} = gHov;
+    if(!sc || c < sq.c0 || c > sq.c1) pc += hdl('c', c, c, false);
+    if(!sr || r < sq.r0 || r > sq.r1) pr += hdl('r', r, r, false); }
+  cb.innerHTML = (selBlk ? G.colX.slice(0, -1).map((x, c) => { const bx = (x.r + G.colX[c + 1].l) / 2;
+    return `<div class="gt-cz" data-gcz="${c}" title="Drag to resize" style="left:${bx}px;top:${T.t}px;height:${T.b - T.t}px"></div><button class="gt-ins" data-ginsc="${c + 1}" title="Insert column" style="left:${bx}px;top:${T.t - 12}px"><i class="ph-bold ph-plus"></i></button>`; }).join('') : '') + pc;
+  rb.innerHTML = (selBlk ? G.rowY.slice(0, -1).map((y, r) => { const by = (y.b + G.rowY[r + 1].t) / 2;
+    return `<div class="gt-rz" style="top:${by}px;left:${T.l - 24}px;width:24px"></div><button class="gt-ins" data-ginsr="${r + 1}" title="Insert row" style="left:${T.l - 12}px;top:${by}px"><i class="ph-bold ph-plus"></i></button>`; }).join('') : '') + pr;
+  if(selBlk){
+    Object.assign($('#gtAddC').style, {left: (T.r + 8) + 'px', top: ((T.t + T.b) / 2 - 10) + 'px'});
+    Object.assign($('#gtAddR').style, {left: ((T.l + T.r) / 2 - 10) + 'px', top: (T.b + 8) + 'px'});
+  }
 }
+// Which column / row the cursor is over (by position, so merged cells still give one column and one row).
+$('#wrap').addEventListener('mousemove', e => {
+  if(document.body.classList.contains('mv') || document.body.classList.contains('gt-mv')) return;
+  const blk = e.target.closest && e.target.closest('.pz-blk[data-grid]');
+  if(!blk) return gHovOut();
+  const G = gGeo(blk); if(!G) return;
+  const m = $('.main').getBoundingClientRect(), x = e.clientX - m.left, y = e.clientY - m.top;
+  const c = G.colX.findIndex(q => x >= q.l - 5 && x <= q.r + 5), r = G.rowY.findIndex(q => y >= q.t - 5 && y <= q.b + 5);
+  if(c < 0 || r < 0) return gHovOut();
+  clearTimeout(gHovT);
+  if(!gHov || gHov.blk !== blk || gHov.r !== r || gHov.c !== c){ gHov = {blk, r, c}; gBars(); }
+});
+// Leaving the table: the handles wait a moment so the cursor can reach them.
+function gHovOut(){ if(!gHov) return; clearTimeout(gHovT); gHovT = setTimeout(() => { gHov = null; gBars(); }, 500); }
+$('#wrap').addEventListener('mouseleave', gHovOut);
+['#gtCols', '#gtRows'].forEach(q => { $(q).addEventListener('mouseover', () => clearTimeout(gHovT)); $(q).addEventListener('mouseout', gHovOut); });
 // A td for any (row, col): the cell itself, or the merged cell that covers it.
 function gTd(blk, r, c){ const g = gObj({blk}).grid, s = gSpanAt(g, Math.min(r, gR(g) - 1), Math.min(c, gC(g) - 1)); return blk.querySelector(`td[data-r="${s.r}"][data-c="${s.c}"]`); }
 function gSel(blk, type, extra){ const info = blkInfo(blk); const s = {...extra, ...info, blk, gt:true, type}; s.el = type === 'cimg' ? gTd(blk, s.r, s.c)?.querySelector('.gt-im, img.gt-av') : type === 'cell' ? gTd(blk, s.r, s.c) : type === 'tcol' ? gTd(blk, 0, s.a) : gTd(blk, s.a, 0); return s; }
@@ -2084,17 +2119,18 @@ function gDoOp(op, s){
 
 /* ---------- Pointer ---------- */
 // A click on a cell picks it; a click on the picked cell's text edits it. Drag across cells for a range, Shift+click extends.
+// One click goes straight to what was clicked: a cell, its text (caret in), its image (image toolbar), a checkbox
+// or star (changes it). The table itself is picked with its drag handle. Drag across cells for a range, Shift+click extends.
 function gDown(e, s){
   const tog = e.target.closest('[data-tog]'), star = e.target.closest('[data-star]');
   if(tog || star){ e.preventDefault(); select(s); commit(() => { const c = gObj(s).grid.rows[s.r][s.c]; if(tog) c.on = !c.on; else if(isNaN(gNum(c.v))) c.n = +star.dataset.star; else c.v = star.dataset.star; }); return; }
-  if(e.shiftKey && sel.type === 'cell'){ e.preventDefault(); stopEditing(); select({...sel, fr:s.r, fc:s.c}); return; }
-  const same = sel.type === 'cell' && sel.r === s.r && sel.c === s.c && sel.fr === s.r && sel.fc === s.c;
-  // Picked cell: a click on its image picks the image (its own toolbar, like a node). Icon or logo opens its picker.
-  const im = e.target.closest('.gt-im, img.gt-av');
-  if(im && (same || (sel.type === 'cimg' && sel.r === s.r && sel.c === s.c))){ e.preventDefault(); stopEditing(); select(gSel(s.blk, 'cimg', {r:s.r, c:s.c, fr:s.r, fc:s.c})); return; }
-  const pic = same && e.target.closest('.gt-ico, .gt-logo');
-  if(pic){ e.preventDefault(); const btn = $('#ctx [data-act="gico"], #ctx [data-act="glogo"]'); if(btn) setTimeout(() => btn.click()); return; }   // after this mousedown, so the menu is not closed by it
-  if(!(same && e.target.closest('.gt-tx'))){ e.preventDefault(); stopEditing(); }
+  const inTable = sel && sel.gt && sel.blk === s.blk;
+  if(e.shiftKey && inTable && sel.type === 'cell'){ e.preventDefault(); stopEditing(); select({...sel, fr:s.r, fc:s.c}); return; }
+  const same = inTable && sel.type === 'cell' && sel.r === s.r && sel.c === s.c && sel.fr === s.r && sel.fc === s.c;
+  if(e.target.closest('.gt-im, img.gt-av')){ e.preventDefault(); stopEditing(); select(gSel(s.blk, 'cimg', {r:s.r, c:s.c, fr:s.r, fc:s.c})); return; }
+  // Icon or logo of the picked cell: open its picker (the first click picks the cell and shows the picker button).
+  if(same && e.target.closest('.gt-ico, .gt-logo')){ e.preventDefault(); const btn = $('#ctx [data-act="gico"], #ctx [data-act="glogo"]'); if(btn) setTimeout(() => btn.click()); return; }   // after this mousedown, so the menu is not closed by it
+  if(!e.target.closest('.gt-tx')){ e.preventDefault(); stopEditing(); }   // text: the caret goes straight in
   select(s);
   const mm = ev => {
     const td = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('td[data-r]'); if(!td || !sel || !sel.blk.contains(td)) return;
@@ -2107,18 +2143,18 @@ function gDown(e, s){
 // Column / row handle (⋯): click opens the options menu, drag moves the column or row. Borders resize, + inserts.
 function gBarDown(e, axis){
   e.preventDefault(); e.stopPropagation(); closeMenu(); stopEditing();
-  if(!sel || !gIsGrid(sel.blk)) return;
-  const blk = sel.blk, T = axis === 'c' ? 'tcol' : 'trow';
+  if(!gBarBlk || !gIsGrid(gBarBlk)) return;
+  const blk = gBarBlk, T = axis === 'c' ? 'tcol' : 'trow';
   const ins = e.target.closest(axis === 'c' ? '[data-ginsc]' : '[data-ginsr]');
   if(ins){ const at = +ins.dataset[axis === 'c' ? 'ginsc' : 'ginsr'];
     commit(() => { const g = gObj({blk}).grid; axis === 'c' ? gInsCol(g, at) : gInsRow(g, at); sel = gSel(blk, T, {a:at, f:at}); }); return; }
   const cz = e.target.closest('[data-gcz]'); if(cz) return gColResize(e, blk, +cz.dataset.gcz);
-  if(!e.target.closest(axis === 'c' ? '[data-gpc]' : '[data-gpr]') || !sel.gt) return;
-  const q = gRect(sel), a0 = axis === 'c' ? q.c0 : q.r0, a1 = axis === 'c' ? q.c1 : q.r1;
+  const pill = e.target.closest(axis === 'c' ? '[data-gpc]' : '[data-gpr]'); if(!pill) return;
+  const a0 = +pill.dataset.a, a1 = +pill.dataset.f;   // the column / row range this handle stands for
   const x0 = e.clientX, y0 = e.clientY, drop = $('#gtDrop'); let moving = false, to = null;
   const mm = ev => {
     if(!moving && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 5) return;
-    if(!moving){ moving = true; document.body.classList.add('gt-mv'); if(sel.type !== T) select(gSel(blk, T, {a:a0, f:a1})); }
+    if(!moving){ moving = true; document.body.classList.add('gt-mv'); if(!(sel && sel.blk === blk && sel.type === T)) select(gSel(blk, T, {a:a0, f:a1})); }
     const G = gGeo(blk); if(!G) return;
     const m = $('.main').getBoundingClientRect(), p = axis === 'c' ? ev.clientX - m.left : ev.clientY - m.top;
     const slots = axis === 'c' ? G.colX.map(x => [x.l, x.r]) : G.rowY.map(y => [y.t, y.b]);
@@ -2511,6 +2547,8 @@ $('#wrap').addEventListener('mousedown', e => {
   // Text already in edit mode: a drag selects text (no move). The first click + drag on text still moves the element.
   const ae = document.activeElement, editingThis = !!(s && s.el && ae && ae.isContentEditable && (ae === s.el || ae.contains(s.el) || s.el.contains(ae)));
   if(!s){ clearSel(); return; }
+  // Tables: a click on a cell picks the cell (or what is in it) right away. The whole table comes from its drag handle.
+  if(s.gt){ gDown(e, s); return; }
   if(s.type === 'head'){ e.preventDefault(); if(document.activeElement && document.activeElement.isContentEditable) document.activeElement.blur(); select(s); return; }
   // One click into text (headings, body, chart titles): the caret goes straight in.
   if(s.blk && TEXT_SEL.includes(s.type)){ select(s); if(isAbs(state) && state.pos && !editingThis) armMove(e, s.blk); return; }
@@ -2571,10 +2609,13 @@ function showAff(blk){
   // The handle always stays where you can reach it: outside the top-left corner, else just inside it,
   // else on the right side (when the left edge is under the slide list or off screen). Same rule as the resize handles.
   const mr = $('.main').getBoundingClientRect(), M = 8, GW = 22, GH = 30;
-  let gx = b.x - 28, gy = b.y + 4;
+  // Tables: same place as other elements, a few px further out so it clears the row handles on the left border.
+  const corner = blk.dataset && blk.dataset.grid;
+  let gx = b.x - (corner ? 34 : 28), gy = b.y + 4;
   if(gx < M) gx = b.x + 4 >= M ? b.x + 4 : (b.x + b.w + 6 + GW <= mr.width - M ? b.x + b.w + 6 : M);
   gx = Math.min(gx, mr.width - M - GW);
   gy = Math.max(M, Math.min(gy, Math.min(b.y + b.h, mr.height - M) - GH));
+  if(corner) $('#grab').title = 'Select table. Drag to move'; else $('#grab').removeAttribute('title');
   Object.assign($('#grab').style, {left: gx + 'px', top: gy + 'px'});
   Object.assign($('#addR').style, {left: (b.x + b.w + st0().gap * k / 2) + 'px', top: (b.y + b.h / 2) + 'px'});
   Object.assign($('#addB').style, {left: (b.x + b.w / 2) + 'px', top: (b.y + b.h + st0().gap * k / 2) + 'px'});
@@ -2583,7 +2624,8 @@ function showAff(blk){
 // The selected object (or title block) always shows its drag handle, like Gamma.
 function selAff(){ if(!sel) return; const t = sel.blk && sel.blk.dataset.blk !== 'fw' ? sel.blk : (sel.type === 'title' || sel.part) ? sel.el.closest('.pz-head') : null; if(t && document.contains(t)) showAff(t); }
 const st0 = () => state;
-$('#wrap').addEventListener('mousemove', e => { const b = e.target.closest && e.target.closest('#wrap .pz-blk'); if(b && b !== hb) showAff(b); else if(!b && sel) selAff(); });
+// Hover shows the drag handle on objects and on the title group (title, label, subtitle, button, graphic).
+$('#wrap').addEventListener('mousemove', e => { const b = e.target.closest && (e.target.closest('#wrap .pz-blk') || e.target.closest('#wrap .pz-head')); if(b && b !== hb) showAff(b); else if(!b && sel) selAff(); });
 $('#grab').addEventListener('mouseenter', () => clearTimeout(affT));
 $('#grab').addEventListener('mouseleave', e => { if(!(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('#wrap'))) affLater(); });
 $('#grab').addEventListener('mousedown', e => {
@@ -2601,10 +2643,10 @@ function showGrid(on){
   const sl = $('#wrap .pz-slide'); if(!sl) return;
   const b = boxOf(sl);
   Object.assign(g.style, {left: b.x + 'px', top: b.y + 'px', width: b.w + 'px', height: b.h + 'px', backgroundImage: 'none'});
-  // Dark slides need stronger lines to read as well as they do on white.
-  const dk = document.documentElement.dataset.theme === 'dark', mA = dk ? .34 : .16, cA = dk ? .16 : .06;
-  g.innerHTML = `<div style="position:absolute;left:${MARG.l * k}px;top:${MARG.t * k}px;width:${(MARG.r - MARG.l) * k}px;height:${(MARG.b - MARG.t) * k}px;border:1px dashed rgb(var(--ov) / ${mA});border-radius:2px"></div>`
-    + `<div style="position:absolute;left:${960 * k}px;top:0;width:1px;height:100%;background:rgb(var(--ov) / ${cA})"></div><div style="position:absolute;top:${540 * k}px;left:0;height:1px;width:100%;background:rgb(var(--ov) / ${cA})"></div>`;
+  // Margins (dashed) and centre lines: design-system --pai-border-strong, centre lines at half strength.
+  const L = 'rgb(var(--pai-border-strong) / var(--pai-border-strong-a))', L2 = 'rgb(var(--pai-border-strong) / calc(var(--pai-border-strong-a) * .5))';
+  g.innerHTML = `<div style="position:absolute;left:${MARG.l * k}px;top:${MARG.t * k}px;width:${(MARG.r - MARG.l) * k}px;height:${(MARG.b - MARG.t) * k}px;border:1px dashed ${L};border-radius:2px"></div>`
+    + `<div style="position:absolute;left:${960 * k}px;top:0;width:1px;height:100%;background:${L2}"></div><div style="position:absolute;top:${540 * k}px;left:0;height:1px;width:100%;background:${L2}"></div>`;
   g.classList.add('show');
 }
 // A drag that started in text: leave text editing and drop any text selection.
