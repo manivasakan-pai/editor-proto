@@ -491,6 +491,8 @@ table.gtt{width:100%;table-layout:fixed;align-self:stretch;border-collapse:separ
 .gt-rz{position:absolute;height:11px;margin-top:-5.5px;z-index:2}
 .gt-ins{position:absolute;z-index:3;width:18px;height:18px;border-radius:50%;border:1px solid rgb(var(--line));padding:0;background:rgb(var(--surface));color:rgb(var(--ink-2));display:none;align-items:center;justify-content:center;font-size:10px;transform:translate(-50%,-50%);box-shadow:var(--sh-hairline);cursor:pointer}
 .gt-ins:hover{color:rgb(var(--ink));border-color:rgb(var(--ink-off))}
+/* Invisible hit area around the +, bridging the gap to the border it belongs to, so it stays while the cursor travels to it */
+.gt-ins::before{content:"";position:absolute;inset:-8px -8px -12px -8px}
 .gt-cz:hover + .gt-ins,.gt-rz:hover + .gt-ins,.gt-ins:hover{display:flex}
 .gt-add{position:absolute;z-index:24;width:20px;height:20px;border-radius:5px;border:1px solid rgb(var(--line));background:rgb(var(--surface));color:rgb(var(--ink-2));display:none;align-items:center;justify-content:center;padding:0;font-size:12px;box-shadow:var(--sh-hairline)}
 .gt-add.show{display:flex}
